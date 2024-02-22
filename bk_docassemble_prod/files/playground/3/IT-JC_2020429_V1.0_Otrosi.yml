@@ -1,0 +1,282 @@
+metadata:
+  title: |
+   Entrevista OtroSí
+  short title: |
+    Otrosí
+  description: |
+   Otrosí
+  authors:
+    - name: Julian Cogua
+      organization: juzto.co
+    - name: Juan David Castilla
+      organization: juzto.co
+  create_date: 2020-04-29
+---
+sections:
+  - Contratos
+  - Datos de las partes
+  - Cláusulas
+  - Fecha y ciudad
+---
+features:
+  navigation: True
+  progress bar: True
+  show progress bar percentage: True
+  hide standard menu: False
+  hide navbar: True
+  question back button: True
+---
+include:
+  - docassemble.playground3:autoterms.yml
+---
+modules:
+  - docassemble.playground3.juztoModules
+  - docassemble.playground3.juztoListChoices
+---
+mandatory: True
+code: |
+  multi_user = True
+---
+mandatory: true
+question: |
+  ¿A qué contrato le vas a hacer cambios?
+fields:
+  - no label: contract_type
+    datatype: dropdown
+    choices:
+      - Laboral Indefinido
+      - Laboral término fijo 
+      - Laboral Obra o labor 
+      - Prestación de servicios 
+      - Arrendamiento 
+      - Compraventa 
+      - Compraventa de vehículo 
+      - Mutuo
+      - Suministro 
+      - Mandato 
+      - Agencia.
+      - Corretaje.
+      - Otro
+  - ¿Cuál otro?: other_contract
+    show if:
+      variable: contract_type
+      is: Otro
+section: Contratos
+prevent going back: True
+---
+mandatory: true
+question: |
+  ¿Identifica la primera parte que firmó el contrato?
+fields:
+  - no label: first_party_type
+    input type: radio
+    code: get_list('type')
+section: Datos de las partes
+---
+mandatory: true
+need:
+  - first_party_type
+question: |
+  ¿Cuáles son los datos de la ${first_party_type}?
+fields:
+  - Nombre completo: first_party_name
+    hint: "Nombre(s) y apellido(s)"
+    show if:
+      code: |
+        first_party_type == "Persona"
+  - Tipo de identificación: first_party_type_id
+    input type: dropdown
+    code:  get_list_dni('N')
+    show if:
+      code: |
+        first_party_type == "Persona"
+  - Número de identificación: first_party_id_number
+    hint: dni
+    show if:
+      code: |
+        first_party_type == "Persona"
+  - Nombre completo: first_party_name
+    hint: "Nombre de la compañía SAS"
+    show if:
+      code: |
+        first_party_type == "Empresa"
+  - NIT: first_party_id
+    hint: nit
+    show if:
+      code: |
+        first_party_type == "Empresa"
+  - Nombre representante legal: first_party_legal_rep_name
+    hint: "Nombre(s) y Apellido(s)"
+    show if:
+      code: |
+        first_party_type == "Empresa"
+  - Tipo de identificación: first_party_legal_rep_type_id
+    input type: dropdown
+    code:  get_list_dni('N')
+    show if:
+      code: |
+        first_party_type == "Empresa"
+  - Número de identificación: first_party_legal_rep_id_number
+    hint: dni
+    show if:
+      code: |
+        first_party_type == "Empresa"
+section: Datos de las partes
+---
+mandatory: true
+question: |
+  ¿Identifica la segunda parte que firmó el contrato?
+fields:
+  - no label: second_party_type
+    input type: radio
+    code: get_list('type')
+section: Datos de las partes
+---
+mandatory: true
+need:
+  - second_party_type
+question: |
+  ¿Cuáles son los datos de la ${second_party_type}?
+fields:
+  - Nombre completo: second_party_name
+    hint: "Nombre(s) y Apellido(s)"
+    show if:
+      code: |
+        second_party_type == "Persona"
+  - Tipo de identificación: second_party_type_id
+    input type: dropdown
+    code:  get_list_dni('N')
+    show if:
+      code: |
+        second_party_type == "Persona"
+  - Número de identificación: second_party_id_number
+    hint: dni
+    show if:
+      code: |
+        second_party_type == "Persona"
+  - Nombre: second_party_name
+    show if:
+      code: |
+        second_party_type == "Empresa"
+  - NIT: second_party_id
+    hint: nit
+    show if:
+      code: |
+        second_party_type == "Empresa"
+  - Nombre representante legal: second_party_legal_rep_name
+    hint: "Nombre(s) y Apellido(s)"
+    show if:
+      code: |
+        second_party_type == "Empresa"
+  - Tipo de identificación: second_party_legal_rep_type_id
+    input type: dropdown
+    code:  get_list_dni('N')
+    show if:
+      code: |
+        second_party_type == "Empresa"
+  - Número de identificación: second_party_legal_rep_id_number
+    hint: dni
+    show if:
+      code: |
+        second_party_type == "Empresa"
+section: Datos de las partes
+---
+objects:
+  - clause: DAList.using(object_type=DAObject, complete_attribute='complete', ask_number=True)
+---
+mandatory: True
+code: |
+  clause.gather()
+  #clause.reviewed
+---
+code: |
+  clause[i].clause_number
+  clause[i].agreement
+  clause[i].modification
+  clause[i].complete = True
+---
+need:
+  - second_party_name
+question: |
+ ¿ Cuántas cláusulas deseas modificar ?
+fields:
+  - no label: clause.target_number
+    datatype: integer
+    min: 1
+    max: 3
+section: Cláusulas
+---
+question: |
+  ¿Cuál es el ${ get_ordinal("male", i)} número de cláusula?
+fields:
+  - no label: clause[i].clause_number
+    hint: 'Aclarar el número de la cláusula (primera / primero / uno / 1 )'
+section: Cláusulas
+---
+question: |
+  ¿Qué se pactó en la ${ get_ordinal("male", i) } cláusula?
+fields:
+  - no label: clause[i].agreement
+section: Cláusulas
+---
+question: |
+  ¿Qué quieres hacer con la ${ get_ordinal("male", i) } cláusula?
+fields:
+  - no label: clause[i].modification
+    input type: radio
+    choices:
+      - Modificar: update
+      - Eliminar: delete
+      - Adicionar: create
+  - ¿Qué necesitas modificar / adicionar de la cláusula?: modifier
+    show if:
+      variable: clause[i].modification
+      is: update
+  - ¿Qué necesitas modificar / adicionar de la cláusula?: modifier_add
+    show if:
+      variable: clause[i].modification
+      is: create
+section: Cláusulas
+---
+mandatory: true
+question: |
+  Dinos la fecha en que se firmó el contrato
+fields:
+  - no label: contract_sign_date
+    datatype: date
+section: Fecha y ciudad
+---
+madatory: true
+question: |
+  ¿En qué ciudad y fecha se firmará el otrosí?
+fields:
+  - Ciudad: sign_city
+    input type: dropdown
+    code: get_cities()
+  - Fecha: signing_date
+    datatype: date
+section: Fecha y ciudad
+---
+mandatory: true
+code: |
+  if 'price' in url_args:
+    price = currency(url_args['price'], decimals= False)
+  else:
+    price = '$0'
+  files_saved = save_files(the_document, 'Otrosi', True, user_info().session)
+  juzto_callback = get_callback_final_screen(price, files_saved, 'Otrosi', True)  
+---
+attachment:
+  variable name: the_document
+  docx template file: IT-JC-v1.0-20200429-Otro_si.docx
+---
+event: final_screen
+mandatory: true
+progress: 100
+question: |
+  ${ z_text_final_screen }
+subquestion: |
+  ${ juzto_callback }
+id: juzto_da_final    
+allow emailing: False
+back button: False

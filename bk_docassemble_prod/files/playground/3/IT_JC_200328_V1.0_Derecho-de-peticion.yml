@@ -1,0 +1,379 @@
+metadata:
+  title: |
+   Derecho de petición
+  short title: |
+    Derecho de petición
+  description: |
+   Derecho de petición
+  authors:
+    - name: Felipe Gómez
+      organization: juzto.co
+    - name: Juan David Castilla
+      organization: juzto.co
+---
+sections:
+  - Datos del que genera el derecho de petición
+  - Fechas
+  - Hechos
+  - Solicitudes
+  - Entidad
+  - Información
+  - Documentos
+---
+features:
+  navigation: True
+  progress bar: True
+  show progress bar percentage: True
+  hide standard menu: False
+  hide navbar: True
+  question back button: True
+---
+include:
+  - docassemble.playground3:autoterms.yml
+---
+modules:
+  - docassemble.playground3.juztoModules
+  - docassemble.playground3.juztoListChoices
+---
+mandatory: True
+code: |
+  multi_user = True
+---
+mandatory: true
+question: |
+  ¿Eres persona o empresa?
+fields:
+  - no label: client_type
+    input type: radio
+    code: get_list('type')
+section: Datos del que genera el derecho de petición
+prevent going back: True
+progress: 1
+---
+mandatory: |
+  client_type == "Persona"
+question: |
+  ¿Cuáles son los datos de la persona?
+fields:
+  - Nombres y apellidos completos: complaining_name
+    hint: 'Nombre(s) y apellido(s)'
+  - Tipo de identificación: complaining_type_id
+    input type: dropdown
+    code:  get_list_dni('N')
+  - Número de identificación: complaining_id_number
+    hint: dni
+  - Correo electrónico: complaining_notification_email
+    hint: 'ejemplo@mail.com'
+  - Ciudad: city
+    input type: dropdown
+    code: get_cities()
+  - Dirección: complaining_notification_adress
+    hint: 'Calle 122 # 17 - 29 Oficina 302'
+section: Datos del que genera el derecho de petición 
+---
+mandatory: |
+  client_type == "Empresa"
+question: |
+  ¿Cuáles son los datos de la compañía?
+fields:
+  - Nombre de la compañia: complaining_name
+    hint: 'Razón social'
+  - NIT: complaining_id_number
+    hint: nit
+  - Correo electrónico: complaining_email
+    hint: 'ejemplo@mail.com'
+  - Ciudad: city
+    input type: dropdown
+    code: get_cities()
+  - Dirección: company_adress
+    hint: 'Calle 122 # 17 - 29 Oficina 302'
+  - Nombre del representate legal: legal_representative_name
+    hint: 'Nombre(s) y Apellido(s)'
+  - Tipo de identificación: legal_representative_type_id
+    input type: dropdown
+    code:  get_list_dni('N')
+  - Número de identificación: legal_representative_id_numbre
+    hint: dni
+section: Datos del que genera el derecho de petición 
+---
+mandatory: true
+code: |
+  if client_type == "Empresa":
+    complaining_id_number = generateNit(complaining_id_number)
+---
+mandatory: True
+question: |
+  ¿En qué fecha será presentado este derecho de petición?
+fields:
+  - no label: date_presentation
+    datatype: date
+section: Fechas
+---
+objects:
+  - facts: DAList.using(object_type=DAObject, complete_attribute='complete')
+---
+code: |
+ facts.gather()
+ facts.reviewed
+ final_screen
+---
+code: |
+ facts[i].name
+ facts[i].complete = True
+---
+table: facts.table
+rows: facts
+columns:
+  - Hecho: |
+      row_item.name
+edit:
+  - name
+allow reordering: True
+---
+code: |
+  facts.there_are_any = True
+  facts.there_is_another = False
+---
+question: |
+   ¿Cuéntanos el ${ get_ordinal('male', i) } motivo/hecho por el que presentarás un derecho de petición?
+section: Hechos
+fields:
+  - no label: facts[i].name
+    hint: Suspensión de un servicio
+---
+question: |
+  Estos son los hechos que describiste, por favor verifica, modifica o agrega un nuevo motivo.
+subquestion: |
+  ${ facts.table }
+  ${ facts.add_action() }
+section: Hechos
+continue button field: facts.reviewed
+mandatory: true
+---
+objects:
+  - request: DAList.using(object_type=DAObject, complete_attribute='complete')
+---
+code: |
+ request.gather()
+ request.reviewed
+ final_screen
+---
+code: |
+ request[i].name
+ request[i].complete = True
+---
+table: request.table
+rows: request
+columns:
+  - Solicitud: |
+      row_item.name
+edit:
+  - name
+allow reordering: True
+---
+code: |
+  request.there_are_any = True
+  request.there_is_another = False
+---
+question: |
+   Explica ¿Cuál es la ${ get_ordinal('female', i) } solicitud de este derecho de petición?
+fields:
+  - no label: request[i].name
+    hint: Reconexión inmedita
+section: Solicitudes
+---
+question: |
+  Estás son las solicitudes que escribiste, por favor verifica y agrega otra de ser necesario
+subquestion: |
+  ${ request.table }
+  ${ request.add_action() }
+section: Solicitudes
+continue button field: request.reviewed
+mandatory: true
+---
+mandatory: true
+question: |
+  ¿Qué tipo de identidad es?
+fields: 
+  - no label: entity_type
+    input type: radio
+    choices:
+      - Pública: publica
+      - Privada: privada
+      - No sé: nose
+section: Entidad
+---
+mandatory: |
+  entity_type == "nose"
+question: |
+  ¿Dinos qué servicio presta la entidad?
+fields:
+  - no label: publica
+    input type: dropdown
+    choices:
+      - Servicio público (agua, luz, teléfono, internet, alcantarillado, gas, televisión, celular etc): servicios
+      - Servicio de salud (EPS, IPS, Hospital, Clínica, etc): salud
+      - Servicio pensional (UGPP, Colpesiones, Colfondos, skandia, Protección S.A, Porvenir): pension
+      - Servicios bancarios y/o financieros: financiero
+      - Servicio cajas de compensación: compensacion
+      - Otro: otro
+  - Problema de salud: health_problem
+    input type: dropdown
+    choices:
+      - Entidad niega atención médica
+      - Dificultad para agendar citas médicas
+      - Demora o no entrega de medicamentos
+      - Demora o no entrega de resultados
+      - Suspensión de tratamiento injustificado
+      - Otro 
+    show if:
+      variable: publica
+      is: salud
+  - Cual otro problema de salud: other_health_problem
+    show if: 
+      variable: health_problem
+      is: Otro
+  - Cual otro servicio: other_service
+    show if:
+      variable: publica
+      is: otro
+section: Entidad
+---
+mandatory: |
+  entity_type == "privada"
+question: |
+  ¿Cuál es el nombre de la entidad privada?
+fields:
+  - no label: company_or_entity_name
+section: Entidad
+---
+mandatory: |
+  entity_type == "publica" 
+question: |
+  ¿Cuál es el nombre de la entidad pública?
+fields:
+  - no label: company_or_entity_name
+section: Entidad
+---
+mandatory: |
+  entity_type == "nose" 
+question: |
+  ¿Cuál es el nombre de la entidad?
+fields:
+  - no label: company_or_entity_name
+section: Entidad
+---
+mandatory: True
+question: |
+  ¿De qué manera quieres presentar el derecho de petición? 
+fields:
+  - no label: send_method
+    input type: radio
+    choices:
+      - Dirección y ciudad: address
+      - Correo electrónico: emails
+  - Ciudad de radicación: filing_city
+    input type: dropdown
+    code: get_cities()
+    show if:
+      variable: send_method
+      is: address
+  - Dirección de radicación: filing_address
+    hint: 'Dirección de radicación Cra 1 No 12-3'
+    show if:
+      variable: send_method
+      is: address
+  - no label: email
+    hint: 'ejemplo@mail.com'
+    show if: 
+      variable: send_method
+      is: emails
+section: Información
+---
+objects:
+  - attachments: DAList.using(object_type=DAObject, complete_attribute='complete')
+  - exhibit_cover: DAList
+---
+mandatory: |
+  attachments.there_are_any == True
+code: |
+ attachments.gather()
+ attachments.reviewed
+ final_screen
+---
+code: |
+  attachments[i].title
+  attachments[i].complete = True
+---
+table: attachments.table
+rows: attachments
+columns:
+  - Anexo: alpha(row_index)
+  - Nombre: row_item.title
+edit:
+  - title
+allow reordering: True
+---
+question: |
+  ¿Quieres anexar un documento de soporte a este derecho de petición?
+yesno: attachments.there_are_any
+section: Documentos
+mandatory: True
+---
+mandatory: |
+  attachments.there_are_any == True
+question: |
+  Sube el ${ get_ordinal('male', i) } documento.
+fields:
+  - Nombre del archivo: attachments[i].title
+  - Archivo: attachments[i].file
+    datatype: file
+    accept: |
+      "application/pdf, image/jpeg, image/png"
+    validation messages:
+      accept: Solo puedes subir archivos pdf.
+section: Documentos
+---
+question: |
+  ¿Deseas subir más documentos?
+yesno: attachments.there_is_another
+section: Documentos
+---
+question: |
+  Estos son los documentos que subiste.
+subquestion: |
+  ${ attachments.table }  
+  ${ attachments.add_action() }
+section: Documentos
+continue button field: attachments.reviewed
+---
+code: |
+  file_list = [cover_page.pdf]
+  for indexno in range(len(attachments)):
+    file_list.append(exhibit_cover[indexno].pdf)
+    file_list.append(attachments[indexno].file[0])
+  the_document = pdf_concatenate(file_list)
+---
+mandatory: true
+code: |
+  if 'price' in url_args:
+    price = currency(url_args['price'], decimals= False)
+  else:
+    price = '$0'
+  files_saved = save_files(the_document, 'Derecho de peticion', True, user_info().session)
+  juzto_callback = get_callback_final_screen(price, files_saved, 'Derecho de peticion', True)
+---
+attachment:
+  variable name: the_document
+  docx template file: IT_JC_200328_V1.0_Derecho-de-peticion.docx
+---
+event: final_screen
+mandatory: true
+progress: 100
+question: |
+  ${ z_text_final_screen }
+subquestion: |
+  ${ juzto_callback }
+id: juzto_da_final  
+allow emailing: False
+back button: False

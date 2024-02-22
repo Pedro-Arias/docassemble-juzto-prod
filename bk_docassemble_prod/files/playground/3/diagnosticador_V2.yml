@@ -1,0 +1,496 @@
+metadata:
+  title: |
+   Diagnosticador
+  short title: |
+   Diagnosticador
+  description: |
+   Diagnosticador
+  authors:
+    - name: Giovanny Sarmiento
+      organization: Programador
+    - name: Juan David
+      organization: Reviso
+  revision_date: 2020-09-08
+---
+features:
+  navigation: True
+  progress bar: True
+  show progress bar percentage: True
+  hide standard menu: False
+  hide navbar: True
+  question back button: True
+---
+include:
+  - docassemble.playground3:autoterms.yml
+---
+modules:
+  - docassemble.playground3.juztoModules
+  - docassemble.playground3.juztoListChoices
+---
+mandatory: True
+code: |
+ diagnostic.gather()
+ final_screen
+---
+objects:
+  - diagnostic: DAList.using(object_type=DAObject, complete_attribute='complete',there_is_another = False)
+---
+code: |
+  diagnostic.there_are_any = True
+---
+code: |
+  points = 0
+  questions = 0
+  diagnostic[i].creation_date
+  diagnostic[i].assembly_book
+  if diagnostic[i].assembly_book == True or diagnostic[i].assembly_book == False:
+    questions = questions+1
+  if diagnostic[i].assembly_book == True:
+    points = points+1
+    diagnostic[i].assembly_book_actualization
+    if diagnostic[i].assembly_book_actualization == True or diagnostic[i].assembly_book_actualization == False:
+      questions = questions+1
+    if diagnostic[i].assembly_book_actualization == True:
+      points = points+1
+  if diagnostic[i].creation_date == "Hace más de 1 año" and diagnostic[i].assembly_book == False:
+    diagnostic[i].assembly_book_actualization = False
+  if diagnostic[i].creation_date == "Este año" and diagnostic[i].assembly_book == False:
+    diagnostic[i].assembly_book_actualization = False
+  diagnostic[i].shareholder_book
+  if diagnostic[i].shareholder_book == True or diagnostic[i].shareholder_book == False:
+    questions= questions+1
+  if diagnostic[i].shareholder_book == True:
+   points = points+1
+   diagnostic[i].shareholder_book_actualization
+   if diagnostic[i].shareholder_book_actualization == True:
+     points = points+1
+   if diagnostic[i].shareholder_book_actualization == True or diagnostic[i].shareholder_book_actualization == False:
+     questions= questions+1
+  if diagnostic[i].creation_date == "Hace más de 1 año": 
+    diagnostic[i].ordinary_assembly
+    if diagnostic[i].ordinary_assembly == True or diagnostic[i].ordinary_assembly == False:
+      questions= questions+1
+    if diagnostic[i].ordinary_assembly == True:
+      points = points+1
+    diagnostic[i].commercial_registration
+    if diagnostic[i].commercial_registration == True or diagnostic[i].commercial_registration == False:
+      questions= questions+1
+    if diagnostic[i].commercial_registration == True:
+      points = points+1
+  else: 
+    diagnostic[i].commercial_registration = False
+  diagnostic[i].board_of_directors
+  if diagnostic[i].board_of_directors == True:
+    diagnostic[i].board_of_directors_book
+    if diagnostic[i].board_of_directors_book == True or diagnostic[i].board_of_directors_book == False:
+      questions= questions+1
+    if diagnostic[i].board_of_directors_book == True:
+      points = points+1
+    diagnostic[i].board_of_directors_minute
+    if diagnostic[i].board_of_directors_minute == True or diagnostic[i].board_of_directors_minute == False:
+      questions= questions+1
+    if diagnostic[i].board_of_directors_minute == True:
+      points = points+1
+    diagnostic[i].board_of_directors_members
+    if diagnostic[i].board_of_directors_members == True or diagnostic[i].board_of_directors_members == False:
+      questions = questions+1
+    if diagnostic[i].board_of_directors_members == True:
+      points = points+1
+    diagnostic[i].board_of_directors_alternate
+    if diagnostic[i].board_of_directors_alternate == True or diagnostic[i].board_of_directors_alternate == False:
+      questions = questions+1
+    if diagnostic[i].board_of_directors_alternate == True:
+      points = points+1
+  diagnostic[i].capital_pending
+  if diagnostic[i].capital_pending == True or diagnostic[i].capital_pending == False:
+    questions = questions+1
+  if diagnostic[i].capital_pending == True:
+    points = points+1
+  diagnostic[i].share_deliver
+  if diagnostic[i].share_deliver == True or diagnostic[i].share_deliver == False:
+    questions = questions+1
+  if diagnostic[i].share_deliver == True:
+    points = points+1
+  diagnostic[i].capitalization
+  if diagnostic[i].capitalization == "Sí, y registré la capitalización en la Cámara de Comercio." or diagnostic[i].capitalization == "Sí, pero no registré la capitalización en la Cámara de Comercio.":
+    questions = questions+1
+  if diagnostic[i].capitalization == "Sí, y registré la capitalización en la Cámara de Comercio.":
+    points = points+1
+  diagnostic[i].data_processing_policy
+  if diagnostic[i].data_processing_policy == True or diagnostic[i].data_processing_policy == False:
+    questions = questions+1
+  if diagnostic[i].data_processing_policy == True:
+    points = points+1
+  diagnostic[i].terms_and_Conditions
+  if diagnostic[i].terms_and_Conditions == True or diagnostic[i].terms_and_Conditions == False:
+    questions = questions+1
+  if diagnostic[i].terms_and_Conditions == True:
+    points = points+1
+  diagnostic[i].accountant
+  if diagnostic[i].accountant == True or diagnostic[i].accountant == False:
+    questions = questions+1
+  if diagnostic[i].accountant == True:
+    points = points+1
+  diagnostic[i].contractor
+  if diagnostic[i].contractor == True:
+    diagnostic[i].contractors_contract
+    if diagnostic[i].contractors_contract == True or diagnostic[i].contractors_contract == False:
+      questions = questions+1
+    if diagnostic[i].contractors_contract == True:
+      points = points+1
+  else:
+    diagnostic[i].contractors_contract = False
+  diagnostic[i].electronic_bill
+  if diagnostic[i].electronic_bill == True or diagnostic[i].electronic_bill == False:
+    questions = questions+1
+  if diagnostic[i].electronic_bill == True:
+    points = points+1
+  diagnostic[i].workers
+  if diagnostic[i].workers == True:
+    diagnostic[i].labor_contracts
+    if diagnostic[i].labor_contracts == True or diagnostic[i].labor_contracts == False:
+      questions = questions+1
+    if diagnostic[i].labor_contracts == True:
+      points = points+1
+    diagnostic[i].company_work_regulations
+    if diagnostic[i].company_work_regulations == True or diagnostic[i].company_work_regulations == False:
+      questions = questions+1
+    if diagnostic[i].company_work_regulations == True:
+      points = points+1
+    diagnostic[i].workers_affiliations
+    if diagnostic[i].workers_affiliations == True or diagnostic[i].workers_affiliations == False:
+      questions = questions+1
+    if diagnostic[i].workers_affiliations == True:
+      points = points+1
+  else:
+    diagnostic[i].labor_contracts = False
+    diagnostic[i].company_work_regulations = False
+    diagnostic[i].workers_affiliations = False
+  diagnostic[i].lease
+  if diagnostic[i].lease != "Ninguna de las anteriores":
+    diagnostic[i].lease_contract
+    if diagnostic[i].lease_contract == True or diagnostic[i].lease_contract == False:
+      questions = questions+1
+    if diagnostic[i].lease_contract == True:
+      points = points+1
+    diagnostic[i].ground_certificate
+    if diagnostic[i].ground_certificate == True or diagnostic[i].ground_certificate == False:
+      questions = questions+1
+    if diagnostic[i].ground_certificate == True:
+      points = points+1
+  else:
+    diagnostic[i].lease_contract = False
+    diagnostic[i].ground_certificate = False
+  if diagnostic[i].lease == 'Local comercial' or diagnostic[i].lease == 'Oficina y Local comercial':
+    diagnostic[i].lease_registration
+    if diagnostic[i].lease_registration == True or diagnostic[i].lease_registration == False:
+      questions = questions+1
+    if diagnostic[i].lease_registration == True:
+      points = points+1
+    diagnostic[i].fireman_certificate
+    if diagnostic[i].fireman_certificate == True or diagnostic[i].fireman_certificate == False:
+      questions = questions+1
+    if diagnostic[i].fireman_certificate == True:
+      points = points+1
+  else:
+    diagnostic[i].lease_registration = False
+    diagnostic[i].fireman_certificate = False
+  diagnostic[i].trade_mark
+  if diagnostic[i].trade_mark == True or diagnostic[i].trade_mark == False:
+    questions = questions+1
+  if diagnostic[i].trade_mark == True:
+    points = points+1
+    diagnostic[i].trade_mark_registration
+    if diagnostic[i].trade_mark_registration == True or diagnostic[i].trade_mark_registration == False:
+      questions = questions+1
+    if diagnostic[i].trade_mark_registration == True:
+      points = points+1
+  else:
+    diagnostic[i].trade_mark_registration = False
+  diagnostic[i].litigation
+  if diagnostic[i].litigation == True or diagnostic[i].litigation == False:
+    questions = questions+1
+  if diagnostic[i].litigation == True:
+    diagnostic[i].case
+  else:
+    points = points+1
+  diagnostic[i].complete = True
+  porc = round(points*100/questions)
+  final_screen
+---
+section: soc
+question: |
+  ¿Hace cuánto tiempo creaste la sociedad?
+fields:
+  no label: diagnostic[i].creation_date
+  input type: radio
+  choices:
+    - Este año
+    - Hace más de 1 año
+progress: 1   
+---
+section: soc
+question: |
+  ¿La sociedad tiene el libro de actas de asamblea inscrito en la Cámara de Comercio? 
+yesno: diagnostic[i].assembly_book
+progress: 3
+---
+section: soc
+question: |
+  ¿El libro de actas de asamblea se encuentra actualizado? 
+subquestion: |
+  Para que el libro esté actualizado debe contener todas las actas de las reuniones que ha realizado la asamblea de accionistas.
+yesno: diagnostic[i].assembly_book_actualization
+progress: 7
+---
+section: soc
+question: |
+  ¿La sociedad tiene el libro de registro de accionistas inscrito en la Cámara de Comercio? 
+yesno: diagnostic[i].shareholder_book
+progress: 10
+---
+section: soc
+question: |
+  ¿El libro de registro de accionistas está actualizado? 
+subquestion: |
+  Si tienes inscrito el libro de registro de accionistas, este debe tener todos los cambios que se hayan presentado respecto a las ventas o cesiones de las acciones. 
+yesno: diagnostic[i].shareholder_book_actualization
+progress: 13
+---
+section: soc
+question: |
+  ¿La sociedad ha realizado 1 vez por año la Asamblea Ordinaria de Accionistas y tienes las actas? 
+subquestion: |
+  Recuerda que esta reunión es la que se realiza a inicio de año, con fecha máxima del 31 de marzo y en esta se tratan temas como: Revisión del informe de gerencia, Revisión y aprobación de los Estados Financieros, entre otros.
+yesno: diagnostic[i].ordinary_assembly
+progress: 16
+---
+section: soc
+question: |
+  ¿La sociedad realizó la renovación de la cámara de comercio? 
+yesno: diagnostic[i].commercial_registration
+progress: 20 
+---
+section: director
+question: |
+  ¿La sociedad tiene Junta Directiva? 
+yesno: diagnostic[i].board_of_directors
+progress: 23
+---
+section: director
+question: |
+  ¿La sociedad tiene el libro de actas de la Junta Directiva?
+yesno: diagnostic[i].board_of_directors_book
+progress: 26
+---
+section: director
+if board_of_directors == True:
+question: |
+  ¿La sociedad tiene todas las actas que reflejan las reuniones de la Junta Directiva?
+yesno: diagnostic[i].board_of_directors_minute
+progress: 29
+---
+section: director
+question: |
+  ¿Están nombrados todos los miembros principales?
+yesno: diagnostic[i].board_of_directors_members
+progress: 32
+---
+section: director
+question: |
+  ¿Los miembros principales de la Junta Directiva tienen nombrados a sus suplentes?
+yesno: diagnostic[i].board_of_directors_alternate
+progress: 35
+---
+section: director
+question: |
+  ¿Los miembros principales de la Junta Directiva tienen nombrados a sus suplentes?
+yesno: diagnostic[i].board_of_directors_alternate
+progress: 38
+---
+section: capital
+question: |
+  ¿Está pagado la totalidad del capital de la sociedad?
+subquestion: |
+  Revisa el certificado de existencia y representación legal(Cámara de Comercio). La diferencia entre el capital suscrito y pagado es el valor pendiente a pagar.
+yesno: diagnostic[i].capital_pending
+progress: 41
+---
+section: capital
+question: |
+  ¿Se le entregó el título accionario a cada accionista?
+subquestion: |
+  El título accionario son las acciones de propiedad de cada accionista.
+yesno: diagnostic[i].share_deliver
+progress: 44
+---
+section: capital
+question: |
+  ¿Has realizado capitalizaciones?
+fields:
+  - no label: diagnostic[i].capitalization
+    input type: radio
+    choices:
+      - Sí, y registré la capitalización en la Cámara de Comercio.
+      - Sí, pero no registré la capitalización en la Cámara de Comercio.
+      - No.
+progress: 47      
+---
+section: operacion 
+question: |
+  ¿La sociedad tiene política de tratamiento de datos?
+yesno: diagnostic[i].data_processing_policy
+progress: 50
+---
+section: operacion 
+question: |
+ ¿La sociedad tiene términos y condiciones?
+yesno: diagnostic[i].terms_and_Conditions
+progress: 53
+---
+section: operacion 
+question: |
+ ¿La sociedad tiene la contabilidad al día?
+yesno: diagnostic[i].accountant
+progress: 56
+---
+section: operacion 
+question: |
+ ¿La sociedad tiene contratistas?
+subquestion: |
+  Los contratistas son las personas que prestan un servicio pero no son trabajadores.
+yesno: diagnostic[i].contractor
+progress: 60
+---
+section: operacion 
+question: |
+  ¿La sociedad tiene firmados todos los contratos de los contratistas?
+yesno: diagnostic[i].contractors_contract
+progress: 63
+---
+section: operacion 
+question: |
+  ¿La sociedad factura de forma electrónica?
+subquestion: |
+  De conformidad con la Resolución 042 de 2020, las empresas deben empezar a facturar electrónicamente según los plazos establecidos en esa norma.
+yesno: diagnostic[i].electronic_bill
+progress: 66
+---
+section: trabajadores
+question: |
+  ¿La sociedad tiene trabajadores contratados?
+subquestion: |
+  Aquí solo se tienen en cuenta a las personas que hacen parte de la nómina de la empresa.
+yesno: diagnostic[i].workers
+progress: 69
+---
+section: trabajadores
+question: |
+  ¿Se firmaron todos los contratos laborales?
+yesno: diagnostic[i].labor_contracts
+progress: 72
+---
+section: trabajadores
+question: |
+  ¿La sociedad tiene Reglamento Interno de Trabajo y se encuentra publicado?
+yesno: diagnostic[i].company_work_regulations
+progress: 75
+---
+section: trabajadores
+question: |
+  ¿Los trabajadores están afiliados a Salud, Pensiones, ARL y Caja de Compensación?
+yesno: diagnostic[i].workers_affiliations
+progress: 78
+---
+section: arriendos
+question: |
+  ¿La sociedad tiene arrendado alguno de los siguientes espacios?
+fields:
+  -  no label: diagnostic[i].lease
+     input type: radio
+     choices:
+       - Local comercial
+       - Oficina
+       - Oficina y Local comercial
+       - Ninguna de las anteriores
+progress: 80       
+---
+section: arriendos
+question: |
+  ¿Tienes firmado el contrato de arrendamiento?
+yesno: diagnostic[i].lease_contract
+progress: 83
+---
+section: arriendos
+question: |
+  ¿Tienes registrado el local comercial en la Cámara de Comercio?
+yesno: diagnostic[i].lease_registration
+progress: 86
+---
+section: arriendos
+question: |
+  ¿El local comercial tiene certificado de bomberos?
+yesno: diagnostic[i].fireman_certificate
+progress: 89
+---
+section: arriendos
+question: |
+  ¿Tienes el certificado de uso de suelo?
+subquestion: |
+  Este certificado te permite saber si donde tienes la oficina o el local, esta permitido o no desarrollar esa actividad. Por ejemplo, hay inmuebles donde no está permitido prestar servicios de salud, y por lo tanto no podrías poner un consultorio en ese inmueble.
+yesno: diagnostic[i].ground_certificate
+progress: 92
+---
+section: marca
+question: |
+  ¿La sociedad tiene marca o algún logo distintivo?
+subquestion: |
+  La marca o el logo distintivo permite que las personas identifiquen a tu empresa.
+yesno: diagnostic[i].trade_mark
+progress: 95
+---
+section: marca
+question: |
+  ¿La marca está registrada?
+subquestion: |
+  Las marcas se deben registrar en la Superintendencia de Industria y Comercio.
+yesno: diagnostic[i].trade_mark_registration
+progress: 98
+---
+section: procesos
+question: |
+  ¿Actualmente la sociedad tiene procesos en contra?
+yesno: diagnostic[i].litigation
+progress: 99
+---
+section: procesos
+question: |
+  Selecciona uno o varias de las siguientes opciones
+fields:
+  - no label: diagnostic[i].case
+    datatype: checkboxes
+    none of the above: False
+    choices:
+      - Proceso ante Jueces
+      - Proceso ante Tribunales de Arbitramento
+      - Reclamaciones ante la Superintendencia de Industria y Comercio (SIC)
+      - Procesos administrativos ante Alcaldías locales, Superintendencias u otra autoridad
+progress: 99      
+---
+code: |
+  count = len(diagnostic.true_values())
+---
+code: |
+  save_diagnose = save_specific_file(the_document, 'Diagnóstico', user_info().session, 'pdf')
+---
+attachment:
+  variable name: the_document
+  docx template file: Diagnosticador_28Nov.docx
+---
+event: final_screen
+progress: 100
+question: |
+  <script>jQuery('.da-page-header').prop('style', 'width: 140% !important');</script><div class="row"><div class="col-md-12 text-center"><img src="https://doc.juzto.co/playgroundstatic/default/3/undraw_Business_plan_re_0v81.png" class="img-responsive" width="60%"/><hr><h3>El diagnóstico arroja un puntaje de: ${points}/${questions}</h2><p>En el siguiente enlace puedes descargar tú diagnóstico completo</p><a class="btn btn-block btn-primary btn-large" href="https://juzto.s3.amazonaws.com/${save_diagnose}" target="_blank">DESCARGAR PDF</a><hr><p>Queremos darte una herramienta para que puedas lanzarte con conocimiento a la creación y operación de tu compañía.</p><a class="btn btn-block btn-primary btn-large" href="https://juzto.s3.us-east-1.amazonaws.com/documentos/recursos/CartillaJuzto_VAG.pdf" target="_blank" download>DESCARGAR CARTILLA</a></div></div>
+mandatory: True
+back button: False
+allow emailing: False 

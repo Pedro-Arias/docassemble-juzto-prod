@@ -1,0 +1,395 @@
+metadata:
+  title: |
+    Carta de Recomendación
+  short title: |
+    Carta de Recomendación
+  description: |
+    Carta de Recomendacion
+  authors:
+    - name: Giovanny Sarmiento
+      organization: DocumentosLegales.co
+    - name: Juan David Castilla
+      organization: DocumentosLegales.co
+---
+features:
+  navigation: True
+  progress bar: True
+  show progress bar percentage: True
+  hide standard menu: False
+  hide navbar: True
+  question back button: True
+---
+default screen parts:
+  under: |
+    % if show_save_resume_message:
+    [Guardar y terminar después](${ url_action('save_and_resume') })
+    % endif
+    [Volver a comenzar](${ url_action('restart_interview') })    
+---
+event: restart_interview
+code: |
+  force_ask('wants_to_restart', {'recompute': ['restart_done']})
+---
+question: |
+  ¿Estás seguro de querer reiniciar tu ${ all_variables(special='titles')['full'] }?
+subquestion: |
+  La información que ya hallas ingresado se perdera, tendras que volver a ingresar todas las respuestas.
+field: wants_to_restart
+buttons:
+  - Si, eliminar datos ingresados: True
+back button label: No gracias, continuar mi documento
+under: ""
+---
+code: |
+  if wants_to_restart:
+    command('restart')
+  restart_done = True
+---
+include:
+  - docassemble.playground3:autoterms.yml
+---
+modules:
+  - docassemble.playground3.juztoModules
+  - docassemble.playground3.juztoListChoices
+---
+initial: True
+code: |
+  multi_user = True
+  show_save_resume_message = True
+  the_sections = [{'intro':'Introducción'}]
+  the_sections.append({'data_refer':'Datos del recomendado'})
+  the_sections.append({'data_recom':'Datos de quien recomienda'})
+  the_sections.append({'signat':'Firma del documento'})
+  the_sections.append({'confirmation':'Confirmación de los datos'})
+  nav.set_sections(the_sections)
+---
+mandatory: True
+scan for variables: False
+code: |
+  if target == 'save_and_resume':
+    if email_sent:
+      log("En contados minutos llegará el correo electrónico.", "info")
+    else:
+      log("Estamos presentando problemas, intentalo mas tarde.", "danger")
+    show_save_resume_message = True
+    email_sent = False
+    undefine('email_sent')
+    target = 'normal'
+  intro_page
+  terms_page
+  recomen.name
+  subject_id_type
+  subject_id_number
+  alongetime
+  recommender.name
+  recommender_id_type
+  recommender_id_number
+  email
+  mobile
+  number_time
+  city
+  date_presentation
+  sign_method
+  do_sign
+  if do_sign == True:
+    sign_method
+    sign_file
+  else:
+    do_sign = False
+  answers_reviewed  
+  final_screen           
+---
+event: data_refer
+section: data_refer
+question: |
+  Datos del recomendado.
+review:
+  - Editar: recomen.name
+    button: |
+      **Nombre(s) y Apellido(s):** ${title_case(str(recomen.name).lower())} [BR]
+      **No. de identificación:** ${subject_id_type}. ${subject_id_number} [BR]
+  - Editar: number_time
+    button: |
+      **Tiempo de duración :** ${number_time} ${alongetime.lower()}
+under: ""     
+---
+event: data_recom
+section: data_recom
+question: |
+  Datos de quien recomienda
+review:
+  - Editar: email
+    button: |
+      **Nombre(s) y Apellido(s) :** ${title_case(str(recommender.name).lower())} [BR]
+      **No. de identificación:** ${recommender_id_type}. ${recommender_id_number} [BR]
+      **Email:** ${email} [BR]
+      **Teléfono:** ${mobile}
+under: ""      
+---
+event: signat
+section: signat
+question: |
+  Firma del documento
+review:
+  - label: Editar
+    fields:
+      - do_sign
+      - follow up:
+        - sign_file
+    button: |
+      **Ciudad: ** ${city} [BR]
+      **Fecha: ** ${date_presentation} [BR]
+  - Editar: number_time
+    button: |    
+      % if do_sign == False:
+      Haz contestado que no deseas firmar el documento
+      % else: 
+      **Firma:** [BR]
+      ${sign_file}
+      % endif
+under: ""      
+---
+secction: intro
+question: |
+  Ahora empezaremos a crear tu carta recomendación laboral. 
+subquestion: |
+  Esta carta es una opinión acerca de las cualidades o habilidades de una persona que trabajó para una compañía o bajo el mando de un jefe. Estas cartas suelen ser hechas y firmadas a titulo personal por una persona que trabaja en la compañía y que conoció a quién pide la carta.[BR][BR]
+  Para tu  tranquilidad, este es un documento de gran calidad, preparado por abogados expertos. Pasos por seguir:[BR][BR]
+    1.	Responde todas las preguntas que te haremos. Estas preguntas han sido preparadas por abogados con mucha experiencia en este tipo de documentos. [BR]
+        Cada respuesta cambia el contenido del documento y lo ajusta a tu caso concreto. [BR][BR]
+    2.	Queremos que lo entiendas todo. En cada pregunta encontrarás explicaciones hechas por nuestros abogados.[BR]
+        Las palabras complicadas estarán subrayadas en azul y en un color diferente, también podrán llevar      un signo de interrogación. Haz clic sobre la palabra o el signo de interrogación para leer la explicación. [BR][BR]
+    3.	Al terminar      tendrás un documento hecho especialmente para ti, construido con base en tus respuestas. Además podrás comprender todos los conceptos del documento con claridad. Entenderás lo que vas a firmar.[BR][BR]
+  Si tienes alguna duda adicional puedes <a href="https://juzto.co/asesoria-legal/consulta-abogado/" target="_blank" class="linkjzda">programar una cita con uno de nuestros abogados</a>.[BR][BR]
+  Gracias por elegir Juzto, empecemos.
+continue button field: intro_page
+continue button label: Siguiente
+prevent going back: True
+under: ""
+progress: 1
+---
+section: intro
+question: |
+  Para tu carta de recomendación debes tener lista la siguiente información:
+subquestion: | 
+  -	Nombre completo e identificación de quien pide la carta de recomendación.
+  -	Nombre completo e identificación del antiguo empleador.
+  -	Nombre completo e identificación de quién firma la carta.
+fields:
+  - no label: agrees_to_terms
+    datatype: checkboxes
+    default: "Acepto <a href='https://juzto.co/politica-tratamiento-datos/' target='_blank' class='linkjzdadark'>el tratamiento de los datos personales</a>."
+    minlength: 1
+    choices:
+       - "Acepto <a href='https://juzto.co/politica-tratamiento-datos/' target='_blank' class='linkjzdadark'>el tratamiento de los datos personales</a>."
+    validation messages:
+      minlength: |
+        Debes aceptar el tratamiento de los datos personales para pode continuar.  
+continue button field: terms_page
+continue button label: Empezar
+prevent going back: True
+under: ""
+progress: 1
+---
+objects:
+  - recomen: Individual
+---
+section: data_refer
+question: |
+  Datos del recomendado
+fields: 
+  - Nombre(s): recomen.name.first
+    hint: "Nombre(s) completos"
+  - Apellido(s): recomen.name.last
+    hint: "Apellido(s) completos"
+  - Tipo de documento: subject_id_type
+    datatype: dropdown
+    code: get_list_dni('N')
+  - Número de documento: subject_id_number
+    hint: dni
+progress: 30
+---
+section: data_refer
+need: recomen.name
+question: |
+  ¿Hace cuánto conoces a ${ title_case(str(recomen.name).lower()) }?
+fields:
+  - no label: alongetime
+    datatype: radio
+    code: get_list('period')
+  - no label: number_time
+    hint: Cantidad de timepo de conocerlo
+    datatype: integer
+    min: 1
+progress: 60
+---
+objects:
+  - recommender : Individual
+---
+section: data_recom
+question: |
+  Datos de quien recomienda
+fields:
+  - Nombre(s): recommender.name.first
+    hint: "Nombre(s) completos"
+  - Apellido(s): recommender.name.last
+    hint: "Apellido(s) completos"
+  - Tipo de documento: recommender_id_type
+    datatype: dropdown
+    code: get_list_dni('N')
+  - Número de documento: recommender_id_number
+    hint: dni
+  - Correo electrónico: email
+    datatype: email
+    hint: "correo@mail.com"
+  - Número de celular: mobile
+    minlength: 10
+    maxlength: 13
+    datatype: integer
+    hint: 3001234567
+progress: 80
+---
+section: signat
+question: |
+  Ciudad y fecha de firma 
+fields:
+  - Ciudad: city
+    required: false
+    datatype: dropdown
+    code: get_cities()
+  - Fecha: date_presentation
+    datatype: date
+progress: 90    
+---
+section: signat
+question: |
+  ¿Quieres firmar está carta?
+fields:
+    - no label: do_sign
+      datatype: yesnoradio
+    - ¿Cómo deseas firmar?: sign_method
+      input type: radio
+      choices:
+       - Subir imagen: sign_upload
+       - Hacer la firma: sign_screen
+      show if:
+       variable: do_sign
+       is: True       
+progress: 94
+---
+section: signat
+if: do_sign == True and sign_method == 'sign_upload'
+question: |
+  Haz la Firma 
+fields:
+  - no label: sign_file
+    datatype: file
+progress: 97
+---
+if: do_sign == True and sign_method == 'sign_screen'
+question: |
+  Haz la Firma  
+signature: sign_file
+under: |
+  ${}
+progress: 98
+---
+code: |
+  if do_sign == False:
+    sign_method = ""
+---
+section: confirmation
+question: |
+  Aquí puedes revisar y corregir tus respuestas.
+review:
+  - note: |  
+      ###Datos del recomendado.
+  - Editar: subject_id_number
+    button: |
+      **Nombre(s) y Apellido(s):** ${title_case(str(recomen.name).lower())} [BR]
+      **No. de identificación:** ${subject_id_type}. ${subject_id_number} [BR]
+  - Editar: number_time
+    button: |
+      **Tiempo de conocer a ${title_case(str(recomen.name).lower())} :** ${number_time} ${alongetime.lower()}    
+  - note: |
+     ***********   
+     ###Datos de quien recomienda.
+  - Editar: email
+    button: |
+      **Nombre(s) y Apellido(s) :** ${title_case(str(recommender.name).lower())} [BR]
+      **No. de identificación:** ${recommender_id_type}. ${recommender_id_number} [BR]
+      **Email:** ${email} [BR]
+      **Teléfono:** ${mobile}  
+  - note: |
+     ***********      
+     ###Firma del documento
+  - label: Editar
+    fields:
+      - do_sign
+      - follow up:
+        - sign_file
+    button: |
+      **Ciudad: ** ${city} [BR]
+      **Fecha: ** ${date_presentation} [BR]
+      % if do_sign == False:
+      Haz contestado que no deseas firmar el documento
+      % else: 
+      **Firma:** [BR]
+      ${sign_file}
+      % endif
+  - note: |
+      ***********
+continue button field: answers_reviewed
+progress: 99          
+---
+code: |
+  if 'price' in url_args:
+    priceDoc = currency(url_args['price'], decimals= False)
+  else:
+    priceDoc = '$0'
+  files_saved = save_files(the_document, 'carta de recomendacion', True, user_info().session)
+  juzto_callback = get_callback_final_screen(priceDoc, files_saved, 'carta de recomendacion', True)
+---
+reconsider: the_document 
+mandatory: True
+progress: 100
+event: final_screen
+question: |
+  ${ z_text_final_screen }
+subquestion: |
+  ${ juzto_callback }
+allow emailing: False
+back button: False
+---
+attachment:
+  variable name: the_document
+  docx template file: LT_EA_200617_V2.0_Recomendacion_Laboral.docx
+---
+event: save_and_resume
+code: |
+  target = 'save_and_resume'
+  force_ask('user_email_address')
+---
+code: |  
+  if 'url' in url_args:
+    _url = url_args['url']+'?i='+encode_name(user_info().filename)+'&session='+encode_name(user_info().session)
+  else:
+    _url = interview_url()
+  data = {'interview': all_variables(special='titles')['full'], 'url':_url}
+  send_email_juzto(data, user_email_address, 'leave')
+  email_sent = True
+---
+question: |
+  Podrás terminar luego tu ${ all_variables(special='titles')['full'] }
+subquestion: |
+  Si deseas reanudar tu documento más tarde, podemos enviarte por correo electrónico un enlace en el que puedes hacer clic para reanudar tu documento en un momento posterior.
+fields:
+  - Correo electrónico: user_email_address
+    datatype: email
+continue button label: Enviar correo
+back button label: No gracias, continuar mi documento
+under: ""
+---
+code: |
+  target = 'normal'  
+--- 

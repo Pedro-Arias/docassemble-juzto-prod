@@ -1,0 +1,137 @@
+metadata:
+  title: |
+   poder_abogado
+  short title: |
+    poder
+  description: |
+   Actualización del poder para casos fotomulta que tienen AU
+  authors:
+    - name: Felipe Gómez
+      organization: Juzto.co
+    - name: Juan David Castilla
+      organization: Juzto.co
+---
+features:
+  navigation: True
+  progress bar: True
+  show progress bar percentage: True
+  hide standard menu: False
+  hide navbar: True
+  question back button: True
+---
+include:
+  - docassemble.playground3:autoterms.yml
+---
+modules:
+  - docassemble.playground3.juztoModules
+  - docassemble.playground3.juztoListChoices
+---
+initial: True
+code: |
+  fotomulta_number
+  company_or_entity_name
+  client_type
+  if client_type == "Persona Natural":
+    complaining_died
+    if complaining_died == False:
+      natural.name
+      complaining_type_id
+      complaining_id_number
+    else:
+      natural.name
+      complaining_type_id
+      complaining_id_number
+      complaining_representative_name
+      complaining_type_representative_id
+      complaining_representative_id_number
+  else:
+    legal.name
+    complaining_id_number_sociedad
+    legal_representative_type_id
+    legal_representative_name
+    legal_representative_id_number = get_dni_formated(legal_representative_id_number)
+  Signature ="{{signature:0}}"
+  final_screen
+---
+objects:
+  - natural: Individual
+  - legal: Individual
+---
+question: |
+  ¿El cliente es persona o empresa?
+fields:
+  - no label: client_type
+    input type: radio
+    code: get_list('type_j')
+---
+question: |
+  El propietario Falleció
+yesno: complaining_died
+---
+question: |
+  ¿Quién va a representar al propietario del vehículo?
+fields:
+  - Nombres y apellidos: complaining_representative_name
+    hint: Nombre y apellido
+  - Tipo de identificación: complaining_type_representative_id
+    input type: dropdown
+    code:  get_list_dni('N')
+  - Número de identificación: complaining_representative_id_number
+    hint: dni
+id: blockglobal
+---
+question: |
+  ¿Cuáles son los datos de la persona?
+fields:
+  - Nombres: natural.name.first
+    hint: Nombres
+  - Apellidos: natural.name.last
+    hint: Apellidos
+  - Tipo de identificación: complaining_type_id
+    input type: dropdown
+    code:  get_list_dni('N')
+  - Número de identificación: complaining_id_number
+    #hint: dni
+id: blockglobal
+---
+question: |
+  ¿Cuáles son los datos de la compañía?
+fields:
+  - Nombre de la compañia: legal.name.first
+  - NIT: complaining_id_number_sociedad
+    hint: nit
+  - Nombre del representate legal: legal_representative_name
+  - Tipo de identificación: legal_representative_type_id
+    input type: dropdown
+    code:  get_list_dni('N')
+  - Número de identificación: legal_representative_id_number
+    #hint: dni
+id: blockglobal
+---
+question: |
+  ¿Cuáles son los datos de la entidad?
+fields:
+  - nombre: company_or_entity_name
+    datatype: dropdown
+    code: get_list('entidades')
+---
+question: |
+  ¿Cuál es el número del comparendo? 
+fields:
+  - no label: fotomulta_number   
+---
+attachment:
+  variable name: the_document
+  docx template file: IT_LP_211125_V.3.0_Poder.docx
+---
+code: |
+  files_saved = save_files(the_document, 'Poder_Comparendo', True, user_info().session)
+  juzto_callback = get_callback_final_screen('0', files_saved, 'Poder_Comparendo', True)
+---
+event: final_screen
+question: |
+  ${ z_text_final_screen } - COD: ${user_info().session}
+subquestion: |
+  ${ juzto_callback }
+id: juzto_da_final
+---

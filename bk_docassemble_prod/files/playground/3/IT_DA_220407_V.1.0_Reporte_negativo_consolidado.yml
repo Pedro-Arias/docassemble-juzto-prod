@@ -1,0 +1,172 @@
+metadata:
+  title: |
+   IT_DA_220407_V.1.0_Reporte_negativo_consolidado
+  short title: |
+    Reporte negativo
+  description: |
+    Reporte negativo en datacrédito
+  authors:
+    - name: Laura Pardo
+      organization: Juzto.co
+    - name: Dario Agaton
+      organization: Juzto.co
+---
+features:
+  navigation: True
+  progress bar: True
+  show progress bar percentage: True
+  hide standard menu: False
+  hide navbar: True
+  question back button: True
+---
+include:
+  - docassemble.playground3:autoterms.yml
+---
+modules:
+  - docassemble.playground3.juztoModules
+  - docassemble.playground3.juztoListChoices
+---
+initial: True
+code: |
+  Signature ='{{Signature:Recipient1*}}'
+  case_number
+  client_type
+  diference_date = 0
+  if client_type == "Persona Natural":
+    natural.name
+    complaining_type_id
+    complaining_id_number
+    complaining_id_number = get_dni_formated(complaining_id_number)
+  else:
+    legal.name
+    complaining_id_number = generateNit(complaining_id_number)
+    legal_representative_type_id
+    legal_representative_name
+    legal_representative_id_number = get_dni_formated(legal_representative_id_number)
+  company_or_entity_name
+  email
+  email2
+  email3
+  email4
+  ouremail = 'entidades+'+case_number+'@juzto.co'
+  prev_relation
+  prev_authorization
+  overdue_payment
+  advance_notice
+  if advance_notice == "si":
+    notification_date
+    report_date
+    diference_date = date_difference(starting=notification_date, ending=report_date)
+  else:
+    final_screen
+  notification_date
+  report_date
+  final_screen
+---
+objects:
+  - natural: Individual
+  - legal: Individual
+---
+question: |
+  ¿Quién fue reportado negativamente?
+fields:
+  - no label: client_type
+    input type: radio
+    code: get_list('type_j')
+progress: 1
+---
+question: |
+  ¿Cuáles son los datos de la persona?
+fields:
+  - Nombres: natural.name.first
+    hint: Nombres
+  - Apellidos: natural.name.last
+    hint: Apellidos
+  - Tipo de identificación: complaining_type_id
+    input type: dropdown
+    code:  get_list_dni('N')
+  - Número de identificación: complaining_id_number
+    hint: dni
+id: blockglobal
+---
+question: |
+  ¿Cuáles son los datos de la compañía?
+fields:
+  - Nombre de la compañia: legal.name.first
+  - NIT: complaining_id_number
+    #hint: nit
+  - Nombre del representate legal: legal_representative_name
+  - Tipo de identificación: legal_representative_type_id
+    input type: dropdown
+    code:  get_list_dni('N')
+  - Número de identificación: legal_representative_id_number
+    #hint: dni
+---
+question: |
+  ¿Cuál es la línea de defensa a la que corresponde este documento? Ejemplo: LD-780
+fields:
+  - no label: case_number
+---
+question: |
+  ¿Cuáles son los datos de la entidad que te reportó negativamente?
+subquestion: |
+  La entidad o empresa que te reportó es aquella que te mencionó que tienes una obligación pendiente, NO es una central de riesgo (NO es Datacrédito).
+fields:
+  - nombre: company_or_entity_name
+    hint: datacredito
+  - email: email
+    datatype: email
+  - email: email2
+    datatype: email
+  - email: email3
+    datatype: email
+  - email: email4
+    datatype: email
+---
+question: |
+  ¿Tienes alguna relación con la empresa que te reportó negativamente?
+yesno: prev_relation
+---
+question: |
+  ¿Firmaste una autorización para que te reportaran negativamente?
+yesno: prev_authorization
+---
+question: |
+  ¿Incumpliste algún pago con la empresa?
+yesno: overdue_payment
+---
+question: |
+  ¿Te avisaron que te iban a reportar negativamente?
+subquestion: |
+  Según la Ley 1266 de 2008 la empresa que te reporta negativamente debe enviarte un aviso informando que te van a reportar).
+fields:
+  - no label: advance_notice
+    input type: radio
+    choices:
+      - Fuí notificado y tengo las fechas de notificación: si
+      - Fuí notificado pero no tengo las fechas de notificación: sino
+      - No fuí notificado: no
+---
+question: |
+  ¿Te avisaron que te iban a reportar negativamente?
+fields:
+  - ¿En qué fecha te enviaron el aviso?: notification_date
+    datatype: date
+  - ¿En qué fecha te reportaron negativamente?: report_date
+    datatype: date
+---
+attachment:
+  variable name: the_document
+  docx template file: IT_DA_220407_V.1.0_Reporte_negativo_consolidado.docx
+---
+code: |
+  files_saved = save_files(the_document, 'Reporte_negativo_consolidado', True, user_info().session)
+  juzto_callback = get_callback_final_screen('0', files_saved, 'Reporte_negativo_consolidado', True)
+---
+event: final_screen
+question: |
+  ${ z_text_final_screen } - COD: ${user_info().session}
+subquestion: |
+  ${ juzto_callback }
+id: juzto_da_final
+---

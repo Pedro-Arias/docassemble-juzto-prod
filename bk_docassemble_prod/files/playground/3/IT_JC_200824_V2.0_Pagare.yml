@@ -1,0 +1,1434 @@
+ metadata:
+  title: |
+   Pagaré
+  short title: |
+   Pagaré
+  description: |
+   Pagaré
+  authors:
+    - name: Julian Morera
+      organization: juzto.co
+    - name: Juan David Castilla
+      organization: juzto.co
+---
+auto terms:
+  deudor(a): |
+    Es la persona que debe dinero y está obligado a pagar la deuda.
+  Deudor(a) solidario(a): |
+    Es la persona que asegura el pago del dinero. El(la) acreedor(a) puede solicitar el pago al(la) deudor(a) solidario(a) o al(la) deudor(a) original.
+  acreedor(a): |
+    Es la persona a la que se le debe pagar el dinero.
+  Intereses corrientes: |
+    Son la ganancia que tiene el acreedor(a) por prestar el dinero.
+  Plazo: |
+    Es el tiempo máximo que tiene el deudor para pagar.
+  Intereses de mora: |
+    Es un dinero que se le cobra al deudor, por no pagar dentro del tiempo acordado.
+  Tasa de interés: |
+    Es el porcentaje de la deuda que debo pagar por usar el dinero. Por ejemplo a Pepe le prestan 1.000.000 con una tasa de interés del 10% anual, por lo cuál en cada cuota deberá pagar el 0.83% de lo que debe al momento de pagar la cuota
+  Garantías: |
+    Es una forma de asegurar el pago de la deuda.
+---
+features:
+  navigation: True
+  progress bar: True
+  show progress bar percentage: True
+  hide standard menu: False
+  hide navbar: True
+  question back button: True
+---
+default screen parts:
+  under: |
+    % if show_save_resume_message:
+    [Guardar y terminar después](${ url_action('save_and_resume') })
+    % endif
+    [Volver a comenzar](${ url_action('restart_interview') })    
+---
+event: restart_interview
+code: |
+  force_ask('wants_to_restart', {'recompute': ['restart_done']})
+---
+question: |
+  ¿Estás seguro de querer reiniciar tu ${ all_variables(special='titles')['full'] }?
+subquestion: |
+  La información que ya hallas ingresado se perdera, tendras que volver a ingresar todas las respuestas.
+field: wants_to_restart
+buttons:
+  - Si, eliminar datos ingresados: True
+back button label: No gracias, continuar mi documento
+under: ""
+---
+code: |
+  if wants_to_restart:
+    command('restart')
+  restart_done = True
+---
+include:
+  - docassemble.playground3:autoterms.yml
+---
+modules:
+  - docassemble.playground3.juztoModules
+  - docassemble.playground3.juztoListChoices
+---
+initial: True
+code: |
+  multi_user = True
+  show_save_resume_message = True
+  the_sections = [{'intro':'Introducción'},{'motive':'Motivo y valor del pagaré'},
+  {'debitor_info':'Información del deudor','subsections':[{'solidarity_debitor_review':'Información del deudor solidario'}]},
+  {'creditor_info':'Información del Acreedor'},{'deadline_payment':'Plazos del pagaré'},
+  {'fees':'Cuotas'},{'current_interests':'Intereses corrientes'},{'interest_arrears':'Intereses de mora'},
+  {'methods_pay':'Forma de pago'},{'warrantys':'Garantías'},
+  {'sign_city':'Ciudad y fecha de firma'},{'confirmation':'Confirmación de los datos'}]
+  nav.set_sections(the_sections)
+---
+mandatory: True
+scan for variables: False
+code: |
+  if target == 'save_and_resume':
+    if wants_email:
+      show_save_resume_message = False
+    undefine('wants_email')
+    undefine('email_sent')
+    target = 'normal'
+  agrees_to_terms
+  note_reason
+  debitor_type
+  if solidarity_debitor.there_are_any == True:
+    solidarity_debitor.gather()
+    solidarity_debitor_review
+  creditor.gather()
+  creditor_review
+  disbursement_date
+  period
+  installments
+  if installments == "several_fee":
+    installments_div
+    payment
+    if period == "Año(s)" and payment == "En periodos diferentes":
+      _termnumber
+    if installments_div == "several_value":
+        diferent_fee.gather()
+        diferent_fee_review
+    elif payment == "En periodos diferentes":
+      diferent_fee.gather()
+      diferent_fee_review
+    else:
+        diferent_fee_review
+  with_interest
+  if with_interest:
+    if installments == "several_fee":
+      if payment == "En periodos iguales":
+        with_interest_review
+  late_interest
+  payment_method
+  attorney_fees
+  warranty
+  report_authorized 
+  sign_city
+  answers_reviewed
+  if installments == "several_fee":
+    if installments_div == "value_same" and payment == "En periodos iguales" and with_interest == False:
+      _data = get_table_fees(get_only_number(borrowed_amount),interest_payment,first_date,_termnumber,True)
+    if installments_div == "value_same" and payment == "En periodos iguales" and with_interest == True:
+      _datainterest = get_table_interest(get_only_number(borrowed_amount),interest_payment,_termnumber,date_pay,_rate,_list,True)
+  final_screen
+---
+event: motive
+section: motive
+question: |
+  Motivo y valor del pagaré
+review:
+  - Editar: note_reason
+    button: |
+      % if note_reason == "Se prestará dinero":
+      **Se prestará dinero:** $${borrowed_amount}
+      % else:
+      **Se debe un dinero:** $${borrowed_amount}
+      % endif
+---
+event: debitor_info
+section: debitor_info
+question: |
+  Información del deudor
+review:
+  - Editar: debitor_type
+    button: |
+      **Tipo:** ${debitor_type}[BR]
+      % if debitor_type == "Persona Natural":
+      **Nombres y Apelidos del deudor:** ${title_case(str(debitor.name).lower())}[BR]
+      **Número de documento: **${debitor_type_id}. ${debitor_id_number.upper()}[BR]
+      % else:
+      **Nombre de la compañia: **${debitor_company.upper()}[BR]
+      **NIT: **${generateNit(debitor_nit)}[BR]
+      **Nombres y Apellidos del representante legal: **${title_case(str(legal_debitor.name).lower())}[BR]
+      **Número de identificación: **${debitor_rep_legal_type_id}. ${debitor_rep_legal_id_number.upper()}[BR]
+      % endif
+      **Dirección: **${debitor_address}[BR]
+      **Ciudad: **${debitor_city}[BR][BR]
+---
+event: solidarity_debitor_review
+section: solidarity_debitor_review
+question: |
+  Información del deudor solidario
+review:
+  - note: |
+      % if solidarity_debitor.there_are_any == True:
+      ${solidarity_debitor.table}
+      ${solidarity_debitor.add_action()}
+      % else:
+      No se agrego ningún deudor solidario[BR]
+      ${ solidarity_debitor.add_action() }
+      % endif
+---
+event: creditor_info
+section: creditor_info
+question: |
+  Datos del acreedor
+review:
+  - note: |
+      ${creditor.table}
+      ${creditor.add_action()}
+---
+event: deadline_payment
+section: deadline_payment
+question: |
+  Plazos del pagaré
+review:
+  - Editar: disbursement_date
+    button: |
+      % if note_reason == "Se prestará dinero":
+      % if creditors >= 2:
+      Los acreedores van a entregar la suma de **$${ borrowed_amount }** a **${ debitor_company.upper() if debitor_type == "Persona Jurídica" else title_case(str(debitor.name).lower()) }** el día **${disbursement_date}**
+      % else:
+      El/La acreedor(a) va a entregar la suma de **$${ borrowed_amount }** a **${ debitor_company.upper() if debitor_type == "Persona Jurídica" else title_case(str(debitor.name).lower()) }** el día **${disbursement_date}**
+      % endif
+      % else:
+      % if creditors >= 2:
+      Desde la fecha **${disbursement_date} ${ debitor_company.upper() if debitor_type == "Persona Jurídica" else title_case(str(debitor.name).lower())}** debe la suma de **$${ borrowed_amount }** a los acreedores
+      % else:
+      Desde la fecha **${disbursement_date} ${ debitor_company.upper() if debitor_type == "Persona Jurídica" else title_case(str(debitor.name).lower())}** debe la suma de **$${ borrowed_amount }** al/la acreedor(a)
+      % endif
+      % endif
+  - Editar: term_number
+    button: |
+      ** Tiempo de duración: **${term_number} ${period}
+---
+event: fees
+section: fees
+question: |
+  Cuotas
+review:
+  - Editar: installments
+    button: |
+      El pago se hará en
+      % if installments == "one_fee":
+      Una sola cuota **(se paga hasta el día ${final_date})**
+      % else:
+      Varias cuotas
+      % endif
+  - note: |
+      % if installments == "several_fee":
+      % if installments_div == "value_same" and payment == "En periodos iguales":
+      Así quedaran las cuotas a pagar[BR]
+      ${get_table_fees(get_only_number(borrowed_amount),interest_payment,first_date,_termnumber)}
+      % else:
+      Así quedaran las cuotas a pagar[BR]
+      ${ diferent_fee.table }
+      % endif
+      % else:
+      Se devolverá la suma total de $${borrowed_amount} en la fecha ${final_date}
+      % endif
+---
+event: current_interests
+section: current_interests
+question: |
+  Intereses corrientes
+review:
+  - Editar: with_interest
+    button: |
+      % if with_interest:
+      Se hará el pago de intereses corrientes a la tasa del 
+      % if interest_rate == "Tasa máxima permitida":
+      ${TEA*100} %
+      % else:
+      ${interest_rate_number} %
+      % endif
+      % else:
+      No se hará el pago de intereses corrientes
+      % endif
+  - note: |
+      % if installments == "several_fee":
+      % if with_interest == True and payment == "En periodos iguales":
+      **Así quedaran las cuotas con intereses**[BR]
+      ${get_table_interest(get_only_number(borrowed_amount),interest_payment,_termnumber,date_pay,_rate,_list)}
+      % endif
+      % endif
+---
+event: interest_arrears
+section: interest_arrears
+question: |
+  Intereses de mora
+review: 
+  - Editar: late_interest
+    button: |
+      % if late_interest:
+      Se hará el pago de los intereses de mora a la tasa del
+      % if late_interest_type == "Tasa máxima permitida":
+      ${TEA*100}%
+      % else:
+      ${late_interest_rate}%
+      % endif
+      % else:
+      No se pagaran intereses de mora
+      % endif
+---
+event: methods_pay
+section: methods_pay
+question: |
+  Forma de pago
+review:
+  - Editar: payment_method
+    button: |
+      % if payment_method == "Consignación o transferencia bancaria":
+      **El pago se hará por medio de consignación o transferencia bancaria**[BR]
+      **Banco: **${creditor_financial_institution}[BR]
+      **Tipo de cuenta: **${creditor_account_type}[BR]
+      **Número de cuenta: **${creditor_account_number}[BR]
+      % else:
+      El pago se hára en efectivo, en el domicilio del deudor
+      % endif
+---
+event: warrantys
+section: warrantys
+question: |
+  Garantías
+review:
+  - Editar: attorney_fees
+    button: |
+      % if attorney_fees:
+      Si, los honorarios los pagará ${debitor_company.upper() if debitor_type == "Persona Jurídica" else title_case(str(debitor.name).lower())} y el porcentaje que tendrá el abogado sera ${attorney_fees_percentage}%
+      % else:
+      No se contratara un abogado.
+      % endif
+  - Editar: warranty
+    button: |
+      % if warranty:
+      ${debitor_company.upper() if debitor_type == "Persona Jurídica" else title_case(str(debitor.name).lower())} podrá dar garantías después de la firma del pagaré
+      % else:
+      ${debitor_company.upper() if debitor_type == "Persona Jurídica" else title_case(str(debitor.name).lower())} no podrá dar garantías después de la firma del pagaré
+      % endif
+  - Editar: report_authorized
+    button: |
+      % if report_authorized:
+      % if creditors >= 2:
+        Si, los acreedores están autorizados para reportar y consultar en centrales de información (Datacredito, Cifin) a ${ debitor_company.upper() if debitor_type == "Persona Jurídica" else title_case(str(debitor.name).lower())}
+      % else:
+        Si, El/La acreedor(a) está autorizado para reportar y consultar en centrales de información (Datacredito, Cifin) a ${ debitor_company.upper() if debitor_type == "Persona Jurídica" else title_case(str(debitor.name).lower())}
+      % endif
+      % else:
+      % if creditors >= 2:
+        No, los acreedores no están autorizados para reportar y consultar en centrales de información (Datacredito, Cifin) a ${ debitor_company.upper() if debitor_type == "Persona Jurídica" else title_case(str(debitor.name).lower())}
+      % else:
+        No, El/La acreedor(a) no está autorizado para reportar y consultar en centrales de información (Datacredito, Cifin) a ${ debitor_company.upper() if debitor_type == "Persona Jurídica" else title_case(str(debitor.name).lower())}
+      % endif
+      % endif
+---
+event: sign_city
+section: sign_city
+question: |
+  Ciudad y fecha de firma
+review:
+  - Editar: sign_city
+    button: |
+      **Ciudad: **${sign_city}[BR]
+      **Fecha: **${sign_date}
+---
+question: |
+  El pagaré es un documento a través del cual estableces las condiciones del préstamo.
+subquestion: |
+  En este documento debes establecer el valor del préstamo, si hay intereses o no, las fechas de pago de las cuotas, entre otra información.[BR]
+  
+  Si tienes alguna duda sobre el pagaré, puedes programar una cita con uno de nuestros abogados.[BR]
+  
+  Recuerda tener lista la siguiente información:[BR]
+  
+    •	Nombre y la identificación del acreedor y del deudor.[BR]
+    •	Valor del préstamo.[BR]
+    •	Número de cuotas.[BR]
+    •	Valor de las cuotas.[BR]
+  
+  Si tienes alguna duda adicional puedes <a href="https://juzto.co/asesoria-legal/consulta-abogado/" target="_blank">programar una cita con uno de nuestros abogados</a>.[BR]
+fields:
+  - no label: agrees_to_terms
+    datatype: checkboxes
+    default: "Acepto <a href='https://juzto.co/politica-tratamiento-datos/' target='_blank' class='linkjzdadark'>el tratamiento de los datos personales</a>"
+    minlength: 1
+    choices:
+      - "Acepto <a href='https://juzto.co/politica-tratamiento-datos/' target='_blank' class='linkjzdadark'>el tratamiento de los datos personales</a>"
+    validation messages:
+      minlength: |
+        Debes aceptar el tratamiento de los datos personales para pode continuar.
+section: intro
+prevent going back: True
+under: ""
+---
+question: |
+  ¿Cuál es la razón para elaborar el pagaré?
+subquestion: |
+  Los dos motivos principales para hacer un pagaré son: 1) se va a prestar un dinero, o 2) Se debe un dinero y se quiere garantizar el pago.
+fields:
+  - no label: note_reason
+    input type: radio
+    choices: 
+      - Se prestará dinero
+      - Se debe un dinero
+  - ¿Cuánto dinero se está prestando?: borrowed_amount
+    hint: money
+    show if:
+      variable: note_reason
+      is: "Se prestará dinero"
+  - ¿Cuánto dinero se está debiendo?: borrowed_amount
+    hint: money
+    show if:
+      variable: note_reason
+      is: "Se debe un dinero"
+section: motive
+progress: 6
+---
+objects:
+  - debitor: Individual
+  - legal_debitor: Individual
+---
+question: |
+  ¿ Quién es el(la) deudor(a)?
+subquestion: |
+  Es la persona que recibe un préstamo o que debe una suma de dinero y garantiza el pago a través del pagaré. El deudor puede ser una persona natural o jurídica.
+fields:
+  - no label: debitor_type
+    input type: radio
+    code: get_list('type_j')
+  - Nombre(s): debitor.name.first
+    hint: "Juan"
+    show if:
+      variable: debitor_type
+      is: "Persona Natural"
+  - Apellido(s): debitor.name.last
+    hint: "Perez Gómez"
+    show if:
+      variable: debitor_type
+      is: "Persona Natural"
+  - Nombre: debitor_company
+    hint: "Consultores S.A.S"
+    show if:
+      variable: debitor_type
+      is: "Persona Jurídica"    
+  - Tipo de documento: debitor_type_id
+    datatype: dropdown
+    code: get_list_dni('N')
+    show if:
+      variable: debitor_type
+      is: "Persona Natural"
+  - Número de documento: debitor_id_number
+    hint: dni
+    show if:
+      variable: debitor_type
+      is: "Persona Natural"    
+  - Nit: debitor_nit
+    hint: nit
+    show if:
+      variable: debitor_type
+      is: "Persona Jurídica"   
+  - Nombre(s) del representante legal: legal_debitor.name.first
+    hint: "Juan"
+    show if:
+      variable: debitor_type
+      is: "Persona Jurídica"   
+  - Apellido(s) del representante legal: legal_debitor.name.last
+    hint: "Perez Gómez"
+    show if:
+      variable: debitor_type
+      is: "Persona Jurídica"     
+  - Tipo de documento: debitor_rep_legal_type_id
+    datatype: dropdown
+    code: get_list_dni('N')
+    show if:
+      variable: debitor_type
+      is: "Persona Jurídica"   
+  - Número de documento: debitor_rep_legal_id_number
+    hint: dni
+    show if:
+      variable: debitor_type
+      is: "Persona Jurídica"   
+  - Dirección: debitor_address
+    hint: "Calle 127 # 119-69"
+    js show if: |
+      da_val("debitor_type") == "Persona Jurídica" || da_val("debitor_type") == "Persona Natural"
+  - Ciudad: debitor_city
+    datatype: dropdown
+    code: get_cities()
+    js show if: |
+      da_val("debitor_type") == "Persona Jurídica" || da_val("debitor_type") == "Persona Natural"
+section: debitor_info
+progress: 12
+---
+objects: 
+  - solidarity_debitor: DAList.using(object_type=Individual, complete_attribute='complete')
+---
+code: |
+  solidarity_debitor[i].debitor_type
+  solidarity_debitor[i].name
+  if solidarity_debitor[i].debitor_type == "Persona Natural":
+    solidarity_debitor[i].type_id
+    solidarity_debitor[i].id_number
+  else:
+    solidarity_debitor[i].company
+    solidarity_debitor[i].nit
+    solidarity_debitor[i].legal_type_id
+    solidarity_debitor[i].legal_id_number
+  solidarity_debitor[i].address
+  solidarity_debitor[i].city
+  solidarity_debitor[i].complete = True
+---
+table: solidarity_debitor.table
+rows: solidarity_debitor
+columns:
+  - Nombres: title_case(str(row_item.name).lower()) if row_item.debitor_type == "Persona Natural" else str(row_item.company).upper()
+  - Documento: str(row_item.id_number).upper() if row_item.debitor_type == "Persona Natural" else generateNit(row_item.nit)
+  - Dirección: row_item.address
+  - Ciudad: row_item.city
+edit:
+  - name
+  - company
+---
+question: |
+  ¿Hay otra persona que responda por el pago ? (Deudor(a) Solidario(a))
+subquestion: |
+  El(La) deudor(a) solidario(a) puede ser persona natural o persona jurídica, y es quien respalda al deudor(a) original, por lo que el/la acreedor(a) puede solicitar el pago del dinero a cualquiera entre el(la) deudor(a) principal y el(la) deudor(a) solidario(a).
+yesno: solidarity_debitor.there_are_any
+section: solidarity_debitor_review
+progress: 18
+---
+question: |
+  ¿Cuáles son los datos del(a) Deudor(a) Solidario(a)?
+fields:
+  - no label: solidarity_debitor[i].debitor_type
+    input type: radio
+    code: get_list('type_j')
+  - Nombre(s): solidarity_debitor[i].name.first
+    hint: "Felipe"
+    show if:
+      variable: solidarity_debitor[i].debitor_type
+      is: "Persona Natural"
+  - Apellido(s): solidarity_debitor[i].name.last
+    hint: "López"
+    show if:
+      variable: solidarity_debitor[i].debitor_type
+      is: "Persona Natural"
+  - Nombre: solidarity_debitor[i].company
+    hint: "Compañía de seguros S.A.S"
+    show if:
+      variable: solidarity_debitor[i].debitor_type
+      is: "Persona Jurídica"
+  - Tipo de documento: solidarity_debitor[i].type_id
+    datatype: dropdown
+    code: get_list_dni('N')
+    show if:
+      variable: solidarity_debitor[i].debitor_type
+      is: "Persona Natural"
+  - Número de documento: solidarity_debitor[i].id_number
+    hint: dni
+    show if:
+      variable: solidarity_debitor[i].debitor_type
+      is: "Persona Natural"
+  - NIT: solidarity_debitor[i].nit
+    hint: nit
+    show if:
+      variable: solidarity_debitor[i].debitor_type
+      is: "Persona Jurídica"
+  - Nombre(s) del representante legal: solidarity_debitor[i].name.first
+    hint: "Felipe"
+    show if:
+      variable: solidarity_debitor[i].debitor_type
+      is: "Persona Jurídica"
+  - Apellido(s) del representante legal: solidarity_debitor[i].name.last
+    hint: "López"
+    show if:
+      variable: solidarity_debitor[i].debitor_type
+      is: "Persona Jurídica"
+  - Tipo de documento: solidarity_debitor[i].legal_type_id
+    datatype: dropdown
+    code: get_list_dni('N')
+    show if:
+      variable: solidarity_debitor[i].debitor_type
+      is: "Persona Jurídica"
+  - Número de documento: solidarity_debitor[i].legal_id_number
+    hint: dni
+    show if:
+      variable: solidarity_debitor[i].debitor_type
+      is: "Persona Jurídica"
+  - Dirección: solidarity_debitor[i].address
+    hint: "Calle 127 # 119-63"
+    js show if: |
+      da_val("solidarity_debitor[i].debitor_type") == "Persona Jurídica"|| da_val("solidarity_debitor[i].debitor_type") == "Persona Natural"
+  - Ciudad: solidarity_debitor[i].city
+    datatype: dropdown
+    code: get_cities()
+    js show if: |
+      da_val("solidarity_debitor[i].debitor_type") == "Persona Jurídica"|| da_val("solidarity_debitor[i].debitor_type") == "Persona Natural"
+section: solidarity_debitor_review
+progress: 18
+---
+question: |
+  ¿Deseas agregar otro deudor(a) solidario(a)?
+yesno: solidarity_debitor.there_is_another
+section: solidarity_debitor_review
+progress: 18
+---
+question: |
+  Deudores solidarios
+subquestion: |
+  % if solidarity_debitor.there_are_any == True:
+  ${solidarity_debitor.table}
+  ${solidarity_debitor.add_action()}
+  % else:
+  No se agrego ningún deudor solidario[BR]
+  ${ solidarity_debitor.add_action() }
+  % endif
+continue button field: solidarity_debitor_review
+section: solidarity_debitor_review
+progress: 18
+---
+objects:
+  - creditor: DAList.using(object_type=Individual, complete_attribute='complete', there_are_any = True)
+---
+table: creditor.table
+rows: creditor
+columns:
+  - Nombres y Apellidos: title_case(str(row_item.name).lower()) if row_item.type == "Persona Natural" else str(row_item.company).upper()
+  - Documento: row_item.id_number.upper() if row_item.type == "Persona Natural" else generateNit(row_item.nit)
+  - Dirección: row_item.address
+  - Ciudad: row_item.city
+edit:
+  - name
+  - company
+---
+code: |
+  creditor[i].type
+  creditor[i].name
+  if creditor[i].type == "Persona Natural":
+    creditor[i].type_id
+    creditor[i].id_number
+  else:
+    creditor[i].company
+    creditor[i].nit
+    creditor[i].legal_type_id
+    creditor[i].legal_id_number
+  creditor[i].address
+  creditor[i].city
+  creditor[i].complete = True
+---
+question: |
+  ¿Quién es el/la acreedor(a) ?
+subquestion: |
+  El/La acreedor(a) es la persona que presta el dinero o al que se le debe un dinero y se le garantiza el pago con el pagaré. El/La acreedor(a) puede ser persona natural o jurídica.
+fields:
+  - no label: creditor[i].type
+    input type: radio
+    code: get_list('type_j')
+  - Nombre(s): creditor[i].name.first
+    hint: "Andrés"
+    show if:
+      variable: creditor[i].type
+      is: "Persona Natural"
+  - Apellido(s): creditor[i].name.last
+    hint: "Gutiérrez"
+    show if:
+      variable: creditor[i].type
+      is: "Persona Natural"
+  - Nombre: creditor[i].company
+    hint: "Compañía S.A.S"
+    show if:
+      variable: creditor[i].type
+      is: "Persona Jurídica"
+  - Tipo de documento: creditor[i].type_id
+    datatype: dropdown
+    code: get_list_dni('N')
+    show if:
+      variable: creditor[i].type
+      is: "Persona Natural"
+  - Número de documento: creditor[i].id_number
+    hint: dni
+    show if:
+      variable: creditor[i].type
+      is: "Persona Natural"
+  - NIT: creditor[i].nit
+    hint: nit
+    show if:
+      variable: creditor[i].type
+      is: "Persona Jurídica"
+  - Nombre(s) del representante legal: creditor[i].name.first
+    hint: "Andrés"
+    show if:
+      variable: creditor[i].type
+      is: "Persona Jurídica"
+  - Apellido(s) del representante legal: creditor[i].name.last
+    hint: "Gutiérrez"
+    show if:
+      variable: creditor[i].type
+      is: "Persona Jurídica"
+  - Tipo de documento: creditor[i].legal_type_id
+    datatype: dropdown
+    code: get_list_dni('N')
+    show if:
+      variable: creditor[i].type
+      is: "Persona Jurídica"
+  - Número de documento: creditor[i].legal_id_number
+    hint: dni
+    show if:
+      variable: creditor[i].type
+      is: "Persona Jurídica"
+  - Dirección: creditor[i].address
+    hint: "Calle 127 # 119-63"
+    js show if: |
+      da_val("creditor[i].type") == "Persona Jurídica" || da_val("creditor[i].type") == "Persona Natural" 
+  - Ciudad: creditor[i].city
+    datatype: dropdown
+    code: get_cities()
+    js show if: |
+      da_val("creditor[i].type") == "Persona Jurídica" || da_val("creditor[i].type") == "Persona Natural"
+section: creditor_info
+progress: 24
+---
+question: |
+  ¿Deseas agregar otro(a) acreedor(a)?
+yesno: creditor.there_is_another
+section: creditor_info
+progress: 24
+---
+question: |
+  Estos son los acreedores:
+subquestion: |
+  ${creditor.table}
+  ${creditor.add_action()}
+continue button field: creditor_review
+section: creditor_info
+progress: 24
+---
+code: |
+  creditors = len(creditor)
+---
+question: |
+  % if note_reason == "Se prestará dinero":
+  % if creditors >= 2:
+  ¿Los acreedores cuándo van a entregar los $${ borrowed_amount } a ${ debitor_company.upper() if debitor_type == "Persona Jurídica" else title_case(str(debitor.name).lower()) }?
+  % else:
+  ¿El/La acreedor(a) cuándo va a entregar los $${ borrowed_amount } a ${ debitor_company.upper() if debitor_type == "Persona Jurídica" else title_case(str(debitor.name).lower()) }?
+  % endif
+  % else:
+  % if creditors >= 2:
+  ¿Desde qué fecha ${ debitor_company.upper() if debitor_type == "Persona Jurídica" else title_case(str(debitor.name).lower())} debe los $${ borrowed_amount } a los acreedores?
+  % else:
+  ¿Desde qué fecha ${ debitor_company.upper() if debitor_type == "Persona Jurídica" else title_case(str(debitor.name).lower())} debe los $${ borrowed_amount } al/la acreedor(a)?
+  % endif
+  % endif
+fields:
+  - no label: disbursement_date
+    datatype: date
+    min: |
+      ${today().year }-01-01
+    max: 
+      ${today().year }-${ today().month }-${_month}
+    validation messages:
+      minmax: |
+        No puedes ingresar una fecha menor a %s o mayor a %s. Si necesitas una fecha mayor o menor a estas, te recomendamos hacer tu pagaré con un abogado en el siguiente <a href="https://juzto.co/asesoria-legal/consulta-abogado/" target="_blank">link</a>
+validation code: |
+  if note_reason == "Se prestará dinero":
+    if disbursement_date < today():
+      validation_error("No puedes seleccionar una fecha menor a hoy, ya que aún no has prestado el dinero")
+  else: 
+    if disbursement_date > today():
+      validation_error("No puedes seleccionar una fecha mayor a hoy, porque ya se entrego el dinero")
+section: deadline_payment
+progress: 30
+---
+code: |
+  _month = monthRange(int(today(format="yyyy")),int(today(format="M")))
+---
+question: |
+  ¿Cuál es el plazo que tiene ${ debitor_company.upper() if debitor_type == "Persona Jurídica" else title_case(str(debitor.name).lower())} para pagar?
+subquestion: |
+  Aquí debes seleccionar el tiempo máximo que tiene ${ debitor_company.upper() if debitor_type == "Persona Jurídica" else title_case(str(debitor.name).lower())} para pagar la totalidad de la deuda y quedar a paz y salvo.[BR]
+  
+  Tiempo de duración: [FIELD term_number]. [FIELD period]
+fields:
+  - Tiempo de duración: term_number
+    datatype: integer
+    hint: 1
+    min: 1
+  - ¿Cuál es la duración?: period
+    datatype: dropdown
+    choices: 
+      - Mes(es)
+      - Año(s)
+#    code: get_list('period')
+#  - ¿El pago  a cargo de ${ debitor_company.upper() if debitor_type == "Persona Jurídica" else title_case(str(debitor.name).lower()) } se va a hacer en una cuota o en varias?: installments
+#    input type: radio
+#    choices:
+#      - Una sola cuota (se paga hasta el día ): one_fee
+#      - Varias cuotas: several_fee
+#  - ¿Cuántas cuotas?: installments_number
+#    datatype: integer
+#    show if:
+#      variable: installments
+#      is: several_fee
+section: deadline_payment
+progress: 36
+---
+code: |
+  if period == "Días":
+    final_date = disbursement_date + date_interval(days=int(term_number))
+  elif period == "Semana(s)":
+    final_date = disbursement_date + date_interval(weeks=int(term_number))
+  elif period == "Mes(es)":
+    final_date = disbursement_date + date_interval(months=int(term_number))
+  elif period == "Año(s)":
+    final_date = disbursement_date + date_interval(years=int(term_number))
+---
+question: |
+  ¿El pago  a cargo de ${ debitor_company.upper() if debitor_type == "Persona Jurídica" else title_case(str(debitor.name).lower()) } se va a hacer en una cuota o en varias?
+subquestion: |
+  Aquí debes elegir si el(la) deudor(a) ${ debitor_company.upper() if debitor_type == "Persona Jurídica" else title_case(str(debitor.name).lower()) } hará un solo pago o varios pagos hasta quedar a paz y salvo.
+fields:
+  - no label: installments
+    input type: radio
+    choices:
+      - Una sola cuota (se paga hasta el día ${final_date}): one_fee
+      - Varias cuotas: several_fee
+#  - ¿Cuántas cuotas?: installments_number
+#    datatype: integer
+#    min: 2
+#    show if:
+#      variable: installments
+#      is: several_fee
+section: fees
+progress: 42
+---
+if: installments == "several_fee"
+question: |
+  ¿Cuál es el valor a pagar en cada cuota y cada cuánto ${ debitor_company.upper() if debitor_type == "Persona Jurídica" else title_case(str(debitor.name).lower()) } pagará las cuotas?
+subquestion: |
+  Aquí debes señalar si ${ debitor_company.upper() if debitor_type == "Persona Jurídica" else title_case(str(debitor.name).lower()) } va a pagar en periodos de tiempos iguales,  por ejemplo: todos los meses, cada 2 meses o si la fecha de pago de cada una de las cuotas es diferente.
+fields:
+  - ¿Cómo serán las cuotas?: installments_div
+    input type: radio
+    choices:
+      - Cuotas iguales según el periodo: value_same
+      - Valores diferentes por cada cuota: several_value
+  - ¿Cada cuánto ${ debitor_company.upper() if debitor_type == "Persona Jurídica" else title_case(str(debitor.name).lower()) } pagará las cuotas?: payment
+    input type: radio
+    choices:
+      - En periodos iguales
+      - En periodos diferentes
+  - no label: interest_payment
+    datatype: dropdown
+    code: |
+       periods
+    show if:
+      variable: payment
+      is: "En periodos iguales"
+  - ¿Cuándo se pagará la primera cuota?: date_pay
+    datatype: date
+    min: |
+      ${disbursement_date.format('yyyy-MM-dd')}
+    show if:
+      variable: payment
+      is: "En periodos iguales"
+section: fees
+progress: 48
+---
+if: installments == "several_fee" and period == "Año(s)" and payment == "En periodos diferentes"
+question: |
+  ¿En cuantas cuotas harás el pago?
+fields:
+  - no label: _termnumber
+    datatype: integer
+---
+code: |
+  periods = ["Mensual"]
+  if period == "Mes(es)" and term_number%2 == 0 and term_number <= 4:
+    periods = ["Mensual", "Cada 2 meses"]
+  elif period == "Mes(es)" and term_number%2 > 0 and term_number <= 6:
+    periods = ["Mensual", "Cada 2 meses", "Cada 3 meses"]
+  elif period == "Mes(es)" and term_number >= 6 and term_number <= 12:
+    periods = ["Mensual","Cada 2 meses", "Cada 3 meses", "Cada 6 meses"]
+  elif period =="Año(s)" or (period == "Mes(es)" and term_number >= 12):
+    periods = ["Mensual","Cada 2 meses", "Cada 3 meses", "Cada 6 meses", "Cada año"]
+---
+code: |
+  if period == "Año(s)":
+    if payment != "En periodos diferentes":
+      _termnumber = int(term_number)*12
+  else:
+    _termnumber = int(term_number)  
+---
+code: |
+  value_serv = get_only_number(borrowed_amount)/_termnumber
+---
+#depends on: interest_payment
+objects:
+  - diferent_fee: DAList.using(object_type=DAObject, there_are_any = True, complete_attribute='complete', ask_number=True)
+---
+code: |
+  diferent_fee.there_is_another = False
+---
+if: installments == "several_fee" and installments_div == "value_same" and payment == "En periodos diferentes"
+code: |
+  diferent_fee[i].specific_date
+  diferent_fee[i].complete = True
+---
+if: installments == "several_fee" and installments_div == "several_value" and payment == "En periodos diferentes"
+code: |
+  diferent_fee[i].price_x_fee
+  diferent_fee[i].specific_date
+  diferent_fee[i].complete = True
+---
+if: installments == "several_fee" and installments_div == "several_value" and payment == "En periodos iguales"
+code: |
+  diferent_fee[i].price_x_fee
+  diferent_fee[i].complete = True
+---
+table: diferent_fee.table
+rows: diferent_fee
+columns:
+  - No. de cuota: row_index+1
+  - Fecha de pago: row_item.specific_date if installments_div == "several_value" and payment == "En periodos diferentes" or payment == "En periodos diferentes" else get_calculate_date(date_pay,_times,row_index)
+  - valor: juztoThousand(get_only_number(row_item.price_x_fee),1) if installments_div == "several_value" else juztoThousand(value_serv,1)
+edit:
+  - price_x_fee
+  - specific_date
+---
+code: |
+  if installments_div == "several_value" and payment == "En periodos iguales":
+    _times = get_times(interest_payment,_termnumber)
+    _time = len(_times)
+  else:
+    _time = _termnumber
+  diferent_fee.target_number = _time
+---
+question: |
+  % if installments_div == "several_value" and payment == "En periodos iguales":
+  ¿Cuál es el valor de la ${get_ordinal('female',i)} cuota?
+  % elif installments_div == "value_same" and payment == "En periodos diferentes":
+  ¿Cuál será la fecha para el pago de la ${get_ordinal('female',i)} cuota?
+  % elif installments_div == "several_value" and payment == "En periodos diferentes":
+  ¿Cuál es el valor y fecha de pago de la ${get_ordinal('female',i)} cuota?
+  % endif
+subquestion: |
+  % if installments_div == "several_value" and payment == "En periodos iguales":
+  % if i == 0:
+  El saldo total que debe ${ debitor_company.upper() if debitor_type == "Persona Jurídica" else title_case(str(debitor.name).lower()) } es de $${borrowed_amount} y la fecha de pago es el ${date_pay}
+  % else:
+  Aún te quedan $${juztoThousand(get_only_number(borrowed_amount) - sum(get_only_number(item.price_x_fee) for item in diferent_fee.complete_elements()))} por asignar. La fecha de pago para esta cuota es el ${get_calculate_date(date_pay,_times,i)}
+  % endif
+  % endif
+  % if installments_div == "value_same" and payment == "En periodos diferentes":
+  El valor de la ${get_ordinal('female',i)} cuota es de ${juztoThousand(value_serv,1)}
+  % endif
+  % if installments_div == "several_value" and payment == "En periodos diferentes":
+  % if i == 0:
+  El saldo total que debe ${ debitor_company.upper() if debitor_type == "Persona Jurídica" else title_case(str(debitor.name).lower()) } es de $${borrowed_amount}
+  % else:
+  Aún te quedan $${juztoThousand(get_only_number(borrowed_amount) - sum(get_only_number(item.price_x_fee) for item in diferent_fee.complete_elements()))} por asignar
+  % endif
+  % endif
+fields:
+  - no label: diferent_fee[i].price_x_fee
+    hint: money
+    show if:
+      code: |
+        installments_div == "several_value"
+  - Selecciona la fecha de pago: diferent_fee[i].specific_date
+    datatype: date
+    min: |
+      ${ diferent_fee[i - 1].specific_date.format('yyyy-MM-dd') if i > 0 else disbursement_date.format('yyyy-MM-dd') }
+    max: |
+      ${ disbursement_date.plus(months=_termnumber).format('yyyy-MM-dd') if period != "Año(s)" else disbursement_date.plus(months=term_number*12).format('yyyy-MM-dd')}
+    validation messages:
+      min: |
+        Debes ingresar una fecha después de %s
+      
+    show if:
+      code: |
+        payment == "En periodos diferentes"
+validation code: |
+  sum_x_fee = 0
+  if installments_div == "several_value":
+    if i == 0:
+      if get_only_number(diferent_fee[i].price_x_fee) > get_only_number(borrowed_amount):
+        validation_error("El valor no puede ser mayor al total de la deuda que es "+ juztoThousand(get_only_number(borrowed_amount),1) +" pesos")
+    else:
+      sum_x_fee = get_only_number(borrowed_amount) - sum(get_only_number(item.price_x_fee) for item in diferent_fee.complete_elements())
+      #total_x_fee = sum(get_only_number(item.price_x_fee) for item in diferent_fee.complete_elements())
+      if get_only_number(diferent_fee[i].price_x_fee) > get_only_number(sum_x_fee):
+        validation_error("El valor ingresado no puese ser mayor a "+ juztoThousand(get_only_number(sum_x_fee),1) + " pesos")
+  if payment == "En periodos diferentes":
+    if diferent_fee[i].specific_date < disbursement_date:
+      validation_error("No puede ingresar una fecha menor a "+ disbursement_date)
+  #if total_x_fee < get_only_number(borrowed_amount):
+  #  validation_error("Aún no puedes continuar te hacen falta"+ juztoThousand(get_only_number(sum_x_fee),1) + " pesos por asignar")
+section: fees
+progress: 48
+---
+question: |
+  Así quedarán las cuotas
+subquestion: |
+  ${ diferent_fee.table }
+continue button field: diferent_fee_review
+section: fees
+progress: 48
+---
+if: installments == "several_fee" and installments_div == "value_same" and payment == "En periodos iguales"
+question: |
+  Así quedaran las cuotas a pagar
+subquestion: |
+  ${get_table_fees(get_only_number(borrowed_amount),interest_payment,first_date,_termnumber)}
+continue button field: diferent_fee_review
+progress: 48
+---
+code: |
+  first_date = today()
+  if payment == "En periodos iguales":
+    first_date = date_pay
+---
+question: |
+  ¿Se pagarán  intereses corrientes?
+subquestion: |
+  Los intereses corrientes son un valor adicional que debe pagar ${ debitor_company.upper() if debitor_type == "Persona Jurídica" else title_case(str(debitor.name).lower()) } por el tiempo que dura el préstamo. Entre menos dure el préstamo menos son los intereses corrientes.[BR]
+  
+  Para conocer la tasa de interés máxima permitida debes consultar la página de la [Superintendencia Financiera de Colombia](https://www.superfinanciera.gov.co/jsp/Publicaciones/publicaciones/loadContenidoPublicacion/id/10829/reAncha/1/c/0). CUIDADO cobrar intereses corrientes superiores a la tasa permitida es un delito (Art. 305 Código Penal) y según el Artículo 885 del Código de comercio quien lo haga no podrá cobrar los intereses, entre otras sanciones.
+fields:
+  - no label: with_interest
+    datatype: yesnoradio
+  - ¿Cuál es la tasa de interés?: interest_rate
+    input type: radio
+    choices:
+      - Tasa máxima permitida
+      - Otra inferior
+    show if:
+      variable: with_interest
+      is: True
+  - Número: interest_rate_number
+    datatype: number
+    min: 1
+    max: |
+      ${TEA*100}
+    show if:
+      variable: interest_rate
+      is: "Otra inferior"
+  - note: |
+      * Para ${today(format='MMMM - YYYY')} la Superintendencia Financiera de Colombia fijo la tasa máxima de interés en ${round(TEA*100,2)}%
+      * No puede superar el porcentaje certificado por la Superintendencia Financiera de Colombia.
+    js show if: |
+      da_val("with_interest")
+section: current_interests
+progress: 54
+---
+code: |
+  _rate = 0
+  _list = []
+  if interest_rate == "Otra inferior":
+    _rate = interest_rate_number
+  if installments == "several_fee" and installments_div == "several_value" and payment == "En periodos iguales":
+    _list = diferent_fee
+---
+if: installments == "several_fee" and payment == "En periodos iguales" and with_interest
+question: |
+  Así quedaran las cuotas con intereses
+subquestion: |
+  ${get_table_interest(get_only_number(borrowed_amount),interest_payment,_termnumber,date_pay,_rate,_list)}
+continue button field: with_interest_review
+progress: 54
+---
+#if: with_interest
+#question: |
+#  ¿Cómo se pagarán los intereses corrientes?
+#subquestion: |
+#  Aquí debes seleccionar alguna de las siguientes opciones: 1) Anticipados: De los ${ borrowed_amount } prestados se descontarán los intereses. 2) El mismo día del pago de las cuotas: Cada vez ${ debitor_company.upper() if debitor_type == "Persona Jurídica" else title_case(str(debitor.name).lower()) } deba hacer un pago de la cuota, se adicionará el valor de los intereses corrientes. 3) La totalidad al final del préstamo: ${ debitor_company.upper() if debitor_type == "Persona Jurídica" else title_case(str(debitor.name).lower()) } debe pagar la totalidad de los intereses el 
+#fields:
+#  - no label: interest_payments
+#    input type: radio
+#    code: |
+#      interests
+#section: current_interests
+#---
+#code: |
+#  interests = ([{'Anticipados (Se descuentan del valor prestado al momento del desembolso)':'Anticipados (Se descuentan del valor prestado al momento del desembolso)'}] if note_reason == "Se debe un dinero" else[]) + [{'El mismo día del pago de la(s) cuota(s)':'El mismo día del pago de la(s) cuota(s)'},{'La totalidad al final del préstamo':'La totalidad al final del préstamo'}]
+#---
+question: |
+  ¿En caso de no pago  o pago retrasado, ${ debitor_company.upper() if debitor_type == "Persona Jurídica" else title_case(str(debitor.name).lower())} pagará intereses de mora?
+subquestion: |
+  Los intereses de mora son una sanción a cargo del deudor por el pago retrasado o no pago de las cuotas. Consulta la página de la [Superintendencia Financiera de Colombia](https://www.superfinanciera.gov.co/jsp/Publicaciones/publicaciones/loadContenidoPublicacion/id/10829/reAncha/1/c/0) para asegurarte de no poner una tasa mayor a la permitida por la ley. CUIDADO cobrar intereses de mora superiores a la tasa permitida es un delito (Art. 305 Código Penal) y según el Artículo 885 del Código de comercio el que lo haga no podrá cobrar los intereses, entre otras sanciones.
+fields:
+  - no label: late_interest
+    datatype: yesnoradio
+  - ¿Cuál es el porcentaje?: late_interest_type
+    input type: radio
+    choices:
+      - Tasa máxima permitida
+      - Otra inferior
+    show if:
+      variable: late_interest
+      is: True
+  - Número: late_interest_rate
+    datatype: integer
+    min: 1
+    max: |
+      ${TEA*100}
+    show if:
+      variable: late_interest_type
+      is: "Otra inferior"
+  - note: |
+      * Para ${today(format='MMMM - YYYY')} la Superintendencia Financiera de Colombia fijo la tasa máxima de interés en ${round(TEA*100,2)}%
+      * No puede superar el porcentaje certificado por la Superintendencia Financiera de Colombia.
+    js show if: |
+      da_val("late_interest")
+section: interest_arrears
+progress: 60
+---
+question: |
+  % if  with_interest == True or late_interest == True:
+	¿Cómo debe(n) hacerse el(los) pago(s) de las cuotas y los intereses ?
+  % else:
+  ¿Cómo debe(n) hacerse el(los) pago(s) de las cuotas?
+  % endif
+fields:
+  - no label: payment_method
+    input type: radio
+    choices:
+      - Consignación o transferencia bancaria
+      - Efectivo, en el domicilio del deudor
+  - Entidad bancaria: creditor_financial_institution
+    datatype: dropdown
+    code: get_list('banks')
+    show if:
+      variable: payment_method
+      is: "Consignación o transferencia bancaria"
+  - Tipo de cuenta: creditor_account_type
+    datatype: dropdown
+    code: get_list('bankaccount')
+    show if:
+      variable: payment_method
+      is: "Consignación o transferencia bancaria"
+  - Número de cuenta: creditor_account_number
+    show if:
+      variable: payment_method
+      is: "Consignación o transferencia bancaria"
+section: methods_pay
+progress: 66
+---
+question: |
+  Si el deudor incumple el pago es usual que el/la acreedor(a) contrate un abogado para hacer el cobro. ¿Estos honorarios los pagará ${debitor_company.upper() if debitor_type == "Persona Jurídica" else title_case(str(debitor.name).lower())}?
+fields:
+  - no label: attorney_fees 
+    datatype: yesnoradio
+  - ¿Del total de la deuda que porcentaje se le pagará al abogado?: attorney_fees_percentage
+    datatype: integer
+    max: 49
+    show if:
+      variable: attorney_fees
+      is: True
+section: warrantys
+progress: 72
+---
+question: |
+  ¿El deudor podrá dar garantías después de la firma del pagaré?
+subquestion: |
+  Si seleccionas "Sí", esto quiere decir (por ejemplo) que si el deudor adquiere un vehículo después de la firma del pagaré podrá ponerle la prenda en favor del acreedor sin que se requiera modificar el pagaré
+yesno: warranty
+section: warrantys
+progress: 78
+---
+question: |
+  % if creditors >= 2:
+  ¿Los acreedores están autorizados para reportar y consultar en centrales de información (Datacredito, Cifin) a ${ debitor_company.upper() if debitor_type == "Persona Jurídica" else title_case(str(debitor.name).lower())}?
+  % else:
+  ¿El/La acreedor(a) está autorizado para reportar y consultar en centrales de información (Datacredito, Cifin) a ${ debitor_company.upper() if debitor_type == "Persona Jurídica" else title_case(str(debitor.name).lower())}?
+  % endif
+yesno: report_authorized
+section: warrantys
+progress: 84
+---
+question: |
+  ¿En qué ciudad y fecha se firma el pagaré?
+fields:
+  - Ciudad: sign_city
+    datatype: dropdown
+    code: get_cities()
+  - Fecha: sign_date
+    datatype: date
+    help: |
+      Ojo ten en cuenta la fecha en que se firmará el pagare y la fecha en que se desembolsa el dinero.
+section: sign_city
+progress: 90
+---
+question: |
+  En esta pantalla puedes revisar tus respuestas
+review:
+  - note: |
+      ### Motivo y valor del pagaré
+  - Editar: note_reason
+    button: |
+      % if note_reason == "Se prestará dinero":
+      **Se prestará dinero:** $${borrowed_amount}
+      % else:
+      **Se debe un dinero:** $${borrowed_amount}
+      % endif  
+  - note: |
+      ***********
+      ### Información del deudor
+  - Editar: debitor_type
+    button: |
+      **Tipo:** ${debitor_type}[BR]
+      % if debitor_type == "Persona Natural":
+      **Nombres y Apelidos del deudor:** ${title_case(str(debitor.name).lower())}[BR]
+      **Número de documento: **${debitor_type_id}. ${debitor_id_number.upper()}[BR]
+      % else:
+      **Nombre de la compañia: **${debitor_company.upper()}[BR]
+      **NIT: **${generateNit(debitor_nit)}[BR]
+      **Nombres y Apellidos del representante legal: **${title_case(str(legal_debitor.name).lower())}[BR]
+      **Número de identificación: **${debitor_rep_legal_type_id}. ${debitor_rep_legal_id_number.upper()}[BR]
+      % endif
+      **Dirección: **${debitor_address}[BR]
+      **Ciudad: **${debitor_city}[BR][BR]
+  - note: |
+      ***********
+      ### Información del deudor solidario
+      % if solidarity_debitor.there_are_any == True:
+      ${solidarity_debitor.table}
+      ${solidarity_debitor.add_action()}
+      % else:
+      No se agrego ningún deudor solidario[BR]
+      ${ solidarity_debitor.add_action() }
+      % endif
+  - note: |
+      ***********
+      ### Información del acreedor
+      ${creditor.table}
+      ${creditor.add_action()}
+  - note: |
+      ***********
+      ### Plazos del pagaré
+  - Editar: disbursement_date
+    button: |
+      % if note_reason == "Se prestará dinero":
+      % if creditors >= 2:
+      Los acreedores van a entregar la suma de **$${ borrowed_amount }** a **${ debitor_company.upper() if debitor_type == "Persona Jurídica" else title_case(str(debitor.name).lower()) }** el día **${disbursement_date}**
+      % else:
+      El/La acreedor(a) va a entregar la suma de **$${ borrowed_amount }** a **${ debitor_company.upper() if debitor_type == "Persona Jurídica" else title_case(str(debitor.name).lower()) }** el día **${disbursement_date}**
+      % endif
+      % else:
+      % if creditors >= 2:
+      Desde la fecha **${disbursement_date} ${ debitor_company.upper() if debitor_type == "Persona Jurídica" else title_case(str(debitor.name).lower())}** debe la suma de **$${ borrowed_amount }** a los acreedores
+      % else:
+      Desde la fecha **${disbursement_date} ${ debitor_company.upper() if debitor_type == "Persona Jurídica" else title_case(str(debitor.name).lower())}** debe la suma de **$${ borrowed_amount }** al/la acreedor(a)
+      % endif
+      % endif
+  - Editar: term_number
+    button: |
+      ** Duración del pagaré: **${term_number} ${period}
+  - note: |
+      ***********
+      ### Cuotas
+  - Editar: installments
+    button: |
+      El pago se hará en
+      % if installments == "one_fee":
+        una sola cuota **(se paga hasta el día ${final_date})**
+      % else:
+      varias cuotas
+      % endif
+  - note: |
+      % if installments == "several_fee":
+      % if installments_div == "value_same" and payment == "En periodos iguales":
+      Así quedaran las cuotas a pagar[BR]
+      ${get_table_fees(get_only_number(borrowed_amount),interest_payment,first_date,_termnumber)}
+      % else:
+      Así quedaran las cuotas a pagar[BR]
+      ${ diferent_fee.table }
+      % endif
+      % else:
+      Se devolverá la suma total de $${borrowed_amount} en la fecha ${final_date}
+      % endif
+  - note: |
+      ***********
+      ### Intereses corrientes
+  - Editar: with_interest
+    button: |
+      % if with_interest:
+      Se hará el pago de intereses corrientes a la tasa del 
+      % if interest_rate == "Tasa máxima permitida":
+      ${TEA*100} %
+      % else:
+      ${interest_rate_number} %
+      % endif
+      % else:
+      No se hará el pago de intereses corrientes
+      % endif
+  - note: |
+      % if installments == "several_fee":
+      % if with_interest == True and payment == "En periodos iguales":
+      ### Así quedaran las cuotas con intereses[BR]
+      ${get_table_interest(get_only_number(borrowed_amount),interest_payment,_termnumber,date_pay,_rate,_list)}
+      % endif
+      % endif
+  - note: |
+      ***********
+      ### Intereses de mora
+  - Editar: late_interest
+    button: |
+      % if late_interest:
+      Se hará el pago de los intereses de mora a la tasa del
+      % if late_interest_type == "Tasa máxima permitida":
+      ${TEA*100}%
+      % else:
+      ${late_interest_rate}%
+      % endif
+      % else:
+      No se pagaran intereses de mora
+      % endif
+  - note: |
+      ***********
+      ### Forma de pago
+  - Editar: payment_method
+    button: |
+      % if payment_method == "Consignación o transferencia bancaria":
+      **El pago se hará por medio de consignación o transferencia bancaria**[BR]
+      **Banco: **${creditor_financial_institution}[BR]
+      **Tipo de cuenta: **${creditor_account_type}[BR]
+      **Número de cuenta: **${creditor_account_number}[BR]
+      % else:
+      El pago se hára en efectivo, en el domicilio del deudor
+      % endif
+  - note: |
+      ***********
+      ### Garantías
+  - Editar: attorney_fees
+    button: |
+      % if attorney_fees:
+      ${debitor_company.upper() if debitor_type == "Persona Jurídica" else title_case(str(debitor.name).lower())} pagará los honorarios del abogado y sus honorarios serán del ${attorney_fees_percentage}%
+      % else:
+      No se contratara un abogado.
+      % endif
+  - Editar: warranty
+    button: |
+      % if warranty:
+      ${debitor_company.upper() if debitor_type == "Persona Jurídica" else title_case(str(debitor.name).lower())} podrá dar garantías después de la firma del pagaré
+      % else:
+      ${debitor_company.upper() if debitor_type == "Persona Jurídica" else title_case(str(debitor.name).lower())} no podrá dar garantías después de la firma del pagaré
+      % endif
+  - Editar: report_authorized
+    button: |
+      % if report_authorized:
+      % if creditors >= 2:
+        Los acreedores están autorizados para reportar y/o consultar en centrales de información (Datacredito, Cifin) a ${ debitor_company.upper() if debitor_type == "Persona Jurídica" else title_case(str(debitor.name).lower())}
+      % else:
+        El/La acreedor(a) está autorizado para reportar y/o consultar en centrales de información (Datacredito, Cifin) a ${ debitor_company.upper() if debitor_type == "Persona Jurídica" else title_case(str(debitor.name).lower())}
+      % endif
+      % else:
+      % if creditors >= 2:
+        Los acreedores NO están autorizados para reportar y/o consultar en centrales de información (Datacredito, Cifin) a ${ debitor_company.upper() if debitor_type == "Persona Jurídica" else title_case(str(debitor.name).lower())}
+      % else:
+        El/La acreedor(a) NO está autorizado para reportar y/o consultar en centrales de información (Datacredito, Cifin) a ${ debitor_company.upper() if debitor_type == "Persona Jurídica" else title_case(str(debitor.name).lower())}
+      % endif
+      % endif
+  - note: |
+      ***********
+      ### Ciudad y fecha de firma
+  - Editar: sign_city
+    button: |
+      **Ciudad: **${sign_city}[BR]
+      **Fecha: **${sign_date}
+continue button field: answers_reviewed
+section: confirmation
+progress: 99
+---
+code: |
+  priceDoc = '$0'
+  if 'price' in url_args:
+    priceDoc = currency(url_args['price'], decimals= False)
+  else:
+    priceDoc = '$0'
+  files_saved = save_files(the_document, 'pagare', True, user_info().session)
+  juzto_callback = get_callback_final_screen_new(priceDoc, files_saved, 'pagare', True)
+---
+objects:
+  - thumbnails: DAList
+---
+code: |
+  the_preview.pdf._make_pdf_thumbnail(i + 1)
+  thumbnails[i] = DAFile('thumbnails[%d]' % (i + 1), filename='thumb.png')
+  thumbnails[i].copy_into(the_preview.pdf.page_path(i + 1, 'screen'))
+  thumbnails[i].commit()
+---
+mandatory: True
+code: |
+  from PIL import Image
+  img = Image.open(thumbnails[0].path())
+  w, h = img.size
+  area = (0, 0, w, h)
+  img = img.crop(area)
+  img.save(thumbnails[0].path())
+  thumbnails[0].commit()
+  del img
+  first_thumb_cropped = True
+---
+reconsider: the_document 
+mandatory: True
+progress: 100
+event: final_screen
+question: |
+  <div class="container-fluid info-juzto-final"><div class="row"><div class="col-md-4 text-right sec-left-juzto"><b>Tenemos Listo Tu Documento</b><br><ul><li>1) Recibelo en tu correo inmediatamente.</li><li>2) Te lo enviaremos en formato Word y PDF.</li><li>3) Contarás con 30 minutos con un abogado para cambios.</li></ul><b class="final_screen_price_label">Precio:</b><br><b class="final_screen_price">${ priceDoc }</b><br>${ juzto_callback }</div><div class="col-md-1"></div><div class="col-md-7 containaer-doc-pages row"><div class="col-md-4"></div>
+  ${ thumbnails[1].show(width="100%") } 
+  <div class="col-md-1 back_page show_page"></div><div class="col-md-4 page-text">Página <span class="number_page">1</span> de ${ the_preview.num_pages() }</div><div class="col-md-1 next_page show_page"><i class="fa fa-chevron-right" aria-hidden="true"></i></div>
+  <div class="col-md-4"></div><div class="col-md-1 back_page show_page"></i></div><div class="col-md-4 page-text">Página <span class="number_page">1</span> de ${ the_preview.num_pages() }</div><div class="col-md-1 next_page show_page"><i class="fa fa-chevron-right" aria-hidden="true"></i></div></div></div></div>
+allow emailing: False
+back button: False
+under: ""
+---
+attachment:
+  variable name: the_document
+  docx template file: IT_JC_200929_V2.0_Pagare.docx
+---
+attachment:
+  variable name: the_preview
+  docx template file: IT_JC_200929_V2.0_Pagare_WM.docx
+---
+event: save_and_resume
+code: |
+  target = 'save_and_resume'
+  wants_email = True
+---
+code: |
+  if 'url' in url_args:
+    _url = url_args['url']+'?i='+encode_name(user_info().filename)+'&session='+encode_name(user_info().session)
+  else:
+    _url = interview_url()
+  data = {'interview': all_variables(special='titles')['full'], 'url':_url}
+  send_email_juzto(data, user_email_address, 'leave')
+  email_sent = True
+---
+question: |
+  Podrás terminar luego tu ${ all_variables(special='titles')['full'] }
+subquestion: |
+  Si deseas reanudar tu documento más tarde, podemos enviarte por correo electrónico un enlace en el que puedes hacer clic para reanudar tu documento en un momento posterior.
+fields:
+  - Correo electrónico: user_email_address
+    datatype: email
+continue button label: Enviar correo
+back button label: No gracias, continuar mi documento
+under: ""
+---
+code: |
+  target = 'normal'  
+---

@@ -1,0 +1,196 @@
+metadata:
+  title: |
+   IT_DA_220406_V.1.0_Prescripcion_sancion
+  short title: |
+    Prescripción
+  description: |
+    Documento para solicitar la prescripción.
+  authors:
+    - name: Laura Pardo
+      organization: Juzto.co
+    - name: Dario Agaton
+      organization: Juzto.co
+---
+features:
+  navigation: True
+  progress bar: True
+  show progress bar percentage: True
+  hide standard menu: False
+  hide navbar: True
+  question back button: True
+---
+include:
+  - docassemble.playground3:autoterms.yml
+---
+modules:
+  - docassemble.playground3.juztoModules
+  - docassemble.playground3.juztoListChoices
+---
+initial: True
+code: |
+  Signature ='{{Signature:Recipient1*}}' 
+  case_number
+  client_type
+  if client_type == "Persona Natural":
+    natural.name
+    complaining_type_id
+    complaining_id_number
+    complaining_id_number = get_dni_formated(complaining_id_number)
+  else:
+    legal.name
+    complaining_id_number = generateNit(complaining_id_number)
+    legal_representative_type_id
+    legal_representative_name
+    legal_representative_id_number = get_dni_formated(legal_representative_id_number)
+  company_or_entity_name
+  email
+  email2
+  email3
+  email4
+  filing_city
+  ouremail = 'entidades+'+case_number+'@juzto.co'
+  fotomulta_number
+  infraction_date
+  sancionatory_resolution_number
+  sancionatory_resolution_date
+  coercive_collect
+  coercive_data
+  if coercive_collect == "True":
+    prescribed_resolution
+    time_between
+  else:
+    final_screen
+  final_screen
+---
+objects:
+  - natural: Individual
+  - legal: Individual
+#ACÁ COMIENZAN LAS PREGUNTAS DE JUAN----------------------------------------------------------------------------------------
+---
+question: |
+  ¿El cliente es persona o empresa?
+fields:
+  - no label: client_type
+    input type: radio
+    code: get_list('type_j')
+progress: 1
+---
+question: |
+  ¿Cuáles son los datos de la persona?
+fields:
+  - Nombres: natural.name.first
+    hint: Nombres
+  - Apellidos: natural.name.last
+    hint: Apellidos
+  - Tipo de identificación: complaining_type_id
+    input type: dropdown
+    code:  get_list_dni('N')
+  - Número de identificación: complaining_id_number
+    hint: dni
+id: blockglobal
+---
+question: |
+  ¿Cuáles son los datos de la compañía?
+fields:
+  - Nombre de la compañia: legal.name.first
+  - NIT: complaining_id_number
+    #hint: nit
+  - Nombre del representate legal: legal_representative_name
+  - Tipo de identificación: legal_representative_type_id
+    input type: dropdown
+    code:  get_list_dni('N')
+  - Número de identificación: legal_representative_id_number
+    #hint: dni
+---
+question: |
+  ¿Cuál es la línea de defensa a la que corresponde este documento? Ejemplo: LD-780
+fields:
+  - no label: case_number
+---
+question: |
+  ¿Cuáles son los datos de la entidad?
+fields:
+  - nombre: company_or_entity_name
+  - email: email
+    datatype: email
+  - email: email2
+    datatype: email
+  - email: email3
+    datatype: email
+  - email: email4
+    datatype: email
+  - ciudad: filing_city
+    input type: dropdown
+    code: get_cities()
+---
+question: |
+  Datos del comparendo 
+fields:
+  - número del comparendo: fotomulta_number
+  - fecha del comparendo: infraction_date
+    datatype: date 
+---
+question: |
+  Datos de la resolución sancionatoria
+fields:
+  - Número de la resolución: sancionatory_resolution_number
+  - Fecha de la resolución: sancionatory_resolution_date
+    datatype: date
+---
+question: |
+  Datos del cobro coactivo
+subquestion: |
+  OJO con el número de la resolución sancionatoria y el del cobro coactivo
+fields:
+  - ¿El caso ya tiene cobro coactivo?: coercive_collect
+    datatype: yesnoradio
+  - Tienes los datos de la resolución sancionatoria: coercive_data
+    datatype: yesnoradio
+  - Número de la resolución: coercive_resolution_number
+    show if:
+      variable: coercive_data
+      is: True
+  - Fecha de la resolución: coercive_resolution_date
+    datatype: date
+    show if:
+      variable: coercive_data
+      is: True
+---
+question: |
+  Información de la resolución
+fields:
+  - ¿Cuál es la resolución que lleva más de tres años?: prescribed_resolution
+    input type: radio
+    choices:
+      - La resolución sancionatoria: prescribed_sancionatory_resolution
+      - La resolución de cobro coactivo: prescribed_coercive_resolution
+      - Ambas: both_of_them 
+---
+question: |
+  ¿Entre la resolución sancionatoria y la resolución de cobro coactivo pasarón más de 3 años?
+yesno: time_between
+---
+#ACÁ ACABAN LAS PREGUNTAS DE JUAN-------------------------------------------------------------------------------------------
+attachment:
+  variable name: the_document
+  docx template file: IT_DA_220406_V.1.0_Prescripcion_sancion.docx
+---
+code: |
+  files_saved = save_files(the_document, 'Prescripcion_sancion', True, user_info().session)
+  juzto_callback = get_callback_final_screen('0', files_saved, 'Prescripcion_sancion', True)
+---
+event: final_screen
+question: |
+  Descarga el Derecho de Petición especial
+attachment:
+  name: Prescripción de la Sanción ${ case_number }
+  filename: Prescripción de la Sanción ${ case_number }
+  docx template file: IT_DA_220406_V.1.0_Prescripcion_sancion.docx
+  valid formats:
+    - pdf
+    - docx
+allow emailing: False
+buttons:
+  - Restart: restart
+id: juzto_da_final
+---

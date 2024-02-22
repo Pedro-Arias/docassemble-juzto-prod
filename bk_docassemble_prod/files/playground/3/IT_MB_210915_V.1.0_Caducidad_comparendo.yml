@@ -1,0 +1,159 @@
+metadata:
+  title: |
+   Caducidad de comparendo
+  short title: |
+    Caducidad comparendo
+  description: |
+   Documento que se presenta para poner una tutela cuando hay vencimiento del comparendo 
+  authors:
+    - name: Miguel Barrero
+      organization: Juzto.co
+    - name: Juan David Castilla
+      organization: Juzto.co
+---
+features:
+  navigation: True
+  progress bar: True
+  show progress bar percentage: True
+  hide standard menu: False
+  hide navbar: True
+  question back button: True
+---
+include:
+  - docassemble.playground3:autoterms.yml
+---
+modules:
+  - docassemble.playground3.juztoModules
+  - docassemble.playground3.juztoListChoices
+---
+initial: True
+code: |
+  client_type
+  if client_type == "Persona Natural":
+    natural.name
+    complaining_type_id
+    complaining_id_number
+    complaining_id_number = get_dni_formated(complaining_id_number)
+  else:
+    legal.name
+    complaining_id_number
+    legal_representative_name
+    legal_representative_type_id
+    legal_representative_id_number
+    legal_representative_id_number = get_dni_formated(legal_representative_id_number)
+    complaining_id_number = generate_nit(complaining_id_number)
+  company_or_entity_name
+  email
+  email2
+  email3
+  email4
+  fotomulta_number
+  infraction_date
+  sancionatory_resolution
+  if sancionatory_resolution:
+    sancionatory_resolution_number
+    sancionatory_resolution_date
+    dates, first_caducidad, second_caducidad = get_caducidad('2017-07-13',infraction_date, sancionatory_resolution_date)
+    sancionatory_resolution_date = date_format(sancionatory_resolution_date)
+  else:
+    dates, first_caducidad, second_caducidad = get_caducidad('2017-07-13',infraction_date)
+  ouremail  = 'entidades+'+casenum+'@juzto.co' 
+  traffic_ticket_type = 'Fotocomparendo'
+  infraction_date = date_format(infraction_date)
+  Signature ="{{Signature:Recipient1*}}"
+  final_screen
+---
+objects:
+  - natural: Individual
+  - legal: Individual
+---
+question: |
+  ¿El cliente es persona o empresa?
+fields:
+  - no label: client_type
+    input type: radio
+    code: get_list('type_j')
+---
+question: |
+  ¿Cuáles son los datos de la persona?
+fields:
+  - Nombres: natural.name.first
+    hint: Nombres
+  - Apellidos: natural.name.last
+    hint: Apellidos
+  - Tipo de identificación: complaining_type_id
+    input type: dropdown
+    code:  get_list_dni('N')
+  - Número de identificación: complaining_id_number
+    #hint: dni
+id: blockglobal
+---
+question: |
+  ¿Cuáles son los datos de la compañía?
+fields:
+  - Nombre de la compañia: legal.name.first
+  - NIT: complaining_id_number
+    hint: nit
+  - Nombre del representate legal: legal_representative_name
+  - Tipo de identificación: legal_representative_type_id
+    input type: dropdown
+    code:  get_list_dni('N')
+  - Número de identificación: legal_representative_id_number
+    #hint: dni
+id: blockglobal
+---
+question: |
+  ¿Cuál es la entidad y los email de contacto?
+fields:
+  - nombre: company_or_entity_name
+  - email: email
+    datatype: email
+  - email: email2
+    datatype: email
+  - email: email3
+    datatype: email
+  - email: email4
+    datatype: email
+---
+question: |
+  ¿Cuál es el número y fecha del comparendo? 
+fields:
+  - no label: fotomulta_number
+  - no label: infraction_date
+    datatype: date
+---
+question: |
+  ¿Tiene resolución sancionatoria? ${infraction_date}
+fields:
+  - no label: sancionatory_resolution
+    datatype: yesnoradio
+  - Número de la resolución: sancionatory_resolution_number
+    show if:
+      variable: sancionatory_resolution
+      is: True   
+  - Fecha de la resolución: sancionatory_resolution_date
+    datatype: date
+    show if:
+      variable: sancionatory_resolution
+      is: True    
+---
+question: |
+  ¿Cuál es el número de la línea de defensa?
+fields:
+  - línea de defensa: casenum
+---
+attachment:
+  variable name: the_document
+  docx template file: IT_MB_211130_V.1.0_Caducidad_comparendo.docx
+---
+code: |
+  files_saved = save_files(the_document, 'Caducidad_comparendo', True, user_info().session)
+  juzto_callback = get_callback_final_screen('0', files_saved, 'Caducidad_comparendo', True)
+---
+event: final_screen
+question: |
+  ${ z_text_final_screen } - COD: ${user_info().session}
+subquestion: |
+  ${ juzto_callback }
+id: juzto_da_final
+---

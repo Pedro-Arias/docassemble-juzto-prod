@@ -1,0 +1,177 @@
+metadata:
+  title: |
+   Solicitud de renuencia por no respuesta a solicitud en reinicio de terminos
+  short title: |
+    Renuencia por no reinicio de terminos
+  description: |
+   Con este documento hacemos un agendamiento por no respuesta a solicitud en reinicio de terminos.
+  authors:
+    - name: Pedro Arias
+      organization: Juzto.co
+    - name: Juan David Castilla
+      organization: Juzto.co
+---
+features:
+  navigation: True
+  progress bar: False
+  show progress bar percentage: True
+  hide standard menu: False
+  hide navbar: True
+  question back button: True
+---
+include:
+  - docassemble.playground3:autoterms.yml
+---
+modules:
+  - docassemble.playground3.juztoModules
+  - docassemble.playground3.justoModulePrueba
+  - docassemble.playground3.juztoListChoices
+---
+initial: True
+code: |
+  client_type
+  if client_type == "Persona Natural":
+    natural.name
+    complaining_type_id
+    complaining_id_number
+    complaining_id_number = get_dni_formated(complaining_id_number)
+  else:
+    legal.name
+    complaining_id_number
+    legal_representative_name
+    legal_representative_type_id
+    legal_representative_id_number
+    legal_representative_id_number = get_dni_formated(legal_representative_id_number)
+    complaining_id_number = generateNit(complaining_id_number)
+  resolution_number
+  hearing_date
+  fotomulta_number
+  first_date_presentation
+  if second_presentation == True:
+    second_date_presentation
+  if tutela == True:
+    tutela_date
+  company_or_entity_name
+  email
+  email2
+  email3
+  email4
+  ouremail  = 'juzgados+'+case_number+'@juzto.co'
+  final_screen
+---
+objects:
+  - natural: Individual
+  - legal: Individual
+---
+question: |
+  ¿El cliente es persona o empresa?
+fields:
+  - no label: client_type
+    input type: radio
+    code: get_list('type_j')
+---
+question: |
+  ¿Cuáles son los datos de la persona?
+fields:
+  - Nombres: natural.name.first
+    hint: Nombres
+  - Apellidos: natural.name.last
+    hint: Apellidos
+  - Tipo de identificación: complaining_type_id
+    input type: dropdown
+    code: prueba()
+  - Número de identificación: complaining_id_number
+    hint: dni
+id: blockglobal
+---
+question: |
+  ¿Cuáles son los datos de la compañía?
+fields:
+  - Nombre de la compañia: legal.name.first
+  - NIT: complaining_id_number
+    #hint: nit
+  - Nombre del representate legal: legal_representative_name
+  - Tipo de identificación: legal_representative_type_id
+    input type: dropdown
+    code:  get_list_dni('N')
+  - Número de identificación: legal_representative_id_number
+    #hint: dni
+id: blockglobal
+---
+question: |
+  ¿Cuál es el número de resolución? 
+fields:
+  - Numero: resolution_number
+---
+question: |
+  ¿Cuál es el número de la fotomulta? 
+fields:
+  - Numero: fotomulta_number
+---
+question: |
+  ¿Cual es la fecha incial de presentación?
+fields:
+  - no label: first_date_presentation
+    datatype: date
+---
+question: |
+  ¿hay segunda fecha de presentación?
+yesno: second_presentation
+---
+question: |
+  ¿Cual es la fecha de la segunda presentación?
+fields:
+  - no label: second_date_presentation
+    datatype: date
+---
+question: |
+  ¿hay una tutela?
+yesno: tutela
+---
+question: |
+  ¿Cual es la fecha de la tutela?
+fields:
+  - no label: tutela_date
+    datatype: date
+---
+question: |
+  ¿Cual es la fecha del envio del correo?
+fields:
+  - no label: hearing_date
+    datatype: date
+---
+question: |
+  ¿Cuáles son los datos de la entidad?
+fields:
+  - nombre: company_or_entity_name
+  - email: email
+    datatype: email
+  - email: email2
+    datatype: email
+  - email: email3
+    datatype: email
+  - email: email4
+    datatype: email
+---
+question: |
+  ¿Cuál es la línea de defensa a la que corresponde este documento? Ejemplo: LD-780
+fields:
+  - no label: case_number
+---
+attachment:
+  variable name: the_document
+  docx template file: LD_JD_renuencia_por_no_reinicio_de_terminos_V.1.0.docx
+---
+code: |
+  files_saved = save_files(the_document, 'Renuencia_por_no_reinicio_de_terminos', True, user_info().session)
+  juzto_callback = get_callback_final_screen('0', files_saved, 'Renuencia_por_no_reinicio_de_terminos', True)
+---
+event: final_screen
+question: |
+  ${ z_text_final_screen } - COD: ${user_info().session}
+subquestion: |
+  ${ juzto_callback }
+id: juzto_da_final
+---
+
+

@@ -1,0 +1,1009 @@
+---
+metadata:
+  title: |
+   Cuenta de cobro
+  short title: |
+    Cuenta de cobro
+  description: |
+    Una cuenta de cobro
+  authors:
+    - name: Felipe Gómez
+      organization: Juzto.co
+    - name: John Morales
+      organization: Juzto.co
+    - name: Juan David Castilla
+      organization: Juzto.co
+  revision_date: 2020-07-23
+---      
+features:
+  navigation: True
+  progress bar: True
+  show progress bar percentage: True
+  hide standard menu: False
+  hide navbar: True
+  question back button: True
+---
+auto terms:
+  NIT: |
+    Número de Identificación Tributaria con el cual se identifica a las empresas.
+  Retención en la fuente: |
+    La retención en la fuente no es un impuesto sino un cobro anticipado de un impuesto. Como estas elaborando una cuenta de cobro, la retención en la fuente es del impuesto de renta. Si aplica retención en la fuente quiere decir que se está abonando o pagando de forma anticipada el impuesto de renta.
+  seguridad social: |
+    Es el pago de salud y pensión que deben realizar las personas independientes.
+  decreto 780 de 2015: |
+    El pago de las cotizaciones al Sistema de Seguridad Social Integral de los trabajadores independientes se efectuará mes vencido, por periodos mensuales, a través de la Planilla Integrada de Liquidación de Aportes (PILA) y teniendo en cuenta los ingresos percibidos en el periodo de cotización, esto es, el mes anterior.
+  personalmente: |
+    Es cuando una persona presta el servicio directamente.
+  pago de seguridad social: |
+    Usualmente se debe adjuntar una copia de la planilla en donde conste el pago de salud, pensión y ARL del mes anterior al que se está cobrando.[BR] 
+    El monto de los pagos dependerá del monto de ingresos mensuales del contratista independiente. Es posible hacer la cotización sobre el 40% del total de los ingresos mensuales.
+  responsables de IVA: |
+    No responsable de IVA: personas naturales que no están obligados a recaudar el IVA ni a facturar y que durante el año en curso o el anterior no han firmado contratos de venta de bienes o prestación de servicios por valor igual o superior a $124.624.500 (para 2020).
+---
+default screen parts:
+  under: |
+    % if show_save_resume_message:
+    [Guardar y terminar después](${ url_action('save_and_resume') })
+    % endif
+    [Volver a comenzar](${ url_action('restart_interview') })    
+---
+event: restart_interview
+code: |
+  force_ask('wants_to_restart', {'recompute': ['restart_done']})
+---
+question: |
+  ¿Estás seguro de querer reiniciar tu ${ all_variables(special='titles')['full'] }?
+subquestion: |
+  La información que ya hallas ingresado se perdera, tendras que volver a ingresar todas las respuestas.
+field: wants_to_restart
+buttons:
+  - Si, eliminar datos ingresados: True
+back button label: No gracias, continuar mi documento
+under: ""
+---
+code: |
+  if wants_to_restart:
+    command('restart')
+  restart_done = True
+---
+include:
+  - docassemble.playground3:autoterms.yml
+---
+modules:
+  - docassemble.playground3.juztoModules
+  - docassemble.playground3.juztoListChoices
+---
+initial: True
+code: |
+  multi_user = True
+  show_save_resume_message = True
+  the_sections = [{'intro':'Introducción'}] 
+  the_sections.append({'payer':'Datos de la persona que paga'})
+  the_sections.append({'contractor':'Datos de la persona que cobra'})
+  the_sections.append({'responsable':'Persona responsable del documento'})
+  the_sections.append({'account':'Fecha y ciudad'})
+  the_sections.append({'service':'Información del producto o servicio'})
+  if showifdef('product_or_service') == 'Servicio':
+    the_sections.append({'detail':'Detalle del servicio cobrado'})
+  the_sections.append({'payment':'Información para el pago'})
+  if showifdef('product_or_service') == 'Servicio':
+    if get_only_number(price) >= 142428:
+      the_sections.append({'retention':'Beneficio de retención en la fuente'})  
+  if showifdef('answering_survey'):
+    if answering_survey == title_case(contractor_name.capitalize()):
+      the_sections.append({'sign':'Firmar documento'})    
+  the_sections.append({'confirmation':'Confirmación de los datos'})
+  nav.set_sections(the_sections)  
+---
+mandatory: True
+scan for variables: False
+code: |
+  if target == 'save_and_resume':
+    if wants_email:
+      show_save_resume_message = False
+    undefine('wants_email')
+    undefine('email_sent')
+    target = 'normal'   
+  intro_page
+  agrees_to_terms
+  paying_type
+  paying_name
+  if paying_type == 'Persona natural':
+    paying_id_type
+    paying_id_number
+  if paying_type == 'Persona jurídica':
+    nit
+  contractor_name
+  contractor_id_type
+  contractor_id_number
+  contractor_email
+  contractor_phone
+  contractor_address
+  answering_survey
+  date_presentation
+  city
+  product_or_service
+  description
+  price
+  product
+  if product == True:
+    product_retention
+  if product_or_service == 'Servicio':
+    labour_date
+    if labour_date == True:
+      first_day
+      last_day
+  days_for_payment
+  payment_day
+  payment_method
+  if payment_method != 'Efectivo':
+    contractor_financial_institution
+    contractor_account_type
+    contractor_account_number
+  if product_or_service == "Servicio" and get_only_number(price) < 877803:
+    social_security_warning
+  social_security
+  if social_security == False:  
+    social_security_payment
+  if social_security == False and social_security_payment == False and answering_survey == title_case(contractor_name.capitalize()):
+    social_security_risk
+  if  product_or_service == "Servicio" and get_only_number(price) >= 142428:
+    retention_benefits
+    personal_presentation
+    subcontractor
+    if retention_benefits == True:
+      retention_summary_page
+  do_sign
+  if do_sign == True:
+    sign_method
+    sign_file
+  answers_reviewed  
+  final_screen  
+---
+event: payer
+section: payer
+question: |
+  Datos de la persona que paga
+review: 
+  - Editar: paying_type
+    button: |
+      **Tipo:** ${paying_type}[BR]
+      % if paying_type == 'Persona natural':
+      **Nombre(s) y Apellido(s):** ${paying_name.title()}[BR]
+      **No. de identificación:** ${paying_id_type}. ${paying_id_number.upper()}
+      % else:
+      **Nombre:** ${paying_name.capitalize()}[BR]
+      **NIT:** ${ generateNit(nit)}
+      % endif
+---
+event: contractor
+section: contractor
+question: |
+  Datos de la persona que cobra
+review: 
+  - Editar: contractor_name
+    button: |
+      **Nombre(s) y Apellido(s):** ${contractor_name.capitalize()}[BR]
+      **No. de identificación:** ${contractor_id_type}. ${contractor_id_number.upper()}[BR]
+      **Correo electrónico:** ${contractor_email.lower()}[BR]
+      **Número de contacto:** ${contractor_phone}[BR]
+      **Dirección:** ${contractor_address.upper()}[BR] 
+---
+event: responsable
+section: responsable
+question: |
+  Datos de quien diligencia la cuenta de cobro
+review: 
+  - Editar: answering_survey
+    button: |
+      **El que diligencia la cuenta de cobro:** ${title_case(answering_survey.lower())}
+---
+event: service
+section: service
+question: |
+  Información del ${product_or_service.lower()} que se cobra
+review: 
+  - Editar: product_or_service
+    button: |
+      % if product_or_service == 'Producto':
+      **Descripción del producto:** ${description}
+      % elif product_or_service == 'Servicio':
+      **Descripción del servicio:** ${description}
+      % elif product_or_service == 'Gasto':
+      **Descripción del gasto:** ${description}     
+      % endif 
+  - Editar: price  
+    button: |
+      **Valor a cobrar:** $${price}[BR]
+      % if product == True:
+        % if product_or_service == "Producto" and get_only_number(price) < 961389:
+          Debido al valor del producto no aplica retención en la fuente.
+        % elif product_or_service == "Servicio" and get_only_number(price) < 142428:
+          Debido al valor que del servicio no aplica retención en la fuente.
+        % endif      
+      % endif   
+---
+event: account
+section: account
+question: |
+  Fecha y ciudad donde será presentada la cuenta de cobro
+review: 
+  - Editar: date_presentation  
+    button: |
+      La cuenta de cobro será presentada en la ciudad de ${city}[BR]
+      El día ${date_presentation}
+---
+event: detail
+section: detail
+question: |
+  Detalles del servicio
+review: 
+  - Editar: labour_date
+    button: |
+      % if labour_date == True: 
+        Haz contestado que quieres especificar la fecha de inicio y finalización del servicio.[BR]
+        **Fecha de inicio:** ${first_day}[BR]
+        **Fecha de finalizacion:** ${first_day}[BR]
+      % else:
+        Haz decidido no especificar la fecha de inicio y finalización del servicio. 
+      % endif 
+---      
+event: payment
+section: payment
+question: |
+  Información para el pago
+review: 
+  - Editar: payment_day  
+    button: |
+      **Fecha límite de pago:** ${payment_day}
+  - Editar: payment_method  
+    button: |
+      **Forma de pago:** ${payment_method}[BR]
+      % if payment_method != 'Efectivo':
+      **Entidad bancaria:** ${contractor_financial_institution}[BR]
+      **Tipo de cuenta:** ${contractor_account_type}[BR]
+      **Número de cuenta:** ${contractor_account_number}[BR]
+      % endif
+  - Editar: social_security
+    button: |
+      % if social_security == True:
+        % if answering_survey == title_case(contractor_name.capitalize()):
+      Afirmaste que vas a presentar el pago de la seguridad social
+        % else:
+      Afirmaste que ${ title_case(contractor_name.capitalize()) } presentará el pago de la seguridad social
+        % endif
+      % else:
+      Constestaste que no se presentará el pago de la seguridad social
+      % endif      
+  - Editar: social_security_payment 
+    button: |
+      % if social_security_payment == True:
+        % if answering_survey == title_case(contractor_name.capitalize()):
+      Autorizaste para que ${ title_case(paying_name.lower()) } te descuente y realice el pago de la seguridad social.
+        % else:
+      ${ title_case(contractor_name.capitalize()) } autoriza para que realices el pago de la seguridad social.
+        % endif 
+      % else:
+        % if answering_survey == title_case(contractor_name.capitalize()):
+      No autorizaste para que ${ title_case(paying_name.lower()) } te descuente y realice el pago de la seguridad social.
+        % else:
+      Respondiste que ${ title_case(contractor_name.capitalize()) } no autoriza para que realices el pago de la seguridad social.
+        % endif 
+      % endif  
+---
+event: retention
+section: retention
+question: |
+  Beneficio de retención en la fuente 
+review:
+  - label: Editar
+    fields:
+      - retention_benefits
+      - personal_presentation
+      - subcontractor
+      - retention_summary_page
+    button: |
+      ${ retention_summary }
+---
+event: sign
+section: sign
+question: |
+  Firma del documento
+review:
+  - label: Editar
+    fields:
+      - do_sign
+      - follow up:
+        - sign_file
+    button: |
+      % if do_sign == False:
+      Haz contestado que no deseas firmar el documento
+      % elif do_sign == True: 
+      **Firma:** [BR]
+      ${sign_file}
+      % endif
+---
+depends on: 
+  - date_presentation
+  - payment_day
+code: |
+  days_for_payment = date_difference(starting=date_presentation.format_date('yyyy-MM-dd'), ending=payment_day.format_date('yyyy-MM-dd')).days
+---
+question: |
+  Ahora empezaremos a crear tu cuenta de cobro. 
+subquestion: | 
+  Ahora empezaremos a crear tu cuenta de cobro. 
+
+  Este es el documento utilizado por las personas que no son responsables de IVA. Formaliza el cobro de un dinero por un servicio prestado, un producto vendido o un reintegro de un gasto a un tercero.  Cuando se presenta una cuenta de cobro usualmente debe estar acompañada de una copia del RUT y los comprobantes de pago de seguridad social . 
+
+  Para tu  tranquilidad, este es un documento de gran calidad, preparado por abogados expertos. Pasos por seguir:
+
+  1. Responde todas las preguntas que te haremos. Estas preguntas han sido preparadas por abogados con mucha experiencia en este tipo de documentos. 
+    Cada respuesta cambia el contenido del documento y lo ajusta a tu caso concreto. 
+
+  2. Queremos que lo entiendas todo. En cada pregunta encontrarás explicaciones hechas por nuestros abogados. 
+    Las palabras complicadas estarán subrayadas en azul y en un color diferente, también podrán llevar      un signo de interrogación. Haz clic sobre la palabra o el signo de interrogación para leer la explicación. 
+
+  3. Al terminar      tendrás un documento hecho especialmente para ti, construido con base en tus respuestas. Además podrás comprender todos los conceptos del documento con claridad. Entenderás lo que vas a firmar.
+
+  Si tienes alguna duda adicional puedes programar una cita con uno de nuestros abogados.
+
+  Gracias por elegir Juzto, empecemos.
+
+continue button field: intro_page
+prevent going back: True
+secction: intro
+under: ""
+---
+question: |
+  Para la cuenta de cobro debes tener lista la siguiente información:
+subquestion: |
+  - Información completa de la persona que cobra.
+  - El detalle de lo que se cobra.
+  - Valor que se cobra.
+  - La forma de pago.
+  - Información completa de la persona que paga.
+  - Fecha límite de pago.
+fields:
+  - no label: agrees_to_terms
+    datatype: checkboxes
+    default: "Acepto el tratamiento de los datos personales."
+    minlength: 1
+    choices:
+      - Acepto el tratamiento de los datos personales.
+    validation messages:
+      minlength: |
+        Debes aceptar el tratamiento de los datos personales para pode continuar
+secction: intro
+under: ""
+---
+question: |
+  ¿Quién debe pagar la cuenta de cobro?
+fields:
+  - ¿Identifica si es persona natural o persona jurídica?: paying_type 
+    datatype: radio
+    choices:
+      - Persona natural
+      - Persona jurídica
+  - Nombre(s) y Apellido(s): paying_name
+    hint: Juan David Perez Gómez
+    show if:
+      variable: paying_type
+      is: Persona natural
+  - Nombre: paying_name
+    hint: Soluciones justas S.A.S.
+    show if:
+      variable: paying_type
+      is: Persona jurídica
+  - Tipo de identificación: paying_id_type
+    datatype: dropdown
+    code: get_list_dni('N')
+    show if:
+      variable: paying_type
+      is: Persona natural
+  - Núero de identificación: paying_id_number
+    hint: dni
+    show if:
+      variable: paying_type
+      is: Persona natural
+  - NIT: nit
+    hint: nit
+    show if:
+      variable: paying_type
+      is: Persona jurídica
+section: payer
+progress: 10
+---
+question: |
+  ¿Cuáles son los datos de la persona que cobra?
+fields:
+  - Nombre(s) y apellido(s): contractor_name
+    hint: Juan David Perez Gómez
+  - Tipo de documento de identidad: contractor_id_type
+    datatype: dropdown
+    code: get_list_dni('N')
+  - Número de documento: contractor_id_number
+    hint: dni
+  - Correo electrónico: contractor_email
+    hint: juandavidperezomez@gmail.com
+    datatype: email
+  - Número de teléfono: contractor_phone
+    hint: 2112222
+  - Dirección: contractor_address
+    hint: calle 123 No. 12 - 23
+section: contractor
+progress: 20
+---
+question: |
+  ¿Quién está diligenciando la cuenta de cobro?
+fields:
+  - no label: answering_survey
+    datatype: radio
+    choices:
+      - ${ title_case(contractor_name.lower()) }
+      - ${ title_case(paying_name.lower()) }
+depends on: 
+  - paying_name
+  - contractor_name
+section: responsable
+progress: 25
+---
+question: |
+  % if answering_survey == title_case(contractor_name.capitalize()):
+  ¿El cobro que haces es por un producto, un servicio o un reintegro de gasto?
+  % else:
+  ¿El cobro que hace ${ title_case(contractor_name.capitalize()) } es por un producto, un servicio o un reintegro de gastos?
+  % endif
+subquestion: |
+  % if answering_survey == title_case(contractor_name.capitalize()):
+  Debes señalar si cobras por un producto (equipos de sonido, equipos de cómputo, tabletas, sillas, mesas, etc.), por un servicio (servicios de recreación, servicios médicos, servicios contables, servicios de organización de una fiesta, etc.) o por un reintegro de gastos. 
+  % else:
+  Debes señalar si ${ title_case(contractor_name.capitalize())} cobra por un producto (equipos de sonido, equipos de cómputo, tabletas, sillas, mesas, etc.), por un servicio (servicios de recreación, servicios médicos, servicios contables, servicios de organización de una fiesta, etc.) o por un reintegro de gastos.  
+  % endif
+fields:
+  - no label: product_or_service
+    datatype: radio
+    choices:
+      - Producto: Producto
+      - Servicio: Servicio
+      - Reintegro de gastos: Gasto
+  - Detalla el servicio: description
+    hint: Servicio de asesoría jurídica
+    show if:
+      variable: product_or_service
+      is: Servicio
+  - Detalla el producto: description
+    hint: Pantallas o monitores de marca LG de 21 pulgadas
+    show if:
+      variable: product_or_service
+      is: Producto
+  - Detalla el gasto: description
+    hint: Gastos de representación
+    show if:
+      variable: product_or_service
+      is: Gasto
+  - note: |
+      Por favor sé específico en la descripción del producto. Esto probará lo que ${ title_case(contractor_name.lower()) } está cobrando y evitará confusiones futuras. 
+    show if:
+      variable: product_or_service
+      is: Producto
+  - note: |
+      Por favor sé específico en la descripción del servicio. Esto probará lo que ${ title_case(contractor_name.lower()) } está cobrando y evitará confusiones futuras. 
+    show if:
+      variable: product_or_service
+      is: Servicio 
+  - note: |
+      Por favor sé específico en la descripción del gasto. Esto probará lo que ${ title_case(contractor_name.lower()) } está cobrando y evitará confusiones futuras. 
+    show if:
+      variable: product_or_service
+      is: Gasto                       
+section: service
+progress: 30
+---
+question: |
+  % if answering_survey == title_case(contractor_name.capitalize()):
+  ¿Cuál es el valor que estás cobrando?
+  % else:
+  ¿Cuál es el valor que ${ title_case(contractor_name.capitalize()) } está cobrando?
+  % endif
+fields:
+  - no label: price
+    hint: money      
+section: service
+progress: 40
+---
+depends on:
+  - product_or_service
+  - price
+code: |
+  product = False
+  if (product_or_service == "Producto" and get_only_number(price) < 961389) or (product_or_service == "Servicio" and get_only_number(price) < 142428):
+    product = True
+---
+if: product
+question: |
+  % if product_or_service == "Producto" and get_only_number(price) < 961389:
+  Debido al valor del producto no aplica retención en la fuente.
+  % elif product_or_service == "Servicio" and get_only_number(price) < 142428:
+  Debido al valor que del servicio no aplica retención en la fuente.
+  % endif
+continue button field: product_retention
+depends:
+  - product
+  - price
+section: service
+progress: 50
+---
+depends on:
+  - product
+  - answering_survey
+question: |
+  % if answering_survey == title_case(contractor_name.capitalize()):
+  ¿Quieres especificar la fecha de inicio y finalización del servicio por el que estás cobrando?
+  % else:
+  ¿Quieres especificar la fecha de inicio y finalización del servicio por el que ${ title_case(contractor_name.capitalize()) } está cobrando?
+  % endif
+fields:
+  - no label: labour_date 
+    datatype: yesnoradio
+  - Fecha de inicio: first_day
+    datatype: date
+    min: ${ today().minus(years=12).format_date('yyyy-MM-dd') }
+    show if:
+      variable: labour_date
+      is: True
+  - Fecha de finalización: last_day
+    datatype: date
+    min: ${ today().minus(years=12).format_date('yyyy-MM-dd') }
+    show if:
+      variable: labour_date
+      is: True
+validation code: |
+  if labour_date == True:
+    if first_day.format_date('yyyy-MM-dd') > last_day.format_date('yyyy-MM-dd'):
+      validation_error("La fecha de inicio no puede ser posterior a la fecha de finalización")         
+section: service
+progress: 60
+---
+question: |
+  ¿En qué fecha y ciudad se presenta la cuenta de cobro?
+fields:
+  - Fecha: date_presentation
+    datatype: date
+    min: ${ today().minus(years=12).format_date('yyyy-MM-dd') }
+  - Ciudad: city
+    input type: dropdown
+    code: get_cities()  
+section: account
+progress: 65
+---
+depends on:
+  - date_presentation
+question: |
+ ¿Cuál es la fecha máxima para realizar el pago?
+fields:
+  - Fecha límite de pago: payment_day
+    datatype: date
+    min: ${ today().minus(years=12).format_date('yyyy-MM-dd') }
+validation code: |
+    if payment_day < date_presentation:
+      validation_error("La fecha de pago no puede ser antes de la fecha de la cuenta de cobro")
+section: payment
+progress: 70
+---
+question: |
+  % if answering_survey == title_case(contractor_name.capitalize()):
+  ¿Cómo quieres recibir el pago?
+  % else:
+  ¿Cómo quiere ${ title_case(contractor_name.capitalize()) } recibir el pago?
+  % endif
+fields:
+  - no label: payment_method
+    datatype: radio
+    choices:
+      - Efectivo
+      - Transferencia o consignación en cuenta bancaria
+  - Entidad bancaria: contractor_financial_institution
+    input type: dropdown
+    code: get_list('banks')
+    show if:
+      variable: payment_method
+      is: Transferencia o consignación en cuenta bancaria
+  - Tipo de cuenta: contractor_account_type
+    input type: radio
+    code: get_list('bankaccount') 
+    show if:
+      variable: payment_method
+      is: Transferencia o consignación en cuenta bancaria
+  - Número de cuenta: contractor_account_number 
+    show if:
+      variable: payment_method
+      is: Transferencia o consignación en cuenta bancaria
+section: payment
+progress: 75
+---
+depends on:
+  - product_or_service
+  - price
+question: |
+  Tienes que saber
+subquestion: |
+  % if answering_survey == title_case(contractor_name.capitalize()):
+  No es obligatorio que presentes el pago de la seguridad social teniendo en cuenta que cobras un valor inferior al salario mínimo. Lo anterior, debido a que el artículo 244 de la Ley 1955 de 2019 así lo establece. Sin embargo, es posible que ${ title_case(paying_name.lower()) } por políticas te solicite el comprobante de pago. En las siguientes preguntas podrás aclarar si hiciste o harás el pago a la seguridad social.
+  % else:
+  No es obligatorio que ${ title_case(contractor_name.capitalize()) } presente el pago de la seguridad social teniendo en cuenta que está cobrando un valor inferior al salario mínimo. Lo anterior, debido a que el artículo 244 de la Ley 1955 de 2019 así lo establece. Sin embargo, a continuación podrás establecer si ${ title_case(contractor_name.capitalize()) } realizará o realizó el pagode la seguridad social.
+  % endif
+continue button field: social_security_warning  
+progress: 75
+section: payment
+---
+question: |
+  % if answering_survey == title_case(contractor_name.capitalize()):
+  ¿Vas a presentar el pago de la seguridad social?
+  % else:
+  ¿Sabes si ${ title_case(contractor_name.capitalize()) } presentará el pago de la seguridad social?
+  % endif
+subquestion: |
+  Se debe presentar el pago de la seguridad social del mes anterior a la presentación al de la cuenta de cobro. Lo anterior, debido a que el decreto 780 de 2015 así lo establece. 
+yesno: social_security
+progress: 80
+section: payment
+---
+depends on:
+  - social_security
+question: |
+  % if answering_survey == title_case(contractor_name.capitalize()):
+  ¿Autorizas para que ${ title_case(paying_name.lower()) } te descuente y realice el pago de la seguridad social?
+  % else:
+  ¿${ title_case(contractor_name.capitalize()) } autoriza para que realices el pago de la seguridad social?
+  % endif
+yesno: social_security_payment
+progress: 83
+section: payment
+---
+depnds on:
+  - social_security
+  - social_security_payment
+  - answering_survey 
+question: |
+  Corres un riesgo
+subquestion: |
+  Es posible que esta cuenta de cobro no sea cancelada sin el soporte o autorización para el pago de seguridad social.
+continue button field: social_security_risk
+section: payment
+progress: 84
+---
+dpends on:
+  - product_or_service
+  - price
+question: |
+  % if answering_survey == title_case(contractor_name.capitalize()):
+  ¿Quieres acogerte al beneficio de retención en la fuente?
+  % else:
+  ¿Sabes si ${ title_case(contractor_name.capitalize()) } quiere acogerse al beneficio de retención en la fuente?
+  % endif
+subquestion: |
+  La retención en la fuente por servicios está entre el 10% y 11% del valor cobrado. Sin embargo, si se cumplen con los requisitos que más adelante te preguntaremos se podrá solicitar el beneficio para que no haya retención en la fuente.
+yesno: retention_benefits
+section: retention
+progress: 85
+---
+#code: |
+#  retention_benefits = False
+---
+depends on: retention_benefits
+if: retention_benefits
+question: |
+  % if answering_survey == title_case(contractor_name.capitalize()):
+  ¿Prestaste o prestas personalmente el servicio?
+  % else:
+  ¿Sabes si ${ title_case(contractor_name.capitalize()) } prestó o presta el servicio personalmente?
+  % endif
+subquestion: |
+  Los servicios que se cobran deben ser por prestación de servicios, viáticos, gastos de representación, honorarios y otros derivados de servicios personales. Si el servicio no fue prestado personalmente, no puede aplicarse el beneficio.
+yesno: personal_presentation
+progress: 90
+section: retention
+---
+depends on: retention_benefits
+code: |
+  if not retention_benefits:
+    personal_presentation = False
+---
+depends on:
+  - retention_benefits
+  - personal_presentation
+if: retention_benefits and personal_presentation
+question: |
+  % if answering_survey == title_case(contractor_name.capitalize()):
+  ¿Contrataste o contratarás a 2 o más personas para prestar el servicio?
+  % else:
+  ¿${ title_case(contractor_name.capitalize()) } contrató o contratará a 2 o más personas para prestar el servicio?
+  % endif
+subquestion: |
+  Para aplicar al beneficio, la ley exige que en la prestación del servicio no se haya contratado a 2 o más personas.
+yesno: subcontractor
+progress: 92
+section: retention
+---
+depends on:
+  retention_benefits
+question: |
+  ${retention_summary}
+continue button field: retention_summary_page
+section: retention
+---
+if: answering_survey == title_case(contractor_name.capitalize())
+depends on:
+  - answering_survey
+question: |
+  ¿Quieres firmar la Cuenta de Cobro en este momento?
+fields:
+  - no label: do_sign
+    datatype: yesnoradio
+  - ¿Cómo deseas firmar?: sign_method
+    input type: radio
+    choices:
+      - Subir imagen de mi firma: sign_upload
+      - Hacer mi firma en la pantalla o con el mouse: sign_screen
+    show if:
+      variable: do_sign
+      is: True
+section: sign
+progress: 94
+---
+if: answering_survey != title_case(contractor_name.capitalize())
+code: |
+  do_sign = None
+---
+code: |
+  if do_sign == False:
+    sign_method = ""
+---
+depens on:
+  - do_sign
+  - sign_method
+if: sign_method == 'sign_upload'
+question: |
+  Sube tu firma en formato de imagen
+fields:
+  - no label: sign_file
+    datatype: file
+section: sign
+progress: 96
+---
+depens on:
+  - do_sign
+  - sign_method
+if: sign_method == 'sign_screen'
+question: |
+  Haz la Firma en el recuadro
+signature: sign_file
+under: |
+  ${ answering_survey }
+section: sign
+progress: 96
+---
+depeds on: personal_presentation
+code: |
+  if not personal_presentation:
+    subcontractor = False
+---
+template: retention_summary
+content: |
+  % if retention_benefits == True:
+    % if personal_presentation == True and subcontractor == False:
+      % if answering_survey == title_case(contractor_name.capitalize()):
+  Felicitaciones, puedes aplicar al beneficio de retención en la fuente.
+      % else:
+  ${ title_case(contractor_name.capitalize()) } puede aplicar al beneficio de retención en la fuente.
+      % endif
+    % else:
+      % if answering_survey == title_case(contractor_name.capitalize()):
+  Lo sentimos, según tus respuestas no se puede aplicar a los beneficios de retención en la fuente.
+      % else:
+  Lo sentimos, según tus respuestas ${ title_case(contractor_name.capitalize()) } no puede aplicar a los beneficios de retención en la fuente.    
+      % endif
+    % endif
+  % else:
+  Haz dicho que no quieres acogerte a los beneficios de retención en la fuente
+  % endif 
+---
+question: |
+  En esta pantalla puedes revisar tus respuestas
+review:
+  - note: |
+      ### Fecha y ciudad
+  - Editar: date_presentation  
+    button: |
+      La cuenta de cobro será presentada en la ciudad de ${city}[BR]
+      El día ${date_presentation}
+  - note: |
+      ***********
+      ### Datos de la persona que paga
+  - Editar: paying_type
+    button: |
+      **Tipo:** ${paying_type}[BR]
+      % if paying_type == 'Persona natural':
+      **Nombre(s) y Apellido(s):** ${paying_name.title()}[BR]
+      **No. de identificación:** ${paying_id_type}. ${paying_id_number.upper()}
+      % else:
+      **Nombre:** ${paying_name.capitalize()}[BR]
+      **NIT:** ${ generateNit(nit)}
+      % endif
+  - note: |
+      ***********
+      ### Datos de la persona que cobra
+  - Editar: contractor_name
+    button: |
+      **Nombre(s) y Apellido(s):** ${contractor_name.capitalize()}[BR]
+      **No. de identificación:** ${contractor_id_type}. ${contractor_id_number.upper()}[BR]
+      **Correo electrónico:** ${contractor_email.lower()}[BR]
+      **Número de contacto:** ${contractor_phone}[BR]
+      **Dirección:** ${contractor_address.upper()}[BR]
+  - note: |
+      ***********
+      ### Datos de quien diligencia la cuenta de cobro
+  - Editar: answering_survey
+    button: |
+      **El que diligencia la cuenta de cobro:** ${title_case(answering_survey.lower())}  
+  - note: |
+      ***********
+      ### Información del ${product_or_service.lower()} que se cobra
+  - Editar: product_or_service
+    button: |
+      % if product_or_service == 'Producto':
+      **Descripción del producto:** ${description}
+      % elif product_or_service == 'Servicio':
+      **Descripción del servicio:** ${description}
+      % elif product_or_service == 'Gasto':
+      **Descripción del gasto:** ${description}     
+      % endif 
+  - Editar: price  
+    button: |
+      **Valor a cobrar:** $${price}[BR]
+      % if product == True:
+        % if product_or_service == "Producto" and get_only_number(price) < 961389:
+          Debido al valor del producto no aplica retención en la fuente.
+        % elif product_or_service == "Servicio" and get_only_number(price) < 142428:
+          Debido al valor que del servicio no aplica retención en la fuente.
+        % endif      
+      % endif   
+  - note: |
+      ***********
+      ###  Detalles del servicio
+    show if: labour_date 
+  - Editar: labour_date
+    button: |
+      % if labour_date == True: 
+        Haz contestado que quieres especificar la fecha de inicio y finalización del servicio.[BR]
+        **Fecha de inicio:** ${first_day}[BR]
+        **Fecha de finalizacion:** ${first_day}[BR]
+      % else:
+        Haz decidido no especificar la fecha de inicio y finalización del servicio. 
+      % endif 
+  - note: |
+      ***********
+      ### Información para el pago
+  - Editar: payment_day  
+    button: |
+      **Fecha límite de pago:** ${payment_day}
+  - Editar: payment_method  
+    button: |
+      **Forma de pago:** ${payment_method}[BR]
+      % if payment_method != 'Efectivo':
+      **Entidad bancaria:** ${contractor_financial_institution}[BR]
+      **Tipo de cuenta:** ${contractor_account_type}[BR]
+      **Número de cuenta:** ${contractor_account_number}[BR]
+      % endif
+  - Editar: social_security
+    button: |
+      % if social_security == True:
+        % if answering_survey == title_case(contractor_name.capitalize()):
+      Afirmaste que vas a presentar el pago de la seguridad social
+        % else:
+      Afirmaste que ${ title_case(contractor_name.capitalize()) } presentará el pago de la seguridad social
+        % endif
+      % else:
+      Constestaste que no se presentará el pago de la seguridad social
+      % endif      
+  - Editar: social_security_payment 
+    button: |
+      % if social_security_payment == True:
+        % if answering_survey == title_case(contractor_name.capitalize()):
+      Autorizaste para que ${ title_case(paying_name.lower()) } te descuente y realice el pago de la seguridad social.
+        % else:
+      ${ title_case(contractor_name.capitalize()) } autoriza para que realices el pago de la seguridad social.
+        % endif 
+      % else:
+        % if answering_survey == title_case(contractor_name.capitalize()):
+      No autorizaste para que ${ title_case(paying_name.lower()) } te descuente y realice el pago de la seguridad social.
+        % else:
+      Respondiste que ${ title_case(contractor_name.capitalize()) } no autoriza para que realices el pago de la seguridad social.
+        % endif 
+      % endif  
+  - note: |
+      ***********
+      ### Beneficio de retención en la fuente 
+    show if: retention_summary_page
+  - label: Editar
+    fields:
+      - retention_benefits
+      - personal_presentation
+      - subcontractor
+      - retention_summary_page
+    button: |
+      ${retention_summary} 
+  - note: |
+      ***********
+      ### Firma del documento
+    show if: answering_survey == title_case(contractor_name.capitalize())
+  - label: Editar
+    fields:
+      - do_sign
+      - follow up:
+        - sign_file
+    button: |
+      % if do_sign == False:
+      Haz contestado que no deseas firmar el documento
+      % elif do_sign == True: 
+      **Firma:** [BR]
+      ${sign_file}
+      % endif
+  - note: |
+      ***********
+continue button field: answers_reviewed
+section: confirmation
+progress: 99
+---
+code: |
+  if 'price' in url_args:
+    priceDoc = currency(url_args['price'], decimals= False)
+  else:
+    priceDoc = '$0'
+  files_saved = save_files(the_document, 'cuenta de cobro', True, user_info().session)
+  juzto_callback = get_callback_final_screen(priceDoc, files_saved, 'cuenta de cobro', True)
+---
+reconsider: the_document 
+mandatory: True
+progress: 100
+event: final_screen
+question: |
+  ${ z_text_final_screen }
+subquestion: |
+  ${ juzto_callback }
+allow emailing: False
+back button: False
+---
+attachment:
+  variable name: the_document
+  docx template file: LD_DT_200528_v2.1_cuenta_cobro.docx
+---
+event: save_and_resume
+code: |
+  target = 'save_and_resume'
+  wants_email = True
+---
+code: |
+  if 'url' in url_args:
+    _url = url_args['url']+'?i='+encode_name(user_info().filename)+'&session='+encode_name(user_info().session)
+  else:
+    _url = interview_url()
+  data = {'interview': all_variables(special='titles')['full'], 'url':_url}
+  send_email_juzto(data, user_email_address, 'leave')
+  email_sent = True
+---
+question: |
+  Podrás terminar luego tu ${ all_variables(special='titles')['full'] }
+subquestion: |
+  Si deseas reanudar tu documento más tarde, podemos enviarte por correo electrónico un enlace en el que puedes hacer clic para reanudar tu documento en un momento posterior.
+fields:
+  - Correo electrónico: user_email_address
+    datatype: email
+continue button label: Enviar correo
+back button label: No gracias, continuar mi documento
+under: ""
+---
+code: |
+  target = 'normal'  
+---

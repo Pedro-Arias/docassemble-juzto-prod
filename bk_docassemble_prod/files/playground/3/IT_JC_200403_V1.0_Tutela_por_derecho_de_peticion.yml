@@ -1,0 +1,456 @@
+metadata:
+  title: |
+   Tutela por no respuesta a derecho de petición
+  short title: |
+    Tutela por derecho de peteción
+  description: |
+   Tutela por derecho de peteción
+  authors:
+    - name: Julian Cogua
+      organization: juzto.co
+    - name: Juan David Castilla
+      organization: juzto.co
+  create_date: 2020-04-03
+---
+sections:
+  - Datos del que genera la tutela
+  - Fechas y solicitudes en el derecho de petición
+  - Nombre de la entidad
+  - Ciudad y dirección
+  - Documentos
+---
+features:
+  navigation: True
+  progress bar: True
+  show progress bar percentage: True
+  hide standard menu: False
+  hide navbar: True
+  question back button: True
+---
+include:
+  - docassemble.playground3:autoterms.yml
+---
+modules:
+  - docassemble.playground3.juztoModules
+  - docassemble.playground3.juztoListChoices
+---
+mandatory: True
+code: |
+  multi_user = True
+---
+objects:
+  - complaining_name: Individual
+  - legal_representative_name: Individual
+---
+mandatory: true
+question: |
+  ¿Quién va a presentar la tutela?
+fields:
+  - no label: complaining_type
+    input type: radio
+    code: get_list('type_j')
+  - Nombre(s): complaining_name.name.first
+    hint: "Andrés"
+    show if:
+      variable: complaining_type
+      is: "Persona Natural"
+  - Apellido(s): complaining_name.name.last
+    hint: "Gutierrez"
+    show if:
+      variable: complaining_type
+      is: "Persona Natural"
+  - Nombre de la compañia: complaining_name_comp
+    show if:
+      variable: complaining_type
+      is: "Persona Jurídica"
+  - Tipo de identificación: complaining_type_id
+    input type: dropdown
+    code:  get_list_dni('N')
+    show if:
+      variable: complaining_type
+      is: "Persona Natural"
+  - Número de identificación: complaining_id_number
+    hint: dni
+    show if:
+      variable: complaining_type
+      is: "Persona Natural"
+  - NIT: complaining_id_number
+    hint: nit
+    show if:
+      variable: complaining_type
+      is: "Persona Jurídica"
+  - Nombre(s) del representate legal: legal_representative_name.name.first
+    hint: "Andrés"
+    show if:
+      variable: complaining_type
+      is: "Persona Jurídica"
+  - Apellido(s) del representate legal: legal_representative_name.name.last
+    hint: "Gutierrez"
+    show if:
+      variable: complaining_type
+      is: "Persona Jurídica"
+  - Tipo de identificación: legal_representative_type_id
+    input type: dropdown
+    code:  get_list_dni('N')
+    show if:
+      variable: complaining_type
+      is: "Persona Jurídica"
+  - Número de identificación: legal_representative_id_number
+    hint: dni
+    show if:
+      variable: complaining_type
+      is: "Persona Jurídica"
+  - Correo electrónico: complaining_notification_email
+    hint: "juzto@juzto.co"
+    js show if: |
+      da_val("complaining_type") == "Persona Jurídica" || da_val("complaining_type") == "Persona Natural"
+  - Ciudad: city
+    input type: dropdown
+    code: get_cities()
+    js show if: |
+      da_val("complaining_type") == "Persona Jurídica" || da_val("complaining_type") == "Persona Natural"
+  - Dirección: complaining_notification_adress
+    hint: 'Calle 122 # 17 - 29 Oficina 302'
+    js show if: |
+      da_val("complaining_type") == "Persona Jurídica" || da_val("complaining_type") == "Persona Natural"
+section: Datos del que genera la tutela
+progress: 8
+---
+mandatory: true
+code: |
+  if complaining_type == "Persona Jurídica":
+    complaining_id_number = generateNit(complaining_id_number)
+---
+mandatory: true
+question: |
+  ¿Cuándo presentaste el derecho de petición?
+fields:
+  - no label: date_presentation
+    datatype: date
+section: Fechas y solicitudes en el derecho de petición
+progress: 16
+---
+objects:
+  - request: DAList.using(object_type=DAObject, complete_attribute='complete')
+---
+code: |
+ request.gather()
+ request.reviewed
+ request
+---
+code: |
+ request[i].name
+ request[i].complete = True
+---
+table: request.table
+rows: request
+columns:
+  - Requerimiento: |
+      row_item.name
+edit:
+  - name
+allow reordering: True
+---
+code: |
+  request.there_are_any = True
+  request.there_is_another = False
+---
+need:
+  - date_presentation
+question: |
+  ¿Qué solicitaste en el derecho de petición?
+fields:
+  - no label: request[i].name
+    datatype: area
+    hint: Suspensión de un servicio
+list collect:
+  label: |
+    ${request_right} ${i+1} 
+section: Fechas y solicitudes en el derecho de petición
+progress: 24
+---
+code: |
+  request_right = "Requerimiento"
+---
+question: |
+  Estás son las solicitudes que hiciste en el derecho de petición 
+subquestion: |
+  ${ request.table }
+  ${ request.add_action() }
+section: Fechas y solicitudes en el derecho de petición
+continue button field: request.reviewed
+mandatory: true
+progress: 24
+---
+mandatory: true
+question: |
+  ¿Recibiste respuesta del derecho de petición?
+yesno: answer
+progress: 32
+---
+mandatory: |
+  answer == True
+question:  |
+  ¿Cuándo recibiste la respuesta?
+fields:
+  - no label: answer_date
+    datatype: date
+section: Fechas y solicitudes en el derecho de petición
+progress: 40
+---
+mandatory: True
+code: |
+ if answer == False:
+   respons.there_are_any = False
+---
+objects:
+  - respons: DAList.using(object_type=DAObject, complete_attribute='complete')
+  - exhibit_cover: DAList
+---
+mandatory: |
+  respons.there_are_any == True
+code: |
+ respons.gather()
+ respons.reviewed
+---
+code: |
+  respons[i].title
+  respons[i].file
+  respons[i].complete = True
+---
+table: respons.table
+rows: respons
+columns:
+  - Anexo: |
+      alpha(row_index)
+  - Nombre: |
+      row_item.title
+edit:
+  - title
+allow reordering: True
+---
+mandatory: |
+  answer == True
+question: |
+  ¿Tienes la respuesta de tu derecho de petición?
+yesno: respons.there_are_any
+section: Fechas y solicitudes en el derecho de petición
+progress: 48
+---
+question: |
+  sube el ${ get_ordinal('male', i) } documento.
+fields:
+  - Nombre: respons[i].title
+  - Archivo: respons[i].file
+    datatype: file
+    accept: |
+      "application/pdf, image/jpeg, image/png "
+    validation messages:
+      accept: Solo puedes subir archivos pdf.
+section: Fechas y solicitudes en el derecho de petición
+progress: 48
+---
+question: |
+  ¿Deseas subir más documentos?
+yesno: respons.there_is_another
+section: Fechas y solicitudes en el derecho de petición
+progress: 48
+---
+question: |
+  Estos son los documentos de respuesta que subiste.
+subquestion: |
+  ${ respons.table }
+  ${ respons.add_action() }
+continue button field: respons.reviewed
+progress: 48
+section: Fechas y solicitudes en el derecho de petición
+---
+code: |
+  file_list = [cover_page.pdf]
+  for indexno in range(len(respons)):
+    file_list.append(exhibit_cover[indexno].pdf)
+    file_list.append(respons[indexno].file[0])
+  the_document = pdf_concatenate(file_list)
+---
+code: |
+  if answer == False:
+    answer_pretension = True
+---
+if: answer == True
+mandatory: |
+  answer == True
+question: |
+  ¿De las solicitudes que hiciste en el derecho de petición, te dieron respuesta a todas?
+yesno: answer_pretension
+section: Fechas y solicitudes en el derecho de petición
+progress: 56
+---
+if: answer_pretension == False
+mandatory: |
+  answer_pretension == False
+question: |
+  Selecciona cuáles de estás peticiones no tuvieron respuesta
+fields:
+  - no label: not_result
+    datatype: checkboxes
+    none of the above: False
+    code: |
+      [i.name for i in request]
+section: Fechas y solicitudes en el derecho de petición
+progress: 64
+---
+mandatory: true
+question: |
+  ¿A qué entidad le presentaste el derecho de petición?
+fields:
+  - no label: company_name
+    hint: "Juzto SAS"
+  - ¿Cómo vas a enviar la tutela por derecho de petición?: guardianship_method
+    input type: radio
+    choices:
+      - Dirección física: address
+      - Correo electrónico: emails
+  - Cuál es ciudad: company_city
+    input type: dropdown
+    code: get_cities()
+    show if:
+      variable: guardianship_method
+      is: address
+  - Cuál es la dirección: company_adress
+    hint: 'Calle 122 # 17 - 29 Oficina 302'
+    show if:
+      variable: guardianship_method
+      is: address
+  - Cuál es el correo: company_mail
+    hint: 'ejemplo@mail.com'
+    show if: 
+      variable: guardianship_method
+      is: emails
+section: Ciudad y dirección
+progress: 80
+---
+mandatory: True
+question: |
+  ¿Cómo deseas recibir la respuesta de la tutela?
+fields:
+  - no label: send_method
+    input type: radio
+    choices:
+      - Dirección física: address
+      - Correo electrónico: emails
+  - Cuál es ciudad: complaining_city
+    input type: dropdown
+    code: get_cities()
+    show if:
+      variable: send_method
+      is: address
+  - Cuál es la dirección: complaining_adress
+    hint: 'Calle 122 # 17 - 29 Oficina 302'
+    show if:
+      variable: send_method
+      is: address
+  - Cuál es el correo: complaining_mail
+    hint: 'ejemplo@mail.com'
+    show if: 
+      variable: send_method
+      is: emails
+section: Ciudad y dirección
+progress: 88
+---
+objects:
+  - petition: DAList.using(object_type=DAObject, complete_attribute='complete')
+  - exhibit_cover: DAList
+---
+if: petition.there_are_any == True
+mandatory: |
+  petition.there_are_any == True
+code: |
+ petition.gather()
+ petition.reviewed
+ final_screen
+---
+code: |
+  petition[i].title
+  petition[i].complete = True
+---
+table: petition.table
+rows: petition
+columns:
+  - Documento: alpha(row_index)
+  - Nombre: row_item.title
+edit:
+  - title
+allow reordering: True
+---
+table: petition.document_table
+rows: petition
+columns:
+  - Documento: alpha(row_index)
+  - Nombre: row_item.title
+---
+mandatory: True
+question: |
+  ¿Tienes tu derecho de petición?
+yesno: petition.there_are_any
+section: Documentos
+progress: 96
+---
+question: |
+  Sube el ${ get_ordinal('male',i) } documento.
+fields:
+  - Nombre: petition[i].title
+  - Archivo: petition[i].file
+    datatype: file
+    accept: |
+      "application/pdf, image/jpeg, image/png"
+    validation messages:
+      accept: Solo puedes subir archivos pdf.
+section: Documentos
+progress: 96
+---
+question: |
+  ¿Deseas subir más documentos?
+yesno: petition.there_is_another
+section: Documentos
+progress: 96
+---
+question: |
+  Estos son los documentos que subiste.
+subquestion: |
+  ${ petition.table }  
+  ${ petition.add_action() }
+section: Documentos
+continue button field: petition.reviewed
+progress: 96
+---
+code: |
+  file_list = [cover_page.pdf]
+  for indexno in range(len(petition)):
+    file_list.append(exhibit_cover[indexno].pdf)
+    file_list.append(petition[indexno].file[0])
+  the_document = pdf_concatenate(file_list)
+---
+---
+mandatory: true
+code: |
+  if 'price' in url_args:
+    price = currency(url_args['price'], decimals= False)
+  else:
+    price = '$0'
+  files_saved = save_files(the_file, 'tutela por derecho de peticion', True, user_info().session)
+  juzto_callback = get_callback_final_screen(price, files_saved, "tutela por derecho de peticion", True)
+---
+attachment:
+  variable name: the_file
+  docx template file: IT_JC_200826_V1.0_Tutela_por_derecho_de_peticion.docx
+---
+event: final_screen
+mandatory: true
+progress: 100
+question: |
+  ${ z_text_final_screen }
+subquestion: |
+  ${ juzto_callback }
+id: juzto_da_final  
+allow emailing: False
+back button: False

@@ -1,0 +1,1173 @@
+metadata:
+  title: |
+   Contrato laboral termino indefinido
+  short title: |
+    Contrato laboral termino indefinido
+  description: |
+    Contrato laboral termino indefinido
+  authors:
+    - name: Giovanny Sarmiento
+      organization: Programador
+    - name: Juan David
+      organization: Reviso
+  revision_date: 2020-04-20
+---
+features:
+  navigation: True
+  progress bar: True
+  show progress bar percentage: True
+  hide standard menu: False
+  hide navbar: True
+  question back button: True
+---  
+default screen parts:
+  under: |
+    % if show_save_resume_message:
+    [Guardar y terminar después](${ url_action('save_and_resume') })
+    % endif
+    [Volver a comenzar](${ url_action('restart_interview') })    
+---
+event: restart_interview
+code: |
+  force_ask('wants_to_restart', {'recompute': ['restart_done']})
+---
+question: |
+  ¿Estás seguro de querer reiniciar tu ${ all_variables(special='titles')['full'] }?
+subquestion: |
+  La información que ya hallas ingresado se perdera, tendras que volver a ingresar todas las respuestas.
+field: wants_to_restart
+buttons:
+  - Si, eliminar datos ingresados: True
+back button label: No gracias, continuar mi documento
+under: ""
+---
+code: |
+  if wants_to_restart:
+    command('restart')
+  restart_done = True
+---
+include:
+  - docassemble.playground3:autoterms.yml
+---
+modules:
+  - docassemble.playground3.juztoModules
+  - docassemble.playground3.juztoListChoices
+---
+initial: True
+code: |
+  multi_user = True
+  show_save_resume_message = True
+  the_sections = [{'intro':'Introducción'},{'data_position':'Información del cargo'},
+  {'date_part':'Datos de las partes','subsections':[{'data_worker':'Datos del trabajador(a)'},{'data_employer':'Datos del empleador(a)'}]},
+  {'cond':'Condiciones generales','subsections':[{'trut':'Confianza'},{'excl':'Exclusividad'},{'periodo_prueba':'Periodo de prueba'},
+  {'descount':'Autorización de descuento'},{'city_work':'Ciudad de trabajo'}]},
+  {'dates':'Fechas','subsections':[{'start_work':'Fecha de inicio de labores'},{'date':'Ciudad y fecha  de firma'}]},
+  {'prohibitions':'Prohibiciones'},
+  {'obligation':'Obligaciones'},
+  {'annexes':'Anexos'},{'confirmation':'Confirmación de los datos'}]
+  nav.set_sections(the_sections)
+---
+mandatory: True
+scan for variables: False
+code: |
+  if target == 'save_and_resume':
+    if wants_email:
+      show_save_resume_message = False
+    undefine('wants_email')
+    undefine('email_sent')
+    target = 'normal' 
+  intro_page
+  agrees_to_terms
+  employee_position
+  working_day
+  if working_day != 'otro':
+    week_working_hours = working_day
+  salary
+  integral_salary
+  payment_form
+  salary_in_kind
+  if salary_in_kind == True:
+    kind_payment.gather()
+    kind_payment_reviewed
+  payment_form
+  employ.name
+  employee_type_id
+  employee_id_number
+  employee_address
+  employee_city
+  employer_type
+  if employer_type == "Persona Natural":
+    employ_nat.name
+    employer_type_id
+    employer_id_number
+    employer_email
+    employer_address
+    employer_city
+  if employer_type == "Persona Jurídica":
+    employer_name
+    employer_id_number
+    employer_email
+    employer_city
+    employer_address
+    employ_jur.name
+    employer_legal_rep_type_id
+    employer_legal_rep_id_number
+  trust  
+  exclusivity
+  period_test
+  authorization
+  work_city
+  date_start_working
+  sign_city
+  sign_date
+  prohibitions_list
+  if prohibitions_list["Otras"]:
+   other_prohib.gather()
+   other_prohib.reviewed
+  obligations_list
+  if obligations_list['Otras']:
+   other_obligation.gather()
+   other_obligation.reviewed
+  attached
+  if attached['Otros documentos']:
+   other_attached.gather()
+   other_attached.reviewed
+  answers_reviewed 
+  final_screen    
+---
+event: data_position
+section: data_position
+question: |
+  Información del cargo
+review:
+  - Editar: employee_position
+    button: |
+      **Cargo del empleado(a):** ${ title_case(str(employee_position).lower()) } [BR]
+  - Editar: working_day
+    button: |
+      % if working_day != 'otro':
+      **Jornada laboral :** ${ working_day } horas semanales [BR]
+      % else:
+      **Jornada laboral :**  ${integer} horas semanales [BR]
+      % endif
+  - Editar: salary
+    button: |
+      **El salario a pagar al empleado(a) sera de :** $ ${ salary } pesos. [BR]
+  - label: Editar
+    fields:
+      - salary_in_kind
+      - follow up: 
+        - kind_payment_reviewed
+    button: |
+      % if salary_in_kind == True and kind_payment_reviewed == True:
+      **El salario en especie a pagar al empleado será de: **  ${ currency(sum(get_only_number(kind_pay.value) for kind_pay in kind_payment.complete_elements()), decimals =  False)} pesos. [BR]
+      % else:
+       **No habrá pago en especie:**
+      % endif  
+  - Editar: payment_form
+    button: |
+      **El periodo de pago será: ** ${ payment_form }
+under: ""      
+---
+event: data_worker
+section: data_worker
+question: |
+  Datos del(la) trabajador(a)
+review:
+  - editar: employee_id_number
+    button: |
+     **Nombre empleado(a):** ${title_case(str(employ.name).lower())} [BR]
+     **Tipo de documento:** ${employee_type_id} [BR]
+     **Número de documento:** ${employee_id_number} [BR]
+     **Dirección:** ${employee_address} [BR]
+     **Ciudad:** ${employee_city}
+under: ""     
+---
+event: data_employer
+section: data_employer
+question: |
+  Datos del(la) empleador(a)
+review:
+  - Editar: employer_type
+    button: |
+      ${ employer_type } [BR]
+      % if employer_type == 'Persona Jurídica':
+      **Nombre de la empresa: **${title_case(str(employer_name).lower())}[BR]
+      **Nit: **${employer_id_number}[BR]
+      **Nombre(s) del representante legal: **${title_case(str(employ_jur.name).lower())}[BR]
+      **Número de identificación: **${employer_legal_rep_type_id}. ${employer_legal_rep_id_number}[BR]
+      **Email: ** ${employer_email}[BR]
+      **Ciudad empleador(a): **${employer_city}[BR]
+      **Dirección empleador(a): **${employer_address}
+      % else:
+      **Nombre(s) de la persona: **${title_case(str(employ_nat.name).lower())} [BR]
+      **Número de identificación: ** ${employer_type_id}.${employer_id_number} [BR]
+      **Email: **${employer_email}[BR]
+      **Ciudad: **${employer_address}[BR]
+      **Dirección: **${employer_city}
+      % endif
+under: ""      
+---
+event: excl
+section: excl
+question: |
+  Información de Contrato
+review:
+  - Editar: trust
+    button: |
+      % if trust == True:
+      **Es un(a) trabajador(a) de Manejo y Confianza: ** Si [BR]
+      % else:
+      **Es un(a) trabajador(a) de Manejo y Confianza: ** No [BR]
+      % endif
+  - Editar: exclusivity
+    button: |
+      % if exclusivity  == True:
+      **El empleado(a): tendrá exclusividad: ** Si [BR]
+      % else:
+      **El empleado(a): tendrá exclusividad: ** No [BR]
+      % endif
+  - Editar: period_test
+    button: |
+      % if period_test == True:
+      **El empleado tiene periodo de prueba: ** Si [BR]
+      % else:
+      **El empleado tiene periodo de prueba: ** No [BR]
+      % endif
+  - Editar: authorization
+    button: |
+      % if authorization == True:
+      **Autorización de descuento por nomina: ** Si [BR]
+      % else:
+      **Autorización de descuento por nomina: ** No [BR]
+      % endif
+under: ""   
+---
+event: city_work
+section: city_work
+question: |
+  Ciudad y fecha en que el trabajador(a) inicia sus labores
+review:
+  - Editar: work_city
+    button:  |
+      **Ciudad donde desarrollara labores el empleado(a): ** ${work_city} [BR]    
+under: ""      
+---
+event: start_work
+section: start_work
+question: |
+  Fecha inicio de labores del empleado(a)
+review:
+  - Editar: date_start_working
+    button: |
+      **Fecha inicio labores empleado(a): ** ${date_start_working}
+under: ""      
+---
+event: prohibitions
+section: prohibitions
+question: |
+  Prohibiciones especiales del(la) trabajador
+review:
+  - label: Editar
+    fields:
+      - prohibitions_list
+      - follow up:
+        - other_prohib[0]
+    button: |
+      % for item in [item for item in prohibitions_list.true_values() if item != 'Otras']:
+      * ${ item }
+      % endfor
+      % if prohibitions_list['Otras']:
+      % for prohib in other_prohib:
+      * ${ title_case(prohib) }
+      % endfor
+      % endif
+under: ""      
+---
+event: obligation
+section: obligation
+question: |
+  Obligaciones especiales del(la) trabajador(a)
+review:
+  - label: Editar
+    fields:
+      - obligations_list
+      - follow up:
+        - other_obligation[0]
+    button: |
+      % for item in [item for item in obligations_list.true_values() if item != 'Otras']:
+      * ${ item }
+      % endfor
+      % if obligations_list['Otras']:
+      % for obli in other_obligation:
+      * ${ title_case(obli) }
+      % endfor
+      % endif
+under: ""      
+---
+event: date
+section: date
+question: |
+  Ciudad y fecha  de firma
+review:
+  - Editar: sign_city
+    button: |
+      **Ciudad: ** ${sign_city} [BR]
+      **Fecha: ** ${sign_date}
+under: ""      
+---
+event: annexes
+section: annexes
+question: |
+  Anexos
+review:
+  - Editar: attached
+    button: |
+      % for item in [item for item in attached.true_values() if item != 'Otros documentos']:
+      * ${ item }
+      % endfor
+      % for document in other_attached:
+      * ${ title_case(document.name) }
+      % endfor  
+under: ""      
+---
+section: intro
+question: |
+  Ahora empezaremos a crear tu contrato laboral a término indefinido.
+subquestion: |  
+  Este contrato sirve para formalizar la relación entre el trabajador y el empleador. En este documento estarán todas las condiciones en las que el trabajador se compromete a trabajar para el empleador y seguir sus órdenes a cambio de un salario. En el contrato a término indefinido no hay un límite de tiempo, el contrato sólo se termina cuando alguna de las partes, o las dos, así lo quieran. 
+
+  Puedes estar tranquilo, este va a ser un documento de gran calidad, ha sido preparado por un equipo de abogados expertos.
+  
+  Si tienes alguna duda adicional puedes [programar una cita con uno de nuestros abogados](https://juzto.co/asesoria-legal/consulta-abogado/).[BR]
+
+  Gracias por elegir Juzto, empecemos.
+continue button field: intro_page
+continue button label: Siguiente
+under: ""
+---
+section: intro
+question: |
+  Para tu contrato laboral a término indefinido debes tener lista la siguiente información:
+subquestion: |
+
+  1. Nombres completos del empleador y el trabajador.
+  2. Número de identificación del trabajador y NIT del empleador.
+  3. Correos electrónicos del empleador y el trabajador.
+  4. Nombre del cargo del trabajador.
+  5. Salario.
+  6. Lugar en donde se trabajará (dirección).
+fields:
+  - no label: agrees_to_terms
+    datatype: checkboxes
+    default: "Acepto <a href=‘https://juzto.co/politica-tratamiento-datos/’ target=‘_blank’ class=‘linkjzdadark’>el tratamiento de los datos personales</a>."
+    minlength: 1
+    choices:
+       - "Acepto <a href=‘https://juzto.co/politica-tratamiento-datos/’ target=‘_blank’ class=‘linkjzdadark’>el tratamiento de los datos personales</a>."
+    validation messages:
+      minlength: |
+        Debes aceptar el tratamiento de los datos personales para pode continuar.
+  
+continue button field: terms_page
+continue button label: Empezar
+under: ""
+---
+section: data_position
+question: |
+  ¿Cuál será el cargo del trabajador?
+fields:
+  - no label: employee_position
+    hint: asistente de contabilidad
+progress: 7
+---
+section: data_position
+question: |
+  ¿Cómo será la jornada de trabajo?
+fields:
+  - no label: working_day
+    input type: radio
+    choices:
+      - Tiempo completo (48 horas semanales): 48
+      - Medio tiempo (24 horas semanales): 24
+      - Otro: otro
+  - ¿Cuántas horas a la semana?: week_working_hours
+    datatype: integer
+    min: 1
+    max: 48
+    js show if: |
+      da_val("working_day") == 'otro'
+progress: 14      
+---
+depends on: week_working_hours
+code: |
+  minimum_salary = (z_minimum_salary/48)*float(week_working_hours)
+---
+depends on: |
+  - salary
+  - minimum_salary
+  - week_working_hours
+section: data_position
+question: |
+  ¿Cuál será el salario?
+subquestion: |
+  El salario mínimo legal para una jornada laboral de ${ week_working_hours } horas semanales en Colombia es de: **${ currency(minimum_salary, decimals =  False) }**
+fields:
+  no label: salary
+  hint: money
+validation code: |
+  if get_only_number(salary) < minimum_salary:
+    validation_error("El salario mínimo debe ser " + currency(minimum_salary) + " para una jornada laboroal de " + str(week_working_hours) + " horas semanales")
+progress: 21    
+---
+depends on: salary
+code: |
+  if get_only_number(salary) >= z_integral_salary:
+    integral = True
+  else:  
+    integral = False
+---
+depends on: integral
+question: |
+  ¿El salario es integral? 
+subquestion: |
+  El salario integral siempre se debe pactar por escrito y no puede ser menor a 10 salarios mínimos más un 30%, es decir que, en la práctica se deben pagar 13 salarios mínimos.
+  
+  En el salario integral ya está incluido el valor de:
+ 
+  * Salud.
+  * Pensión.
+  * Cesantías y sus intereses.
+  * Trabajo nocturno, dominical y festivo. 
+  * Horas extra. 
+  * Primas.
+  
+  Lo único que no se puede incluir en el salario integral son las vacaciones. Esto quiere decir que el empleador no deberá hacer pagos adicionales de seguridad social.  
+yesno: integral_salary
+---
+depends on: integral
+code: |
+  if integral == False:
+    integral_salary = False
+---
+depends on:
+  - salary
+code: |
+  if get_only_number(salary) >= z_integral_salary:
+    integral = True
+  else:  
+    integral = False
+---
+section: data_position
+question: |
+  ¿Se dará alguna parte del salario en especie?
+subquestion:
+  El valor a pagar de cesantías, prima del servicio, vacaciones, pensión, salud, y eventuales indemnizaciones se calcula sumando el pago en dinero y el pago en especie.
+yesno: salary_in_kind
+progress: 28
+---
+depends on: |
+  - salary
+  - minimum_salary
+code: |
+  if get_only_number(salary) <= ((minimum_salary)*0.7)*2:
+    max_salary_kind = get_only_number(salary) - (get_only_number(minimum_salary)*0.7)
+  else:
+    max_salary_kind = get_only_number(salary)*0.5
+---
+depends on: salary_in_kind == True
+objects:
+  - kind_payment: DAList.using(object_type=DAObject, complete_attribute='complete',there_are_any = True)
+---
+code: |
+  kind_payment[i].name
+  kind_payment[i].value
+  kind_payment[i].complete = True
+---
+table: kind_payment.table
+rows: kind_payment
+columns:
+  - Bien o servicio: |
+      row_item.name
+  - Valor: |
+      currency(get_only_number(row_item.value), decimals =  False)
+edit:
+  - name
+allow reordering: True
+---
+section: data_position
+question: |
+ ¿Cuál es el bien o servicio que se dará a el(la)trabajador(a) como parte de pago y cuál es su valor?
+subquestion: |
+ % if i == 0:
+ El valor máximo de los bienes o servicios que se entregarán podrá ser de ${ currency(max_salary_kind) }
+ % else:
+ Se han agregado bienes o servicios por un valor de ${ juztoThousand(sum(get_only_number(kind_pay.value) for kind_pay in kind_payment.complete_elements()),1)}[BR]
+ Aún puede agregar bienes o servicios por un valor de hasta ${ juztoThousand(max_salary_kind - sum(get_only_number(kind_pay.value) for kind_pay in kind_payment.complete_elements()),1) }
+ % endif
+fields:
+  - Bien o servicio: kind_payment[i].name
+    choices:
+      - Alimentación
+      - Telefonía celular
+      - Vivienda
+      - Pago de servicios publicos
+      - Bonos(Sodexo / Big Pass)
+      - Otro
+  - Valor: kind_payment[i].value
+    hint: money
+validation code: |
+  kd_sl = 0
+  if i == 0:
+    if get_only_number(kind_payment[i].value) > get_only_number(max_salary_kind):
+      validation_error('El salario que trata de ingresar debe ser menor o igual a '+ juztoThousand(get_only_number(max_salary_kind),1) + ' pesos.')
+  else:
+    kd_sl = max_salary_kind - sum(get_only_number(kind_pay.value) for kind_pay in kind_payment.complete_elements())
+    if get_only_number(kind_payment[i].value) > get_only_number(kd_sl):
+      validation_error('El salario que trata de ingresar debe ser menor o igual a '+ juztoThousand(get_only_number(kd_sl),1)   +' pesos.')
+---
+if: max_salary_kind == sum(get_only_number(kind_pay.value) for kind_pay in kind_payment.complete_elements())
+code: |
+  kind_payment.there_is_another = False  
+---
+section: data_position
+if: max_salary_kind != sum(get_only_number(kind_pay.value) for kind_pay in kind_payment.complete_elements())  
+question: |
+  ¿Necesitas agregar otro bien o servicio como pago en especie?
+subquestion:
+  Aún puede agregar bienes o servicios por un valor de hasta ${ currency(max_salary_kind - sum(get_only_number(kind_pay.value) for kind_pay in kind_payment.complete_elements()), decimals =  False) }
+yesno: kind_payment.there_is_another
+---
+section: data_position
+question: |
+   Estos son los bienes o servicios con los que se pagará una parte del salario del(la) trabajador(a).
+subquestion: |
+  Se han agregado bienes o servicios por un total de:[BR]
+  **${ currency(sum(get_only_number(kind_pay.value) for kind_pay in kind_payment.complete_elements()), decimals =  False)}**[BR]
+  Aún es posible agregar bienes o servicios por un valor de hasta:[BR]
+  **${ currency(max_salary_kind - sum(get_only_number(kind_pay.value) for kind_pay in kind_payment.complete_elements()), decimals =  False) }**[BR]
+  ${ kind_payment.table }
+  ${ kind_payment.add_action() }
+continue button field: kind_payment_reviewed
+---
+section: data_position
+question: |
+   El salario del trabajador será consignado:
+fields:
+  - no label: payment_form
+    input type: radio
+    choices:
+      - En 2 pagos quincenales
+      - En 1 solo pago mensual
+progress: 35      
+---
+section: trut
+question: |
+  ¿${ title_case(str(employ.name).lower())} es un(a) trabajador(a) de manejo y confianza?
+subquestion: |
+  Aplica si el(la) trabador(a): 1) realiza actividades de dirección o administración y 2) es de un alto nivel de confianza y de especial responsabilidad o mando. Por ello, no le aplica la limitación de horarios y no se debe pagar horas extra. Sin embargo, sí se debe pagar recargos por trabajo dominical o en días festivos, y todo lo correspondiente a las vacaciones.
+yesno: trust  
+progress: 42
+---
+code: |
+  if get_only_number(salary) <= z_minimum_salary:
+    trust == False
+---
+objects:
+  - employ: Individual
+---
+section: data_worker
+question: |
+  Datos del(la) trabajador(a)
+subquestion: |
+  * Si es menor de edad requiere autorización por parte del Ministerio del Trabajo
+  * Si es extranjero requiere visa de trabajo o permiso equivalente
+fields:
+  - Nombre(s): employ.name.first
+    hint: "Nombre(s) completos"
+  - Apellido(s): employ.name.last
+    hint: "Apellido(s) completos"
+  - Tipo de identificación: employee_type_id
+    datatype: dropdown
+    code: get_list_dni('N')     
+  - Número de identificación: employee_id_number
+    hint: dni
+  - Dirección de residencia: employee_address
+    hint: "calle 123 No. 12 -3"
+  - Ciudad: employee_city
+    input type: dropdown
+    code: get_cities()
+progress: 49    
+---
+objects:
+  - employ_nat: Individual
+  - employ_jur: Individual
+---
+section: data_employer
+question: |
+  Datos del(la) empleador(a)
+subquestion: |
+  El(La) empleador(a) puede ser una persona natural o persona jurídica.
+fields:
+  - no label: employer_type
+    input type: radio
+    code: get_list('type_j')
+  - Nombre(s): employ_nat.name.first
+    hint: "Nombre(s) completos"
+    show if:
+      variable: employer_type
+      is: "Persona Natural"  
+  - Apellidos(s): employ_nat.name.last
+    hint: "Apellido(s) completos"
+    show if:
+      variable: employer_type
+      is: "Persona Natural"
+  - Tipo de identificación: employer_type_id
+    input type: dropdown
+    code:  get_list_dni('N')
+    show if:
+      variable: employer_type
+      is: "Persona Natural"
+  - Número de identificación: employer_id_number
+    hint: dni
+    show if:
+      variable: employer_type
+      is: "Persona Natural"
+  - Correo electrónico: employer_email
+    hint: "correo@gmail.com"
+    show if:
+      variable: employer_type
+      is: "Persona Natural"
+  - Dirección: employer_address
+    hint: "Calle 122 # 17 - 29 Oficina 302"
+    show if:
+      variable: employer_type
+      is: "Persona Natural"
+  - Ciudad: employer_city
+    input type: dropdown
+    code: get_cities()
+    show if:
+      variable: employer_type
+      is: "Persona Natural"
+  - Nombre de la compañia: employer_name
+    hint: "Nombre de la compañia S.A.S."
+    show if:
+      variable: employer_type
+      is: "Persona Jurídica"
+  - NIT: employer_id_number
+    hint: nit
+    show if:
+      variable: employer_type
+      is: "Persona Jurídica"
+  - Correo electrónico: employer_email
+    hint: "empresa@gmail.com"
+    show if:
+      variable: employer_type
+      is: "Persona Jurídica"
+  - Ciudad: employer_city
+    input type: dropdown
+    code: get_cities()
+    show if:
+      variable: employer_type
+      is: "Persona Jurídica"
+  - Dirección: employer_address
+    hint: "Calle 122 # 17 - 29 Oficina 302"
+    show if:
+      variable: employer_type
+      is: "Persona Jurídica"
+  - Nombre del representate legal: employ_jur.name.first
+    hint: "Nombre(s) completos"
+    show if:
+      variable: employer_type
+      is: "Persona Jurídica"
+  - Apellido del representate legal: employ_jur.name.last
+    hint: "Apellido(s) completos"
+    show if:
+      variable: employer_type
+      is: "Persona Jurídica"
+  - Tipo de identificación: employer_legal_rep_type_id
+    input type: dropdown
+    code:  get_list_dni('M')
+    show if:
+      variable: employer_type
+      is: "Persona Jurídica"
+  - Número de identificación: employer_legal_rep_id_number
+    hint: dni
+    show if:
+      variable: employer_type
+      is: "Persona Jurídica"
+progress: 56      
+---
+if: employer_type == 'Persona Jurídica'
+section: excl
+question: |
+  ¿El contrato de ${ title_case(str(employ.name).lower()) } tendrá exclusividad?
+subquestion: |
+  La exclusividad no le permitirá a ${ title_case(str(employ.name).lower()) } prestar sus servicios a personas diferentes a ${ title_case(str(employer_name).lower()) }.
+yesno: exclusivity 
+progress: 63  
+---
+if: employer_type == 'Persona Natural'
+section: excl
+question: |
+  ¿El contrato de ${ title_case(str(employ.name).lower()) } tendrá exclusividad?
+subquestion: |
+    La exclusividad no le permitirá a ${ title_case(str(employ.name).lower()) } prestar sus servicios a personas diferentes a ${ title_case(str(employ_nat.name).lower()) }.
+yesno: exclusivity 
+progress: 63  
+---
+section: periodo_prueba
+question: |
+  ¿Habrá periodo de prueba para el contrato laboral de ${ title_case(str(employ.name).lower()) }?
+subquestion: |
+  El periodo de prueba es de máximo 2 meses
+yesno: period_test
+progress: 70  
+---
+code: |
+  get_only_number(salary) > z_minimum_salary
+---
+section: descount
+question: |
+  ¿${ employer_name.upper() if employer_type == 'Persona Jurídica' else title_case(str(employ_nat.name).lower()) } 
+  queda autorizado para descontar de los pagos de ${ title_case(str(employ.name).lower()) } los montos que este último deba?
+yesno: authorization   
+progress: 77
+---
+section: city_work
+question: |
+  ¿En qué ciudad trabajará ${ title_case(str(employ.name).lower()) }?
+fields:
+  - no label: work_city
+    input type: dropdown
+    code: get_cities()
+progress: 84    
+---
+section: start_work
+question: |
+  ¿Cuándo empieza a trabajar ${ title_case(str(employ.name).lower()) }?
+fields:
+  - no label: date_start_working
+    datatype: date
+progress: 91    
+---
+section: date
+question: |
+  ¿Cuál es la fecha y ciudad donde se firmará el contrato de ${ title_case(str(employ.name).lower()) }?
+subquestion: |
+ Recuerda que la fecha de inicio de actividades será desde el **${date_start_working}.** 
+fields:
+  - Ciudad: sign_city
+    input type: dropdown
+    code: get_cities()
+  - Fecha del contrato: sign_date
+    datatype: date
+validation code: |
+  if sign_date > date_start_working:
+    validation_error("La fecha en al que se firma el contrato no puede ser menor a la fecha en que el trabajador(a) inicia labores")
+progress: 93   
+---
+section: prohibitions
+question: |
+  Estas son algunas de las **PROHIBICIONES** generales que tendrá ${ title_case(str(employ.name).lower()) }. 
+  ¿Quieres agregar otras prohibiciones específicas?
+subquestion: |
+  A continuación te damos un listado de las prohibiciones del trabajador. Si quieres adicionar prohibiciones diferentes selecciona “Otras”. Debes escribir una por una las prohibiciones.
+fields:
+  - no label: prohibitions_list
+    datatype: checkboxes
+    none of the above: False
+    choices:
+      - Usar los equipos entregados por el EMPLEADOR para ejecutar tareas que no tengan relación con el objeto del contrato laboral.
+      - Compartir sus claves de acceso a los equipos y software del EMPLEADOR.
+      - Otras
+    default:
+      - Usar los equipos entregados por el EMPLEADOR para ejecutar tareas que no tengan relación con el objeto del contrato laboral.
+      - Compartir sus claves de acceso a los equipos y software del EMPLEADOR.
+progress: 95      
+---
+depends on: prohibitions_list["Otras"]
+objects:
+    - other_prohib: DAList.using(there_are_any = True) 
+---
+on change:
+  prohibitions_list["Otras"]: |
+    other_prohib.reset_gathered(mark_incomplete=True)
+---
+section: prohibitions
+question: |
+  ¿Cuáles son las prohibiciones adicionales para ${ title_case(str(employ.name).lower()) }?
+fields:
+  - no label: other_prohib[i]
+    datatype: area
+list collect:
+  label: |
+    ${prohibition} ${i+1} 
+---
+code: |
+  prohibition = "Prohibición"
+---
+question: |
+  Estas son las prohibiciones del trabajador(a) que serán agregadas al contrato:
+subquestion: |
+    % for item in [item for item in prohibitions_list.true_values() if item != 'Otras']:
+      * ${ item }
+      % endfor
+      % if other_prohib.there_are_any == True:
+      % for prohib in other_prohib:
+      * ${ title_case(prohib) }
+      % endfor
+      % endif
+continue button field: other_prohib.reviewed
+---
+section: obligation
+question: |
+  Estas son algunas de las **OBLIGACIONES** generales que tendrá ${ title_case(str(employ.name).lower()) }. 
+  ¿Quieres agregar otras obligaciones?
+subquestion: |
+  A continuación te damos un listado de las obligaciones del trabajador. Si quieres adicionar obligaciones diferentes selecciona “Otras”. Debes escribir una por una las obligaciones.
+fields:
+  - no label: obligations_list
+    datatype: checkboxes
+    none of the above: False
+    choices: 
+      - Utilizar únicamente el software o programas de computador que le ha sido entregado por el EMPLEADOR.
+      - Usar únicamente los equipos entregados por el EMPLEADOR para el cumplimiento de sus funciones.
+      - Hacer llamadas a clientes y personas de la compañía a través de los equipos de telefonía que entregue el EMPLEADOR.
+      - Otras
+    default:
+      - Utilizar únicamente el software o programas de computador que le ha sido entregado por el EMPLEADOR.
+      - Usar únicamente los equipos entregados por el EMPLEADOR para el cumplimiento de sus funciones.
+      - Hacer llamadas a clientes y personas de la compañía a través de los equipos de telefonía que entregue el EMPLEADOR.
+progress: 97    
+---
+depends on: obligations_list["Otras"]
+objects:
+    - other_obligation: DAList.using(there_are_any = True) 
+---
+on change:
+  obligations_list["Otras"]: |
+    other_obligation.reset_gathered(mark_incomplete=True)
+---
+section: obligation
+question: |
+  ¿Cuáles son las obligaciones adicionales de ${ title_case(str(employ.name).lower()) }?
+fields:
+  - no label: other_obligation[i]
+    datatype: area
+list collect:
+  label: |
+    ${obligation} ${i+1}
+---
+code: |
+  obligation = "Obligación"
+---
+section: obligation
+question: |
+  Estas son las obligaciones del trabajador(a) que serán agregadas al contrato:
+subquestion: |
+   % for item in [item for item in obligations_list.true_values() if item != 'Otras']:
+      * ${ item }
+      % endfor
+      % if other_obligation.there_are_any == True:
+      % for obli in other_obligation:
+      * ${ title_case(obli) }
+      % endfor
+      % endif
+continue button field: other_obligation.reviewed
+---
+section: annexes
+question: |
+  ¿${ employer_name.upper() if employer_type == 'Persona Jurídica' else title_case(str(employ_nat.name).lower()) } cuenta con alguno de los siguientes documentos? Estos deberán anexarse al contrato.
+fields: 
+  - no label: attached
+    datatype: checkboxes
+    none of the above: False
+    choices:
+      - Acuerdo de confidencialidad
+      - Política para el uso y manejo de los equipos de cómputo y claves de acceso.
+      - Manual del empleado.
+      - Reglamento Interno de Trabajo.
+      - Código de ética y conducta.
+      - Protocolo de seguridad.
+      - Manual de funciones del cargo.
+      - Otros documentos
+progress: 99      
+---
+depends on: attached["Otros documentos"]
+objects:
+    - other_attached: DAList.using(there_are_any = True)   
+---
+on change:
+  attached["Otros documentos"]: |
+    other_attached.reset_gathered(mark_incomplete=True)
+---
+section: annexes
+question: |
+  ¿Cuál es el ${ get_ordinal("male",i) } documento adicional?
+fields:
+  - no label: other_attached[i]
+    hint: Ingresar solo una actividad a la vez.
+    datatype: area 
+list collect:
+  label: |
+    ${anex} ${i+1}
+---
+code: |
+  anex = "Anexo"
+---
+section: annexes
+question: |
+   Estos son los documentos que se anexaran al contrato:
+subquestion: |
+  % for item in [item for item in attached.true_values() if item != 'Otros documentos']:
+     * ${ item }
+     % endfor
+     % if other_attached.there_are_any == True:
+     % for attac in other_attached:
+     * ${ title_case(attac) }
+     % endfor
+     % endif
+continue button field: other_attached.reviewed      
+---
+section: confirmation
+question: |
+  En esta pantalla puedes revisar tus respuestas
+review:
+  - note: |
+      ###Información del cargo
+  - Editar: employee_position
+    button: |
+      **Cargo del empleado(a):** ${ title_case(str(employee_position).lower()) } [BR]
+  - Editar: working_day
+    button: |
+      **Jornada laboral :** ${ working_day } horas semanales [BR]
+  - Editar: salary
+    button: |
+      **El salario a pagar al empleado(a) sera de :** $ ${ salary } pesos. [BR]
+  - label: Editar
+    fields:
+      - salary_in_kind
+      - follow up: 
+        - kind_payment_reviewed
+    button: |
+      % if salary_in_kind == True and kind_payment_reviewed == True:
+      **El salario en especie a pagar al empleado será de: **  ${ currency(sum(get_only_number(kind_pay.value) for kind_pay in kind_payment.complete_elements()), decimals =  False)} pesos. [BR]
+      % else:
+       **No habrá pago en especie.** [BR]
+      % endif
+      **El periodo de pago será: ** ${ payment_form }  [BR] 
+  - note: |
+      ***********
+  - note: |
+      ###Datos del(la) trabajador(a)
+  - editar: employee_id_number
+    button: |
+     **Nombre empleado(a):** ${title_case(str(employ.name).lower())} [BR]
+     **Número de documento:** ${employee_type_id}. ${employee_id_number} [BR]
+     **Dirección:** ${employee_address} [BR]
+     **Ciudad:** ${employee_city}
+  - note: |
+      ***********   
+  - note: |
+      ###Datos del(la) empleador(a)
+  - Editar: employer_type
+    button: |
+      ${ employer_type } [BR]
+      % if employer_type == 'Persona Jurídica':
+      **Nombre de la empresa: **${title_case(str(employer_name).lower())}[BR]
+      **Nit: **${employer_id_number}[BR]
+      **Nombre(s) del representante legal: **${title_case(str(employ_jur.name).lower())}[BR]
+      **Número de identificación: **${employer_legal_rep_type_id}. ${ employer_legal_rep_id_number.upper() }[BR]
+      **Email: ** ${employer_email}[BR]
+      **Ciudad empleador(a): **${employer_city}[BR]
+      **Dirección empleador(a): **${employer_address}
+      % else:
+      **Nombre(s) de la persona: **${title_case(str(employ_nat.name).lower())} [BR]
+      **Número de identificación: ** ${employer_type_id}.${employer_id_number} [BR]
+      **Email: **${employer_email}[BR]
+      **Ciudad: **${employer_address}[BR]
+      **Dirección: **${employer_city}
+      % endif
+  - note: |    
+      ***********
+      ###Condiciones generales
+  - Editar: trust
+    button: |
+      % if trust == True:
+      **Es un(a) trabajador(a) de Manejo y Confianza: ** Si [BR]
+      % else:
+      **Es un(a) trabajador(a) de Manejo y Confianza: ** No [BR]
+      % endif
+  - Editar: exclusivity
+    button: |
+      % if exclusivity == True:
+      **El(La) trabajador(a) tendrá exclusividad: ** Si [BR]
+      % else:
+      **El(La) trabajador(a) tendrá exclusividad: ** No [BR]
+      % endif    
+  - Editar: period_test
+    button: |
+      % if period_test == True:
+      **El(La) trabajador(a) tiene periodo de prueba: ** Si [BR]
+      % else:
+      **El(La) trabajador(a) tiene periodo de prueba: ** No [BR]
+      % endif
+  - Editar: authorization
+    button: |
+      % if authorization == True:
+      **Autorización de descuento por nomina: ** Si [BR]
+      % else:
+      **Autorización de descuento por nomina: ** No [BR]
+      % endif
+      
+  - note: |
+      ***********
+      ###Ciudad de trabajo
+  - Editar: work_city
+    button:  |
+      **Ciudad donde desarrollará labores el(a) trabajador(a): ** ${work_city} [BR]
+  - note: |
+      ***********
+      ###Fecha inicio de labores    
+  - Editar: date_start_working
+    button: |
+      **Fecha de inicio de labores del(la) trabajador(a): [BR] ** ${date_start_working}
+      ###Ciudad y fecha  de firma del contrato
+  - Editar: sign_city
+    button: |
+      **Ciudad: ** ${sign_city} [BR]
+      **Fecha: ** ${sign_date}    
+  - note: |
+      ***********    
+      ###Prohibiciones especiales del(la) trabajador(a)
+  - label: Editar
+    fields:
+      - prohibitions_list
+      - follow up:
+        - other_prohib[0]
+    button: |
+      % for item in [item for item in prohibitions_list.true_values() if item != 'Otras']:
+      * ${ item }
+      % endfor
+      % if prohibitions_list['Otras']:
+      % for prohib in other_prohib:
+      * ${ title_case(prohib) }
+      % endfor
+      % endif
+  - note: |    
+      ***********
+      ###Obligaciones especiales del(la) trabajador(a)
+  - label: Editar
+    fields:
+      - obligations_list
+      - follow up:
+        - other_obligation[0]
+    button: |
+      % for item in [item for item in obligations_list.true_values() if item != 'Otras']:
+      * ${ item }
+      % endfor
+      % if obligations_list['Otras']:
+      % for obli in other_obligation:
+      * ${ title_case(obli) }
+      % endfor
+      % endif
+  - note: |
+      ***********      
+      ###Documentos anexos
+  - label: Editar
+    fields:
+      - attached
+      - follow up:
+        - other_attached[0] 
+    button: |
+      % for item in [item for item in attached.true_values() if item != 'Otros documentos']:
+      * ${ item }
+      % endfor
+      % if attached['Otros documentos']:
+      % for attac in other_attached:
+      * ${ title_case(attac) }
+      % endfor
+      % endif
+continue button field: answers_reviewed
+progress: 100         
+---
+code: |
+  if 'price' in url_args:
+    priceDoc = currency(url_args['price'], decimals= False)
+  else:
+    priceDoc = '$0'
+  files_saved = save_files(the_document, 'contrato a termino indefinido', True, user_info().session)
+  juzto_callback = get_callback_final_screen_new(priceDoc, files_saved, 'contrato a termino indefinido', True)
+---
+objects:
+  - thumbnails: DAList
+---
+mandatory: True
+code: |
+  the_preview.pdf._make_pdf_thumbnail(i + 1)
+  thumbnails[i] = DAFile('thumbnails[%d]' % (i + 1), filename='thumb.png')
+  thumbnails[i].copy_into(the_preview.pdf.page_path(i + 1, 'screen'))
+  thumbnails[i].commit()
+---
+mandatory: True
+code: |
+  from PIL import Image
+  img = Image.open(thumbnails[0].path())
+  w, h = img.size
+  area = (0, 0, w, h)
+  img = img.crop(area)
+  img.save(thumbnails[0].path())
+  thumbnails[0].commit()
+  del img
+  first_thumb_cropped = True
+---
+reconsider: the_document 
+mandatory: True
+progress: null
+event: final_screen
+question: |
+  <div class="container-fluid info-juzto-final ${ user_info().session }"><div class="row"><div class="col-md-4 text-right sec-left-juzto"><b>Tenemos Listo Tu Documento</b><br><ul><li>1) Recibelo en tu correo inmediatamente.</li><li>2) Te lo enviaremos en formato Word y PDF.</li><li>3) Contarás con 30 minutos con un abogado para cambios.</li></ul><b class="final_screen_price_label">Precio:</b><br><b class="final_screen_price">${ priceDoc }</b><br>${ juzto_callback }</div><div class="col-md-1"></div><div class="col-md-7 containaer-doc-pages row"><div class="col-md-4"></div>
+  <div class="col-md-1 back_page show_page"></div><div class="col-md-4 page-text">Página <span class="number_page">1</span> de ${ the_preview.num_pages() }</div><div class="col-md-1 next_page show_page"><i class="fa fa-chevron-right" aria-hidden="true"></i></div>
+  ${ thumbnails[0].show(width="100%") }  
+  ${ thumbnails[1].show(width="100%") }
+  ${ thumbnails[2].show(width="100%") }
+  <div class="col-md-4"></div><div class="col-md-1 back_page show_page"></i></div><div class="col-md-4 page-text">Página <span class="number_page">1</span> de ${ the_preview.num_pages() }</div><div class="col-md-1 next_page show_page"><i class="fa fa-chevron-right" aria-hidden="true"></i></div></div></div></div>
+allow emailing: False
+back button: False
+---
+attachment:
+  variable name: the_document
+  docx template file: LT_ DT_200707_ V.2.0_Contrato-laboral-indefinido.docx
+---
+attachment:
+  variable name: the_preview
+  docx template file: LT_ DT_200707_ V.2.0_Contrato-laboral-indefinido_WM.docx
+---
+event: save_and_resume
+code: |
+  target = 'save_and_resume'
+  wants_email = True
+---
+code: |
+  if 'url' in url_args:
+    _url = url_args['url']+'?i='+encode_name(user_info().filename)+'&session='+encode_name(user_info().session)
+  else:
+    _url = interview_url()
+  data = {'interview': all_variables(special='titles')['full'], 'url':_url}
+  send_email_juzto(data, user_email_address, 'leave')
+  email_sent = True
+---
+question: |
+  Podrás terminar luego tu ${ all_variables(special='titles')['full'] }
+subquestion: |
+  Si deseas reanudar tu documento más tarde, podemos enviarte por correo electrónico un enlace en el que puedes hacer clic para reanudar tu documento en un momento posterior.
+fields:
+  - Correo electrónico: user_email_address
+    datatype: email
+continue button label: Enviar correo
+back button label: No gracias, continuar mi documento
+under: ""
+---
+code: |
+  target = 'normal'  
+---

@@ -1,0 +1,207 @@
+---
+metadata:
+  title: |
+   Cuenta de cobro
+  short title: |
+    Cuenta de cobro
+  description: |
+    Una cuenta de cobro
+  authors:
+    - name: Felipe Gómez
+      organization: juzto.co
+    - name: John Morales
+      organization: juzto.co
+  revision_date: 2020-03-12
+---
+sections:
+  - Datos de la empresa que paga
+  - Datos del profesional 
+  - Datos del servicio
+  - Datos del pago
+---
+features:
+  navigation: True
+  progress bar: True
+  show progress bar percentage: True
+  hide standard menu: False
+  hide navbar: True
+  question back button: True
+---
+include:
+  - docassemble.playground3:autoterms.yml
+---
+modules:
+  - docassemble.playground3.juztoModules
+  - docassemble.playground3.juztoListChoices
+---
+code: |
+  payment_amount = get_only_number(total_amount)
+  payment_value_numberstring = number_to_string(payment_amount)
+  payment_value_currency = currency(payment_amount, decimals = False)
+  paying_company_id = generateNit(paying_company_id)
+  days_for_payment = int(date_difference(starting=date_presentation, ending=payment_day).days)
+---
+mandatory: True
+code: |
+  multi_user = True
+---
+mandatory: True
+question: |
+  ¿Cuáles son los datos de la compañía qué contrata el servicio?
+fields:
+  - no label: paying_company
+    hint: "Razón social o nombre"
+  - no label: paying_company_id
+    hint: nit
+section: Datos de la empresa que paga
+prevent going back: True
+progress: 1
+---
+mandatory: True
+need:
+  - paying_company_id
+question: |
+  ¿Cuáles son los datos de la persona qué prestará el servicio?
+fields:
+  - Nombre completo: contractor_name
+    hint: "Nombre(s) y Apellido(s)"
+  - Correo electrónico: contractor_email
+    datatype: email
+    hint: "ejemplo@mail.com"
+  - Tipo de documento de identidad: contractor_id_type
+    datatype: dropdown
+    code: get_list_dni('N')
+  - Número de documento: contractor_id_number
+    hint: dni
+section: Datos del profesional
+progress: 10
+---
+mandatory: True
+need:
+  - contractor_name
+question: |
+  ¿Qué servicios prestarás a la compañía que paga?
+fields:
+  - no label: labour_done
+    input type: area
+section: Datos del servicio
+progress: 30
+---
+mandatory: True
+need:
+  - labour_done
+question: |
+  Información del servicio
+fields:
+  - ¿En qué fecha será presentada esta cuenta de cobro?: date_presentation
+    datatype: date
+  - Fecha de inicio del servicio: first_day
+    datatype: date
+  - Fecha de finalización del servicio: last_day
+    datatype: date
+  - ¿En qué ciudad se prestó el servicio?: city
+    input type: dropdown
+    code: get_cities()  
+section: Datos del servicio
+progress: 60
+---
+mandatory: True
+need:
+  - city
+question: |
+ ¿ Cuál es el valor a cobrar y la fecha máxima para realizar el pago?
+fields:
+  - Valor: total_amount
+    hint: money
+  - Fecha límite de pago: payment_day
+    datatype: date
+section: Datos del pago
+progress: 70
+---
+mandatory: True
+need:
+  - total_amount
+question: |
+  ¿ Cuáles son los datos de la cuenta bancaría donde la empresa debe hacer el pago?
+fields:
+  - Entidad bancaria: contractor_financial_institution
+    input type: dropdown
+    code: get_list('banks')
+  - Tipo de cuenta: contractor_account_type
+    input type: radio
+    code: get_list('bankaccount')
+  - Número de cuenta: contractor_account_number
+section: Datos del pago
+progress: 80
+---
+mandatory: True
+need:
+  - contractor_financial_institution
+question: |
+  ¿Quieres acogerte al beneficio de retención en la fuente?
+yesno: retention_benefits
+section: Datos del pago
+---
+code: |
+  if retention_benefits == True:
+    question_continue = True
+  else:
+    question_continue = False
+    personal_presentation = False
+    subcontractors = False
+---
+mandatory: question_continue
+question: |
+  ¿Tú personalmente prestaste parte o la totalidad del servicio?
+yesno: personal_presentation
+progress: 80
+section: Datos del pago
+---
+mandatory: question_continue
+question: |
+  ¿Contrataste 2 o más personas para prestar el servicio?
+yesno: subcontractors
+progress: 80
+section: Datos del pago
+---
+mandatory: question_continue
+question: |
+  % if personal_presentation == True and subcontractors == False:
+    Felicitaciones, puedes aplicar a los beneficios de retención en la fuente
+  % else:
+    Lo sentimos no eres apto para aplicar a los beneficios de retención en la fuente
+  % endif  
+buttons:
+  - Continuar: continue
+section: Datos del pago
+progress: 85
+---
+question: |
+  ¿Autorizas que la empresa realice el pago de la seguridad social?
+yesno: social_security_paymet
+section: Datos del pago
+progress: 95
+---
+mandatory: true
+code: |
+  if 'price' in url_args:
+    price = currency(url_args['price'], decimals= False)
+  else:
+    price = '$0'
+  files_saved = save_files(the_document, 'cuenta de cobro', True, user_info().session)
+  juzto_callback = get_callback_final_screen(price, files_saved, 'cuenta de cobro', True)
+---
+attachment:
+  variable name: the_document
+  docx template file: IT_FG_200312_V1.0_cuenta_de_cobro.docx
+---
+event: final_screen
+mandatory: true
+progress: 100
+question: |
+  ${ z_text_final_screen }
+subquestion: |
+  ${ juzto_callback }
+allow emailing: False
+back button: False
+---

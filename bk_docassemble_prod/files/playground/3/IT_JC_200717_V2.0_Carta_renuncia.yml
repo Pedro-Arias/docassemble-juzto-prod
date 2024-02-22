@@ -1,0 +1,496 @@
+metadata:
+  title: |
+   Carta de renuncia
+  short title: |
+    Carta de renuncia
+  description: |
+   Carta de renuncia
+  authors:
+    - name: Julian Morera
+      organization: juzto.co
+    - name: Juan David Castilla
+      organization: juzto.co
+---
+features:
+  navigation: True
+  progress bar: True
+  show progress bar percentage: True
+  hide standard menu: False
+  hide navbar: True
+  question back button: True
+---
+default screen parts:
+  under: |
+    % if show_save_resume_message:
+    [Guardar y terminar después](${ url_action('save_and_resume') })
+    % endif
+    [Volver a comenzar](${ url_action('restart_interview') })    
+---
+event: restart_interview
+code: |
+  force_ask('wants_to_restart', {'recompute': ['restart_done']})
+---
+question: |
+  ¿Estás seguro de querer reiniciar tu ${ all_variables(special='titles')['full'] }?
+subquestion: |
+  La información que ya hallas ingresado se perdera, tendras que volver a ingresar todas las respuestas.
+field: wants_to_restart
+buttons:
+  - Si, eliminar datos ingresados: True
+back button label: No gracias, continuar mi documento
+under: ""
+---
+code: |
+  if wants_to_restart:
+    command('restart')
+  restart_done = True
+---
+include:
+  - docassemble.playground3:autoterms.yml
+---
+modules:
+  - docassemble.playground3.juztoModules
+  - docassemble.playground3.juztoListChoices
+---
+initial: True
+code: |
+  multi_user = True
+  show_save_resume_message = True
+  the_sections = [{'intro':'Introducción'}]
+  the_sections.append({'reasons':'Razón(es) de la renuncia'})
+  the_sections.append({'dates':'Fecha de renuncia'})
+  the_sections.append({'employer':'Datos del(la) empleador(a)'})
+  the_sections.append({'emplyee':'Tus datos'})
+  the_sections.append({'sign':'Firma del documento'})
+  the_sections.append({'confirmation':'Confirmación de los datos'})
+  nav.set_sections(the_sections)
+---
+mandatory: True
+scan for variables: False
+code: |
+  if target == 'save_and_resume':
+    if wants_email:
+      show_save_resume_message = False
+    undefine('wants_email')
+    undefine('email_sent')
+    target = 'normal'
+  start_question
+  agrees_to_terms
+  feeling
+  if feeling == 'indignado':
+    problem_with
+    opportunities
+    other_problem
+  last_day_work
+  company_name
+  employee_id_type
+  date_presentation
+  do_sign
+  if do_sign == True:
+    sign_method
+    sign_file
+  answers_reviewed
+  final_screen
+---
+event: reasons
+section: reasons
+question: |
+  Razón(es) de la renuncia
+review:
+  - Editar: feeling
+    button: |
+      % if feeling == "agradecido" or feeling == "indiferente":
+      ** ${ feeling.capitalize() } ** 
+      % else:
+      % if problem_with == True:
+      * las diferencias irreconciliables de criterio que existen con ${subject_of_conflict}
+      % endif
+      % if opportunities == True:
+      * la imposibilidad de crecer personal y/o profesionalmente dentro de su organización
+      % endif
+      % if order_lack == True:
+      * la falta de claridad y coherencia en las directrices que recibimos los empleados
+      % endif
+      % if other_problem == True:
+      * ${the_problem}  
+      % endif
+      % endif
+---
+event: dates
+section: dates
+question: |
+  Fecha de renuncia
+review:
+  - Editar: last_day_work
+    button: |
+      Trabajará hasta el día ${ last_day_work }
+---
+event: employer
+section: employer
+question: |
+  Datos del(la) empleador(a)
+review:
+  - Editar: company_name
+    button: |
+      ** Nombre de la compañía: ** ${ company_name.upper() }[BR]
+      ** Nombre(s) y Apellido(s) del jefe: ** ${ title_case(str(boss.name).lower())}[BR]
+      ** Dirección: ** ${ company_adress }
+---
+event: emplyee
+section: emplyee
+question: |
+  Datos del(la) trabajador(a) que renuncia
+review:
+  - Editar: employee_id_type
+    button: |
+      ** Nombre(s) y Apellido(s) del empleado: ** ${ title_case(str(employee.name).lower())}[BR]
+      ** Número de identificación: ** ${ employee_id_type }. ${ employee_id_number.upper() }
+---
+event: sign
+section: sign
+question: |
+  Ciudad, fecha y firma del documento
+review:
+  - Editar: date_presentation
+    button: |
+      Se presentara la carta en la ciudad de ${ city } en la fecha ${ date_presentation }
+  - label: Editar
+    fields:
+      - do_sign
+      - sign_method
+      - sign_file
+    button: |
+      % if do_sign == False:
+      Haz contestado que no deseas firmar el documento
+      % else: 
+      Haz contestado que quieres poner la firma de ${title_case(str(employee.name).lower())} en el documento.[BR]
+      **Firma:** [BR]
+      ${sign_file}
+      % endif
+---
+image sets:
+  freepik:
+    attribution: |
+    images:
+      Agradecido: Agradecido.svg
+      Indiferente: Indiferente.svg
+      Indignado: Indignado.svg
+---
+question: |
+  Ahora empezaremos a crear tu carta de renuncia.
+subquestion: |
+  Con esta carta el trabajador informa su decisión de terminar el contrato laboral a partir de una fecha determinada. Es usual entregar la carta con una anticipación moderada, para evitar un abandono sorpresivo del trabajo.[BR][BR]
+  Para tu  tranquilidad, este es un documento de gran calidad, preparado por abogados expertos. Pasos por seguir:[BR][BR]
+  1.	Responde todas las preguntas que te haremos. Estas preguntas han sido preparadas por abogados con mucha experiencia en este tipo de documentos. [BR]
+      Cada respuesta cambia el contenido del documento y lo ajusta a tu caso concreto.[BR][BR]
+  2.	Queremos que lo entiendas todo. En cada pregunta encontrarás explicaciones hechas por nuestros abogados. [BR]
+      Las palabras complicadas estarán subrayadas en azul y en un color diferente, también podrán llevar      un signo de interrogación. Haz clic sobre la palabra o el signo de interrogación para leer la explicación. [BR][BR]
+  3.	Al terminar      tendrás un documento hecho especialmente para ti, construido con base en tus respuestas. Además podrás comprender todos los conceptos del documento con claridad. Entenderás lo que vas a firmar.[BR][BR]
+  Si tienes alguna duda adicional puedes <a href="https://juzto.co/asesoria-legal/consulta-abogado/" target="_blank" class="linkjzda">programar una cita con uno de nuestros abogados</a>.[BR][BR]
+  Gracias por elegir Juzto, empecemos.
+continue button field: start_question
+section: intro
+prevent going back: True
+under: ""
+---
+question: |
+  Para tu carta de renuncia debes tener lista la siguiente información:
+subquestion: |
+  -	Nombre completo e identificación de quien renuncia.
+  -	Nombre completo e identificación del empleador.
+  -	Cargo al que renuncia el trabajador.
+  -	Fecha de renuncia efectiva.
+fields:
+  - no label: agrees_to_terms
+    datatype: checkboxes
+    default: "Acepto <a href='https://juzto.co/politica-tratamiento-datos/' target='_blank' class='linkjzdadark'>el tratamiento de los datos personales</a>."
+    minlength: 1
+    choices:
+      - "Acepto <a href='https://juzto.co/politica-tratamiento-datos/' target='_blank' class='linkjzdadark'>el tratamiento de los datos personales</a>."
+    validation messages:
+      minlength: |
+        Debes aceptar el tratamiento de los datos personales para pode continuar.
+section: intro
+prevent going back: True
+under: ""
+---
+question: |
+  ¿Qué sentimiento quieres reflejar en tu carta?
+fields:
+  - no label: feeling
+    input type: radio
+    choices:
+      - Agradecido, ojalá nos volvamos a encontrar: agradecido
+        image: Agradecido
+        help: |
+           Esta  opción  es ideal cuando  quieres dejar las puertas abiertas.
+      - Indiferente, me da igual haber trabajado ahí: indiferente
+        image: Indiferente
+      - Indignado, espero no verlos más: indignado
+        image: Indignado
+section: reasons
+progress: 15
+---
+depends on:
+  - feeling
+if:  feeling == 'indignado'
+question: |
+  ¿Por qué te vas disgustado?
+id: waitforme
+fields:
+  - Que tuviste problemas con alguien: problem_with
+    datatype: yesno
+  - no label: subject_of_conflict
+    hint: ¿Con quien?
+    show if: problem_with
+  - Falta de oportunidades de crecimiento: opportunities
+    datatype: yesno
+  - Desorden y falta de claridad en la organizacion: order_lack
+    datatype: yesno
+  - Otro: other_problem
+    datatype: yesno
+  - ¿Cuál es el otro motivo?: the_problem
+    hint: ¿Cuál es el otro motivo?
+    input type: area
+    show if: other_problem      
+section: reasons
+progress: 15
+---
+code: |
+  reason = list()
+  if problem_with == True:
+    reason.append('las diferencias irreconciliables de criterio que existen con '+ subject_of_conflict)
+  if opportunities == True:
+    reason.append('la imposibilidad de crecer personal y/o profesionalmente dentro de su organización')
+  if order_lack == True:
+    reason.append('la falta de claridad y coherencia en las directrices que recibimos los empleados')
+  if other_problem == True:
+    reason.append(the_problem)  
+  realreason = ", ".join(reason)
+---
+question: |
+  ¿Hasta qué día trabajarás?
+subquestion: |
+  % if feeling == 'agradecido':
+  Como estas agradecido es habitual que le des a tu empleador(a) una (1) semana para que busque tu reemplazo y puedas hacerle la entrega formalmente.
+  % endif
+fields:
+  - no label: last_day_work
+    datatype: date
+validation code: |
+  if last_day_work < today():
+    validation_error("El día hasta que trabajas no puede ser menor a hoy")
+section: dates
+progress: 35
+---
+objects:
+  - boss: Individual
+---
+question: |
+  Datos del(la) empleador(a) al que renuncias
+fields:
+  - Nombre del(la) empleador(a): company_name
+    hint: 'Nombre de la compañia'
+  - Nombre(s) de(la) jefe(a): boss.name.first
+    hint: 'Nombre(s)'
+  - Apellido(s) de(la) jefe(a): boss.name.last
+    hint: 'Apellido(s)'
+  - Dirección: company_adress
+    hint: 'Calle 122 # 17 - 29 Oficina 302'
+section: employer
+progress: 45
+---
+objects:
+  - employee: Individual
+---
+question: |
+  Datos del(la) trabajador(a) que renuncia
+fields:
+  - Nombre(s): employee.name.first
+    hint: 'Nombre(s)'
+  - Apellido(s): employee.name.last
+    hint: 'Apellido(s)'
+  - Tipo de identificación: employee_id_type
+    datatype: dropdown
+    code: get_list_dni('N')
+  - Número de identificación: employee_id_number
+    hint: dni
+section: emplyee
+progress: 55
+---
+question: |
+  Ciudad y fecha en la que presentarás la renuncia
+fields:
+  - Ciudad: city
+    datatype:  dropdown
+    code: get_cities()
+  - Fecha: date_presentation 
+    datatype: date
+validation code: |
+  if date_presentation > last_day_work and date_presentation < today():
+    validation_error("La fecha en que presentas la carta de renuncia no puede ser mayor a la fecha de último día de trabajo o menor a la fecha de hoy.")
+section: sign
+progress: 65
+---
+question: |
+  ¿Quieres firmar está carta?
+fields:
+  - no label: do_sign
+    datatype: yesnoradio
+  - ¿Cómo deseas firmar?: sign_method
+    input type: radio
+    choices:
+      - Subir imagen de la firma: sign_upload
+      - Hacer la firma en la pantalla o con el mouse: sign_screen
+    show if:
+      variable: do_sign
+      is: True
+section: sign
+progress: 75
+---
+depends on:
+  - do_sign
+  - sign_method
+if: do_sign == True and sign_method == 'sign_upload'
+question: |
+  Sube tu firma en formato de imagen
+fields:
+  - no label: sign_file
+    datatype: file
+section: sign
+progress: 85
+---
+depends on:
+  - do_sign
+  - sign_method
+if: do_sign == True and sign_method == 'sign_screen'
+question: |
+  Haz la firma en el recuadro
+signature: sign_file
+under: |
+  ${ employee.name }
+section: sign
+progress: 85
+---
+question: |
+  En esta pantalla puedes revisar tus respuestas
+review:
+  - note: |
+      ### Razón(es) de la renuncia
+  - Editar: feeling
+    button: |
+      % if feeling == "agradecido" or feeling == "indiferente":
+      ** ${ feeling.capitalize() } ** 
+      % else:
+      % if problem_with == True:
+      * las diferencias irreconciliables de criterio que existen con ${subject_of_conflict}
+      % endif
+      % if opportunities == True:
+      * la imposibilidad de crecer personal y/o profesionalmente dentro de su organización
+      % endif
+      % if order_lack == True:
+      * la falta de claridad y coherencia en las directrices que recibimos los empleados
+      % endif
+      % if other_problem == True:
+      * ${the_problem}  
+      % endif
+      % endif
+  - note: |
+      ***********
+      ### Fecha de renuncia
+  - Editar: last_day_work
+    button: |
+      Trabajará hasta el día ${ last_day_work }
+  - note: |
+      ***********
+      ### Datos del(la) empleador(a)
+  - Editar: company_name
+    button: |
+      ** Nombre de la compañía: ** ${ company_name.upper() }[BR]
+      ** Nombre(s) y Apellido(s) del jefe: ** ${ title_case(str(boss.name).lower())}[BR]
+      ** Dirección: ** ${ company_adress }
+  - note: |
+      ***********
+      ### Tus datos
+  - Editar: employee_id_type
+    button: |
+      ** Nombre(s) y Apellido(s) del empleado: ** ${ title_case(str(employee.name).lower())}[BR]
+      ** Número de identificación: ** ${ employee_id_type }. ${ employee_id_number.upper() }
+  - note: |
+      ***********
+      ### Ciudad y fecha de la carta
+  - Editar: date_presentation
+    button: |
+      Se presentará la carta en la ciudad de ${ city } en la fecha ${ date_presentation }
+  - note: |
+      ***********
+      ### Firma del documento
+  - label: Editar
+    fields:
+      - do_sign
+      - sign_method
+      - sign_file
+    button: |
+      % if do_sign == False:
+      Haz contestado que no deseas firmar el documento
+      % else: 
+      Haz contestado que quieres poner la firma de ${title_case(str(employee.name).lower())} en el documento.[BR]
+      **Firma:** [BR]
+      ${sign_file}
+      % endif
+  - note: |
+      ***********
+continue button field: answers_reviewed
+section: confirmation
+progress: 95
+---
+code: |
+  priceDoc='$0'
+  if 'price' in url_args:
+    priceDoc = currency(url_args['price'], decimals= False)
+  files_saved = save_files(the_document, 'Carta de renuncia', True, user_info().session)
+  juzto_callback = get_callback_final_screen(priceDoc, files_saved, 'Carta de renuncia', True)
+---
+reconsider: the_document 
+mandatory: True
+progress: 100
+event: final_screen
+question: |
+  ${ z_text_final_screen }
+subquestion: |
+  ${ juzto_callback }
+allow emailing: False
+back button: False
+---
+attachment:
+  variable name: the_document
+  docx template file: IT_JC_200730_V2.0_Carta_Renuncia.docx
+---
+event: save_and_resume
+code: |
+  target = 'save_and_resume'
+  wants_email = True
+---
+code: |
+  if 'url' in url_args:
+    _url = url_args['url']+'?i='+encode_name(user_info().filename)+'&session='+encode_name(user_info().session)
+  else:
+    _url = interview_url()
+  data = {'interview': all_variables(special='titles')['full'], 'url':_url}
+  send_email_juzto(data, user_email_address, 'leave')
+  email_sent = True
+---
+question: |
+  Podrás terminar luego tu ${ all_variables(special='titles')['full'] }
+subquestion: |
+  Si deseas reanudar tu documento más tarde, podemos enviarte por correo electrónico un enlace en el que puedes hacer clic para reanudar tu documento en un momento posterior.
+fields:
+  - Correo electrónico: user_email_address
+    datatype: email
+continue button label: Enviar correo
+back button label: No gracias, continuar mi documento
+under: ""
+---
+code: |
+  target = 'normal'  
+---

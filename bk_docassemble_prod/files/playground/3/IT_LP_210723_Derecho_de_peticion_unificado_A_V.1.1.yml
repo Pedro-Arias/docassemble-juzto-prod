@@ -1,0 +1,167 @@
+metadata:
+  title: |
+    IT_LP_210723_Derecho_de_peticion_unificado_A_V.1.1
+  short title: |
+    Derecho de petición por fotocomparendo
+  description: |
+   Documento para solicitar información en los casos donde el cliente no recibió el comparendo físico y no se puede solicitar audiencia.
+  authors:
+    - name: Laura Pardo
+      organization: Juzto.co
+    - name: Juan David Castilla
+      organization: Juzto.co
+---
+features:
+  navigation: True
+  progress bar: True
+  show progress bar percentage: True
+  hide standard menu: False
+  hide navbar: True
+  question back button: True
+---
+include:
+  - docassemble.playground3:autoterms.yml
+---
+modules:
+  - docassemble.playground3.juztoModules
+  - docassemble.playground3.juztoListChoices
+---
+initial: True
+code: |
+  client_type
+  Signature ="{{Signature:Recipient1*}}"
+  if client_type == "Persona Natural":
+    natural.name
+    complaining_type_id
+    complaining_id_number
+    complaining_id_number = get_dni_formated(complaining_id_number)
+  else:
+    legal.name
+    complaining_id_number
+    legal_representative_name
+    legal_representative_type_id
+    legal_representative_id_number
+    legal_representative_id_number = get_dni_formated(legal_representative_id_number)
+    complaining_id_number = generateNit(complaining_id_number)
+  case_number
+  fecha = today()
+  company_or_entity_name
+  if sancionatory_resolution:
+    resolution_number
+  fotomulta_number
+  plate
+  infraction_date
+  interval = date_difference(starting=infraction_date, ending=fecha)
+  if interval.years >= 2:
+    mandamiento_pago = True
+  if consolidado:
+    filename="Derecho_de_peticion_unificado"
+  else:
+    filename="Derecho_de_peticion_documentos"
+  final_screen
+---
+objects:
+  - natural: Individual
+  - legal: Individual
+---
+question: |
+  ¿El cliente es persona o empresa?
+fields:
+  - no label: client_type
+    input type: radio
+    code: get_list('type_j')
+---
+question: |
+  ¿Cuáles son los datos de la persona?
+fields:
+  - Nombres: natural.name.first
+    hint: Nombres
+  - Apellidos: natural.name.last
+    hint: Apellidos
+  - Tipo de identificación: complaining_type_id
+    input type: dropdown
+    code:  get_list_dni('N')
+  - Número de identificación: complaining_id_number
+    hint: dni
+id: blockglobal
+---
+question: |
+  ¿Hay resolución sancionatoria?
+yesno: sancionatory_resolution
+---
+question: |
+  ¿Cuáles son los datos de la compañía?
+fields:
+  - Nombre de la compañia: complaining_name
+  - NIT: complaining_id_number
+    hint: nit
+  - Nombre del representate legal: legal_representative_name
+  - Tipo de identificación: legal_representative_type_id
+    input type: dropdown
+    code:  get_list_dni('N')
+  - Número de identificación: legal_representative_id_numbre
+    hint: dni
+id: blockglobal
+---
+
+question: |
+  ¿Cuál es la línea de defensa a la que corresponde este documento? Ejemplo: LD-780
+subquestion: | 
+    Mira el recuadro rojo de la siguiente imagen para saber donde se ubica el número de la **línea de defensa (LD)**
+    ${ static_image('lineadedefensa.png',width='7in') }
+fields:
+  - no label: case_number
+---
+question: |
+  ¿Cuáles son los datos de la entidad?
+fields:
+  - nombre: company_or_entity_name
+  - email: email
+    datatype: email
+  - email: email2
+    datatype: email
+  - email: email3
+    datatype: email
+  - email: email4
+    datatype: email
+  - ciudad: filing_city
+    input type: dropdown
+    code: get_cities()
+---
+question: |
+  ¿Cuál es la placa del vehículo?
+fields:
+  - no label: plate
+---
+question: |
+  ¿Cuál es el número y fecha de la resolución?
+fields:
+  - Número: resolution_number
+  - Fecha: resolution_date
+    datatype: date
+---
+question: |
+  Datos del comparendo 
+fields:
+  - Número del comparendo: fotomulta_number
+  - fecha del comparendo: infraction_date
+    datatype: date 
+---
+question: |
+  ¿Es consolidado?
+yesno: consolidado
+---
+attachment:
+  variable name: the_document
+  docx template file: IT_LP_210723_Derecho_de_peticion_unificado_A_V.1.1.docx
+---
+code: |
+  files_saved = save_files(the_document, filename, True, user_info().session)
+  juzto_callback = get_callback_final_screen('0', files_saved, filename, True)
+---
+event: final_screen
+question: |
+  ${ z_text_final_screen } - COD: ${user_info().session}
+subquestion: |
+  ${ juzto_callback }
+id: juzto_da_final

@@ -1,0 +1,141 @@
+metadata:
+  title: |
+   IT_DA_220713_V.1.0_Rappi
+  short title: |
+    Cambio de cuenta Rappi
+  description: |
+    Con este documento se solicita el cambio de cuenta de nómina.
+  authors:
+    - name: Laura Pardo
+      organization: Juzto.co
+    - name: Dario Agaton
+      organization: Juzto.co
+---
+features:
+  navigation: True
+  progress bar: False
+  show progress bar percentage: False
+  hide standard menu: False
+  hide navbar: True
+  question back button: True
+---
+include:
+  - docassemble.playground3:autoterms.yml
+---
+modules:
+  - docassemble.playground3.juztoModules
+  - docassemble.playground3.juztoListChoices
+---
+initial: True
+code: |
+  Signature ="{{Signature:Recipient1*}}"
+  natural.name
+  complaining_type_id
+  complaining_id_number
+  complaining_id_number = get_dni_formated(complaining_id_number)
+  natural_email
+  gender
+  entity
+  entity_email
+  account
+  answers_reviewed
+  info_dict = {"person":natural, "complaining_type_id":complaining_type_id, "complaining_id_number":complaining_id_number,"natural_email":natural_email,"entity":entity,"entity_email":entity_email, "hash": user_info().session}
+  juzto_callback
+  send_dict_data
+  final_screen
+---
+objects:
+  - natural: Individual
+---
+question: |
+  Digite los datos del solicitante
+fields:
+  - Nombres: natural.name.first
+    hint: Nombres
+  - Apellidos: natural.name.last
+    hint: Apellidos
+  - Tipo de identificación: complaining_type_id
+    input type: dropdown
+    code:  get_list_dni('N')
+  - Número de identificación: complaining_id_number
+    hint: dni
+  - Email: natural_email
+    datatype: email
+  - Sexo: gender
+    datatype: radio
+    choices:
+    - Femenino: female
+    - Masculino: male  
+---
+question: |
+  Datos de la entidad/empresa que recibirá la solicitud
+fields:
+  - Razón Social: entity
+  - Email: entity_email
+    datatype: email
+---
+question: |
+  Datos para la elaboración del documento
+fields:
+  - Número de la cuenta de RappiPay: account
+---
+question: |
+  Confirmación de datos suministrados (edítelos de ser necesario)
+review:
+  - Editar Nombres: natural.name.first
+    button: |
+      **Nombres:** [BR]
+      ${ natural.name.first }
+  - Editar Apellidos: natural.name.last
+    button: |
+      **Apellidos:** [BR]
+      ${ natural.name.last }
+  - Editar Tipo de ID: complaining_type_id
+    button: |
+      **Tipo de ID:** [BR]
+      ${ complaining_type_id }
+  - Editar Numero de ID: complaining_id_number
+    button: |
+      **Numero de ID:** [BR]
+      ${ complaining_id_number }
+  - Editar Email del solicitante: natural_email
+    button: |
+      **Email del solicitante:** [BR]
+      ${ natural_email }
+  - Editar Sexo: gender
+    button: |
+      **Género** [BR]
+      ${ gender }
+  - Editar Empresa/Entidad: entity
+    button: |
+      **Empresa/Entidad:** [BR]
+      ${ entity }
+  - Editar Email de la Empresa/Entidad: entity_email
+    button: |
+      **Email de la Empresa/Entidad:** [BR]
+      ${ entity_email }
+  - Editar Número de cuenta de RappiPay: account
+    button: |
+      **Número de cuenta de RappiPay:** [BR]
+      ${ account }
+field: answers_reviewed
+---
+attachment:
+  variable name: the_document
+  docx template file: IT_DA_220713_V.1.0_Rappi.docx
+---
+code: |
+  files_saved = save_files(the_document, 'Carta_Rappipay', True, user_info().session)
+  juzto_callback = get_callback_final_screen('0', files_saved, 'Carta_Rappipay', True)
+---
+code: |
+  my_url = 'https://flow.zoho.com/724171086/flow/webhook/incoming?zapikey=1001.c0e9e8ab582a8be23be2a2649bb06827.b0332aec35a5cedacf1bd7d273603875&isdebug=false'
+  send_dict_data = requests.post(my_url, data = info_dict)
+---
+event: final_screen
+question: |
+  ¡Solicitud creada!
+subquestion: |
+  Pronto ${natural} recibirá el documento para su respectiva firma. Al confirmar el documento, será radicado ante ${entity}.
+id: juzto_da_final
+---

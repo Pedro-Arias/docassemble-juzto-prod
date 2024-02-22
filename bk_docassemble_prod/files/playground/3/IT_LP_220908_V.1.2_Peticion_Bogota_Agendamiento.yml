@@ -1,0 +1,136 @@
+metadata:
+  title: |
+   IT_LP_220908_V.1.2_Peticion_Bogota_Agendamiento
+  short title: |
+    Petición Bogotá Agendamiento
+  description: |
+    Documento para solicitar el agendamiento a bogotá.
+  authors:
+    - name: Laura Pardo
+      organization: Juzto.co
+    - name: Dario Agaton
+      organization: Juzto.co
+---
+features:
+  navigation: True
+  progress bar: True
+  show progress bar percentage: True
+  hide standard menu: False
+  hide navbar: True
+  question back button: True
+---
+include:
+  - docassemble.playground3:autoterms.yml
+---
+modules:
+  - docassemble.playground3.juztoModules
+  - docassemble.playground3.juztoListChoices
+---
+initial: True
+code: |
+  case_number
+  client_type
+  if client_type == "Persona Natural":
+    natural.name
+    complaining_type_id
+    complaining_id_number
+    complaining_id_number = get_dni_formated(complaining_id_number)
+  else:
+    legal.name
+    complaining_id_number = generateNit(complaining_id_number)
+    legal_representative_type_id
+    legal_representative_name
+    legal_representative_id_number = get_dni_formated(legal_representative_id_number)
+  ouremail = 'entidades+'+case_number+'@juzto.co'
+  if dp_type == "no_disponibilidad":
+    fotomulta_number_new
+    fotomulta_number = ""
+  elif dp_type == "dos_agendamientos":
+    fotomulta_number
+    fotomulta_number_new = fotomultaCaso02
+  final_screen
+---
+objects:
+  - natural: Individual
+  - legal: Individual
+#ACÁ COMIENZAN LAS PREGUNTAS DE JUAN----------------------------------------------------------------------------------------
+---
+question: |
+  ¿Cuál es la línea de defensa a la que corresponde este documento? Ejemplo: LD-780
+fields:
+  - no label: case_number
+---
+question: |
+  ¿El cliente es persona o empresa?
+fields:
+  - no label: client_type
+    input type: radio
+    code: get_list('type_j')
+progress: 1
+---
+question: |
+  ¿Cuáles son los datos de la persona?
+fields:
+  - Nombres: natural.name.first
+    hint: Nombres
+  - Apellidos: natural.name.last
+    hint: Apellidos
+  - Tipo de identificación: complaining_type_id
+    input type: dropdown
+    code:  get_list_dni('N')
+  - Número de identificación: complaining_id_number
+    hint: dni
+id: blockglobal
+---
+question: |
+  ¿Cuáles son los datos de la compañía?
+fields:
+  - Nombre de la compañia: legal.name.first
+  - NIT: complaining_id_number
+    #hint: nit
+  - Nombre del representate legal: legal_representative_name
+  - Tipo de identificación: legal_representative_type_id
+    input type: dropdown
+    code:  get_list_dni('N')
+  - Número de identificación: legal_representative_id_number
+    #hint: dni
+---
+question: |
+  ¿Cuál es el motivo del derecho de petición?
+field:
+  dp_type
+choices:
+  - Por no haber disponibilidad de agendamiento en llamada o chat: no_disponibilidad
+  - Por no permitir más de 1 agendamiento virtualmente: dos_agendamientos
+---
+question: |
+  ¿Cuál es el número de comparendo que no se han podido agendar?
+fields:
+  - Número del comparendo: fotomulta_number_new
+    datatype: integer
+---
+question: |
+  Digite el número de comparendo más antiguo agendado y el nuevo comparendo que no ha podido agendar
+fields:
+  - Número del comparendo antiguo (Ya agendado): fotomulta_number
+    datatype: integer
+  - Número del comparendo reciente: fotomultaCaso02
+    datatype: integer
+---
+code: |
+  Signature = "{{Signature:Recipient1*}}"
+---
+attachment:
+  variable name: the_document
+  docx template file: IT_LP_220908_V.1.2_Peticion_Bogota_Agendamiento.docx
+---
+code: |
+  files_saved = save_files(the_document, 'Peticion_Bogota_Agendamiento', True, user_info().session)
+  juzto_callback = get_callback_final_screen('0', files_saved, 'Peticion_Bogota_Agendamiento', True)
+---
+event: final_screen
+question: |
+  ${ z_text_final_screen } - COD: ${user_info().session}
+subquestion: |
+  ${ juzto_callback }
+id: juzto_da_final

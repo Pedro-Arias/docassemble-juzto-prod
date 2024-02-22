@@ -1,0 +1,124 @@
+metadata:
+  title: |
+    IT_DA_230725_V.1.0_Cuenta_Cobro
+  short title: |
+    Cuenta de cobro.
+  description: |
+   Se busca reintegrar un monto al cliente.
+  authors:
+    - name: Dario Agaton 
+      organization: DocumentosLegales.co
+    - name: Laura Pardo
+      organization: DocumentosLegales.co
+---
+features:
+  navigation: True
+  progress bar: True
+  show progress bar percentage: True
+  hide standard menu: False
+  hide navbar: True
+  question back button: True
+---
+include:
+  - docassemble.playground3:autoterms.yml
+---
+modules:
+  - docassemble.playground3.juztoModules
+  - docassemble.playground3.juztoListChoices
+---
+initial: True
+code: |
+  client_type
+  if client_type == "Persona Natural":
+    natural.name
+    complaining_type_id
+    complaining_id_number = get_dni_formated(id_person)
+  else:
+    legal.name
+    complaining_id_number = generateNit(id_person)
+    legal_representative_type_id
+    legal_representative_name
+    legal_representative_id_number = get_dni_formated(legal_representative_id_number)
+  cobro_date
+  pedido
+  factura
+  amount
+  user_location
+  user_cell
+  user_email
+  Signature ="{{Signature:Recipient1*}}"
+---
+objects:
+  - natural: Individual
+  - legal: Individual
+---
+question: |
+  ¿El cliente es persona o empresa?
+fields:
+  - no label: client_type
+    input type: radio
+    code: get_list('type_j')
+progress: 1
+---
+question: |
+  ¿Cuáles son los datos de la persona?
+fields:
+  - Nombres: natural.name.first
+    hint: Nombres
+  - Apellidos: natural.name.last
+    hint: Apellidos
+  - Tipo de identificación: complaining_type_id
+    input type: dropdown
+    code:  get_list_dni('N')
+  - Número de identificación: id_person
+    hint: dni
+id: blockglobal
+---
+question: |
+  ¿Cuáles son los datos de la compañía?
+fields:
+  - Nombre de la compañia: legal.name.first
+  - NIT: id_person
+    #hint: nit
+  - Nombre del representate legal: legal_representative_name
+  - Tipo de identificación: legal_representative_type_id
+    input type: dropdown
+    code:  get_list_dni('N')
+  - Número de identificación: legal_representative_id_number
+    #hint: dni
+---
+question: |
+  Datos de referencia del cliente
+fields:
+  - Dirección: user_location
+  - Numero de teléfono del usuario: user_cell
+  - Correo del usuario: user_email
+---
+question: |
+  Datos de la cuenta de cobro
+fields:
+  - Fecha del cobro: cobro_date
+    datatype: date
+---
+question: |
+  Datos del pedido y la factura
+fields:
+  - Número de pedido: pedido
+  - Número de la factura: factura
+  - Valor del cobro ej (200.000): amount
+---
+attachment:
+  variable name: the_document
+  docx template file: IT_DA_230725_V.1.0_Cuenta_Cobro.docx
+---
+code: |
+  files_saved = save_files(the_document, 'Cuenta_de_Cobro', True, user_info().session)
+  juzto_callback = get_callback_final_screen('0', files_saved, 'Cuenta_de_Cobro', True)
+---
+event: final_screen
+question: |
+  ${ z_text_final_screen } - COD: ${user_info().session}
+subquestion: |
+  ${ juzto_callback }
+id: juzto_da_final
+---

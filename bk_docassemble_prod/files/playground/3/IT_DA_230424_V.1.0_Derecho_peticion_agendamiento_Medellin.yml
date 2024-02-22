@@ -1,0 +1,206 @@
+metadata:
+  title: |
+   IT_DA_230424_V.1.0_Derecho_peticion_agendamiento_Medellin
+  short title: |
+    Derecho peticion agendamiento Medellin
+  description: |
+    Derecho peticion agendamiento Medellin
+  authors:
+    - name: Laura Pardo
+      organization: Juzto.co
+    - name: Dario Agaton
+      organization: Juzto.co
+---
+features:
+  navigation: True
+  progress bar: True
+  show progress bar percentage: True
+  hide standard menu: False
+  hide navbar: True
+  question back button: True
+---
+include:
+  - docassemble.playground3:autoterms.yml
+---
+modules:
+  - docassemble.playground3.juztoModules
+  - docassemble.playground3.juztoListChoices
+---
+objects:
+  - imagen_sesion: DAList.using(there_are_any=True)
+  - imagen_notification: DAList.using(there_are_any=True)
+  - imagen_pending_pay: DAList.using(there_are_any=True)
+  - imagen_fallo: DAList.using(there_are_any=True)
+---
+initial: True
+code: |
+  Signature ='{{Signature:Recipient1*}}'
+  case_number
+  client_type
+  if client_type == "Persona Natural":
+    complaining_name
+    complaining_type_id
+    complaining_id_number
+  else:
+    complaining_legal_name
+    complaining_id_number
+    legal_representative_name
+    legal_representative_type_id
+    legal_representative_id_number
+  fotomulta_number 
+  dp
+  if dp == "second_dp":
+    tutela_date
+  resolution_existence
+  if resolution_existence == True:
+    resolution_number
+    resolution_date
+  case_status
+  if case_status == "notification":
+    imagen_notification
+  elif case_status == "pending_pay":
+    imagen_pending_pay
+  congelado
+  if congelado == True:
+    imagen_sesion
+  else:
+    aviso_error
+    if aviso_error == True:
+      imagen_fallo
+  final_screen
+---
+question: |
+  ¿El cliente es persona o empresa?
+fields:
+  - no label: client_type
+    input type: radio
+    code: get_list('type_j')
+progress: 1
+---
+question: |
+  ¿Cuáles son los datos de la persona?
+fields:
+  - Nombres y apellidos: complaining_name
+    hint: Nombre y apellido
+  - Tipo de identificación: complaining_type_id
+    input type: dropdown
+    code:  get_list_dni('N')
+  - Número de identificación: complaining_id_number
+    hint: dni
+id: blockglobal
+---
+question: |
+  ¿Cuáles son los datos de la compañía?
+fields:
+  - Nombre de la compañia: complaining_legal_name
+  - NIT: complaining_id_number
+    hint: nit
+  - Nombre del representate legal: legal_representative_name
+  - Tipo de identificación: legal_representative_type_id
+    input type: dropdown
+    code:  get_list_dni('N')
+  - Número de identificación: legal_representative_id_number
+    hint: dni
+id: blockglobal
+---
+mandatory: true
+code: |
+  if client_type == "Persona Jurídica":
+    complaining_id_number = generateNit(complaining_id_number)
+---
+question: |
+  ¿Cuál es la línea de defensa a la que corresponde este documento? Ejemplo: LD-780
+subquestion: | 
+    Mira el recuadro rojo de la siguiente imagen para saber donde se ubica el número de la **línea de defensa (LD)**
+    ${ static_image('lineadedefensa.png',width='7in') }
+fields:
+  - no label: case_number
+---
+question: |
+  ¿Cuál es el número del comparendo? 
+fields:
+  - no label: fotomulta_number 
+---
+question: |
+  ¿Qué ha pasado con el comparendo? 
+fields:
+  - no label: case_status 
+    choices:
+      - Sigue por notificar: notification
+      - Está en pendiente de pago: pending_pay
+      - Ya nos han negado el agendamiento: negation_hearing
+---
+question: |
+  ¿Qué ha pasado con el caso? 
+fields:
+  - no label: dp 
+    choices:
+      - Éste es el primer derecho de petición: first_dp
+      - Éste es el segundo derecho de petición y ya se ha presentado tutela anteriormente: second_dp
+---
+question: |
+  ¿En qué fecha se radicó la tutela? 
+fields:
+  - no label: tutela_date
+    datatype: date          
+---
+question: |
+  ¿El caso ya tiene resolución sancionatoria? 
+yesno: resolution_existence
+---
+mandatory: |
+  resolution_existence == True
+question: |
+  ¿Cuál es el número y fecha de la resolución sancionatoria?
+fields:
+  - Número: resolution_number
+  - Fecha: resolution_date
+    datatype: date
+---
+question: |
+  ¿La plataforma queda congelada en la pantalla de inicio de sesión y el botón de iniciar sesión es inútil?
+yesno: congelado
+---
+question: |
+  ¿La plataforma arrojó este anuncio?: “Se ha producido un error recuperando la información. Por favor intente más tarde”
+yesno: aviso_error
+---
+question: |
+  Suba la imagen de este anuncio: “Se ha producido un error recuperando la información. Por favor intente más tarde”
+fields: 
+  - no label: imagen_fallo
+    datatype: files
+---
+question: |
+  Suba la imagen en donde el comparendo se encuentra en estado “pendiente de pago”
+fields: 
+  - no label: imagen_pending_pay
+    datatype: files
+---
+question: |
+  Suba la imagen en donde el comparendo se encuentra en estado “pendiente de notificación”
+fields: 
+  - no label: imagen_notification
+    datatype: files
+---
+question: |
+  Suba la imagen en donde: “La plataforma queda congelado al tiempo que el botón de iniciar sesión es inútil”
+fields: 
+  - no label: imagen_sesion
+    datatype: files
+---
+attachment:
+  variable name: the_document
+  docx template file: IT_DA_230424_V.1.0_Derecho_peticion_agendamiento_Medellin.docx
+---
+code: |
+  files_saved = save_files(the_document, 'Derecho_peticion_agendamiento_Medellin', True, user_info().session)
+  juzto_callback = get_callback_final_screen('0', files_saved, 'Derecho_peticion_agendamiento_Medellin', True)
+---
+event: final_screen
+question: |
+  ${ z_text_final_screen } - COD: ${user_info().session}
+subquestion: |
+  ${ juzto_callback }
+id: juzto_da_final
+---

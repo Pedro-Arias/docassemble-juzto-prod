@@ -1,0 +1,506 @@
+metadata:
+  title: |
+   Carta ascenso laboral
+  short title: |
+    Carta ascenso laboral
+  description: |
+   Carta ascenso laboral
+  authors:
+    - name: Julian Morera
+      organization: juzto.co
+    - name: Juan David Castilla
+      organization: juzto.co
+---
+auto terms:
+  Empleador(a): |
+    Persona natural o empresa que contrata un servicio o una labor y que a cambio paga un salario. El empleador tiene la facultad de definir horarios y dar órdenes al trabajador.
+  Trabajador(a): |
+    Persona que presta un servicio o realiza una labor a cambio de un salario, bajo las órdenes de quién lo contrata.
+  Cargo: |
+    Nombre de la posición que ocupa el trabajador. Por ejemplo: contador, operador de máquina, auxiliar administrativo.
+---
+features:
+  navigation: True
+  progress bar: True
+  show progress bar percentage: True
+  hide standard menu: False
+  hide navbar: True
+  question back button: True
+---
+default screen parts:
+  under: |
+    % if show_save_resume_message:
+    [Guardar y terminar después](${ url_action('save_and_resume') })
+    % endif
+    [Volver a comenzar](${ url_action('restart_interview') })    
+---
+event: restart_interview
+code: |
+  force_ask('wants_to_restart', {'recompute': ['restart_done']})
+---
+question: |
+  ¿Estás seguro de querer reiniciar tu ${ all_variables(special='titles')['full'] }?
+subquestion: |
+  La información que ya hallas ingresado se perdera, tendras que volver a ingresar todas las respuestas.
+field: wants_to_restart
+buttons:
+  - Si, eliminar datos ingresados: True
+back button label: No gracias, continuar mi documento
+under: ""
+---
+code: |
+  if wants_to_restart:
+    command('restart')
+  restart_done = True
+---
+include:
+  - docassemble.playground3:autoterms.yml
+---
+modules:
+  - docassemble.playground3.juztoModules
+  - docassemble.playground3.juztoListChoices
+---
+initial: True
+scan for variables: False
+code: |
+  multi_user = True
+  show_save_resume_message = True
+  the_sections = [{'intro':'Introducción'}]
+  the_sections.append({'ifo_employee':'Información del(la) trabajador(a)'})
+  the_sections.append({'new_position':'Información del nuevo cargo'})
+  the_sections.append({'info_employer':'Información del(la) empleador(a)'})
+  the_sections.append({'dates_city':'Ciudad y fecha de firma'})
+  the_sections.append({'sign':'Firma del documento'})
+  the_sections.append({'confirmation':'Confirmación de los datos'})
+  nav.set_sections(the_sections)
+---
+mandatory: True
+code: |
+  if target == 'save_and_resume':
+    if wants_email:
+      show_save_resume_message = False
+    undefine('wants_email')
+    undefine('email_sent')
+    target = 'normal'  
+  start_question
+  agrees_to_terms
+  actual_position_employee
+  new_position_employee
+  employer_type
+  city
+  do_sign
+  if do_sign == True:
+    sign_method
+    sign_file
+  answers_reviewed
+  nav.hide()
+  final_screen
+---
+event: ifo_employee
+section: ifo_employee
+question: |
+  Información del(la) trabajador(a)
+review:
+  - Editar: actual_position_employee
+    button: |
+      ** Nombre(s) y Apellido(s) del empleado: **${title_case(str(employee.name).lower())}[BR]
+      ** Cargo actual de ${title_case(str(employee.name).lower())}: **${actual_position_employee}[BR]
+under: ""      
+---
+event: new_position
+section: new_position
+question: |
+  Información del nuevo cargo
+review:
+  - Editar: new_position_employee
+    button: |
+      **Nuevo cargo que ocupará ${title_case(str(employee.name).lower())}: **${new_position_employee}[BR]
+      **Fecha en que ${title_case(str(employee.name).lower())} iniciará en el cargo: **${new_position_date}[BR]
+      % if salary == True:
+      ** El nuevo salario de ${title_case(str(employee.name).lower())} será: **${new_salary}[BR]
+      % else:
+      ** No se mostrara el nuevo salario de ${title_case(str(employee.name).lower())} **
+      % endif
+under: ""      
+---
+event: info_employer
+section: info_employer
+question: |
+  Información del(la) empleador(a)
+review:
+  - Editar: employer_type
+    button: |
+      ** Tipo de empleador: **${employer_type}[BR]
+      % if employer_type == "Persona Jurídica":
+      **Nombre de la compañía: **${employer_company.upper()}[BR]
+      **NIT: **${generateNit(employer_id_number)}[BR]
+      ** Nombre de la persona que firmará la carta: **${title_case(sign_worker_name.lower())}[BR]
+      **Cargo de ${title_case(sign_worker_name.lower())}: **${position_employer}
+      % else:
+      **Nombre(s) y Apellido(s): **${title_case(str(employer.name).lower())}[BR]
+      **Número de documento: **${employer_type_id}. ${employer_id_number.upper()}
+      % endif
+under: ""      
+---
+event: dates_city
+section: dates_city
+question: |
+  Ciudad y fecha de firma
+review:
+  - Editar: city
+    button: |
+      **Ciudad en que se entregará la carta: **${city}[BR]
+      **Fecha en que se entregará la carta: **${creation_date}
+under: ""      
+---
+event: sign
+section: sign
+question: |
+  Firma del documento
+review:
+  - label: Editar
+    fields:
+      - do_sign
+      - sign_method
+      - sign_file
+    button: |
+      % if do_sign:
+      Haz contestado que quieres poner la firma de ${ title_case(str(employer.name).lower()) if employer_type == "Persona Natural" else title_case(sign_worker_name.lower()) } en el documento.[BR]
+      **Firma:** [BR]
+      ${sign_file}
+      % else: 
+      Haz contestado que no deseas firmar el documento
+      % endif
+under: ""      
+---
+question: |
+  Ahora empezaremos a crear tu carta de aviso de ascenso laboral. 
+subquestion: |
+  Este aviso sirve para ofrecer a un trabajador mejores condiciones laborales, generalmente desempeñando un cargo más alto con una responsabilidad mayor y con un aumento de salario.[BR]
+  Para tu  tranquilidad, este es un documento de gran calidad, preparado por abogados expertos. Para continuar, ten en cuenta lo siguiente:[BR]
+  
+  1.	Responde todas las preguntas que te haremos. Estas preguntas han sido preparadas por abogados con mucha experiencia en este tipo de documentos. [BR]
+  2.	Cada respuesta cambia el contenido del documento y lo ajusta a tu caso concreto.[BR]
+  3.	Queremos que lo entiendas todo. En cada pregunta encontrarás explicaciones hechas por nuestros abogados.[BR]
+  4.	Las palabras complicadas estarán subrayadas en azul y en un color diferente, también podrán llevar      un signo de interrogación. Haz clic sobre la palabra o el signo de interrogación para leer la explicación.[BR]
+  5.	Al terminar      tendrás un documento hecho especialmente para ti, construido con base en tus respuestas. Además podrás comprender todos los conceptos del documento con claridad. Entenderás lo que vas a firmar.[BR]
+  
+  Si tienes alguna duda adicional puedes [<a href=“https://juzto.co/asesoria-legal/consulta-abogado/” target=“_blank” class=“linkjzda”>programar una cita con uno de nuestros abogados</a>.[BR]
+  
+  Gracias por elegir Juzto, empecemos.[BR]
+continue button field: start_question
+section: intro
+prevent going back: True
+progress: 1
+under: ""
+---
+question: |
+  Para tu carta de aviso de ascenso laboral debes tener lista la siguiente información:
+subquestion: |
+  -	Nombre completo e identificación del trabajador.
+  -	Nombre completo e identificación del empleador.
+  -	Cargo que desempeña el trabajador.
+  -	Nuevo cargo que desempeñará el trabajador.
+  -	Fecha de inicio del nuevo cargo.
+fields:
+  - no label: agrees_to_terms
+    datatype: checkboxes
+    default: "Acepto <a href=‘https://juzto.co/politica-tratamiento-datos/’ target=‘_blank’ class=‘linkjzdadark’>el tratamiento de los datos personales</a>."
+    minlength: 1
+    choices:
+      - "Acepto <a href=‘https://juzto.co/politica-tratamiento-datos/’ target=‘_blank’ class=‘linkjzdadark’>el tratamiento de los datos personales</a>."
+    validation messages:
+      minlength: |
+        Debes aceptar el tratamiento de los datos personales para pode continuar.
+section: intro
+progress: 5
+prevent going back: True
+under: ""
+---
+objects:
+  - employee: Individual
+---
+question: |
+  Datos del(la) trabajador(a)
+fields:
+  - Nombre(s) del empleado: employee.name.first
+    hint: "Daniel Felipe"
+  - Apellido(s) del empleado: employee.name.last
+    hint: "Torres Gómez"
+  - Cargo actual: actual_position_employee
+section: ifo_employee
+progress: 20
+---
+question: |
+  ¿Cuál es el nuevo cargo que ocuparía ${ title_case(str(employee.name).lower()) }?
+fields:
+  - Nuevo cargo: new_position_employee
+    hint: "Director de contabilidad"
+  - Fecha inicio del cargo: new_position_date
+    datatype: date
+  - ¿Te gustaría que la carta informara el nuevo salario de ${ title_case(str(employee.name).lower()) }?: salary
+    datatype: yesnoradio
+  - Nuevo salario: new_salary
+    hint: money
+    show if:
+      variable: salary
+      is: True
+section: new_position
+progress: 40
+---
+objects:
+  - employer: Individual
+---
+question: |
+  ¿Quién es el(la) empleador?(a)?
+subquestion: |
+  Identifica si es persona natural o persona jurídica
+fields:
+  - no label: employer_type
+    input type: radio
+    code: get_list('type_j')
+  - Nombre(s) del empleador: employer.name.first
+    hint: Juan
+    show if: 
+      variable: employer_type
+      is: "Persona Natural"
+  - Apellido(s) del empleador: employer.name.last
+    hint: Perez Gómez
+    show if: 
+      variable: employer_type
+      is: "Persona Natural"
+  - Nombre de la compañía: employer_company
+    hint: "Ferretería Castilla S.A.S"
+    show if: 
+      variable: employer_type
+      is: "Persona Jurídica"
+  - Tipo de identificación: employer_type_id
+    datatype: dropdown
+    code: get_list_dni('N')
+    show if: 
+      variable: employer_type
+      is: "Persona Natural"
+  - Número de identificación: employer_id_number
+    hint: dni
+    show if: 
+      variable: employer_type
+      is: "Persona Natural"
+  - NIT: employer_id_number
+    hint: nit
+    show if: 
+      variable: employer_type
+      is: "Persona Jurídica"
+  - Nombre completo de quién firmará la carta: sign_worker_name
+    hint: "Juan Perez Gómez"
+    show if: 
+      variable: employer_type
+      is: "Persona Jurídica"
+  - Cargo de quién firmará la carta: position_employer
+    hint: "Jefe de area"     
+    show if: 
+      variable: employer_type
+      is: "Persona Jurídica"
+  - note: |
+      Por lo general firma el jefe de recursos humanos o el jefe inmediato del(la) trabajador(a).
+    js show if:
+      da_val("employer_type") == "Persona Jurídica"
+section: info_employer
+progress: 60
+---
+question: |
+  Fecha y ciudad en que entregarás la carta a ${ title_case(str(employee.name).lower()) }
+fields:
+  - Ciudad: city
+    datatype: dropdown
+    code: get_cities()
+  - Fecha: creation_date
+    datatype: date
+validation code: |
+    if new_position_date < creation_date:
+      validation_error("La fecha de la carta no puede ser después de la fecha de inicio del cargo")
+section: dates_city
+progress: 80
+---
+question: |
+  ¿Quieres firmar la carta de ascenso laboral?
+fields:
+  - no label: do_sign
+    datatype: yesnoradio
+  - ¿Cómo deseas firmar?: sign_method
+    input type: radio
+    choices:
+      - Subir imagen de la firma: sign_upload
+      - Hacer la firma en la pantalla o con el mouse: sign_screen
+    show if:
+      variable: do_sign
+      is: True
+section: sign
+progress: 90
+---
+depends on:
+  - do_sign
+  - sign_method
+if: do_sign == True and sign_method == 'sign_upload'
+question: |
+  Sube tu firma en formato de imagen
+fields:
+  - no label: sign_file
+    datatype: file
+section: sign
+progress: 90
+---
+depends on:
+  - do_sign
+  - sign_method
+if: do_sign == True and sign_method == 'sign_screen'
+question: |
+  Haz la firma en el recuadro
+signature: sign_file
+under: |
+ ${ title_case(str(employer.name).lower()) if employer_type == "Persona Natural" else title_case(sign_worker_name.lower()) }
+section: sign
+progress: 90
+---
+question: |
+   En esta pantalla puedes revisar y/o modificar tus respuestas
+review:
+  - note: |
+      ### Información del(la) trabajador(a)
+  - Editar: actual_position_employee
+    button: |
+      ** Nombre(s) y Apellido(s) del empleado: **${title_case(str(employee.name).lower())}[BR]
+      ** Cargo actual de ${title_case(str(employee.name).lower())}: **${actual_position_employee}[BR]
+  - note: |
+      ***********
+      ### Información del nuevo cargo
+  - Editar: new_position_employee
+    button: |
+      ** Nuevo cargo que ocupará ${title_case(str(employee.name).lower())}: **${new_position_employee}[BR]
+      **Fecha en que ${title_case(str(employee.name).lower())} iniciará en el cargo: **${new_position_date}[BR]
+      % if salary:
+      **El nuevo salario de ${title_case(str(employee.name).lower())} será de: **${new_salary}[BR]
+      %else:
+      **No se mostrara el nuevo salario de ${title_case(str(employee.name).lower())} **
+      %endif
+  - note: |
+      ***********
+      ### Información del(la) empleador(a)
+  - Editar: employer_type
+    button: |
+      ** Tipo de empleador: **${employer_type}[BR]
+      % if employer_type == "Persona Jurídica":
+      **Nombre de la compañía: **${employer_company.upper()}[BR]
+      **NIT: **${generateNit(employer_id_number)}[BR]
+      ** Nombre de la persona que firmará la carta: **${title_case(sign_worker_name.lower())}[BR]
+      **Cargo de ${title_case(sign_worker_name.lower())}: **${position_employer}
+      % else:
+      **Nombre(s) y Apellido(s): **${title_case(str(employer.name).lower())}[BR]
+      **Número de documento: **${employer_type_id}. ${employer_id_number.upper()}
+      % endif
+  - note: |
+      ***********
+      ### Ciudad y fecha de firma
+  - Editar: city
+    button: |
+      **Ciudad en que se entregará la carta: **${city}[BR]
+      **Fecha en que se entregará la carta: **${creation_date}
+  - note: |
+      ***********
+      ### Firma del documento
+  - label: Editar
+    fields:
+      - do_sign
+      - sign_method
+      - sign_file
+    button: |
+      % if do_sign:
+      Haz contestado que quieres poner la firma de ${ title_case(str(employer.name).lower()) if employer_type == "Persona Natural" else title_case(sign_worker_name.lower()) } en el documento.[BR]
+      **Firma:** [BR]
+      ${sign_file}
+      % else: 
+      Haz contestado que no deseas firmar el documento
+      % endif
+  - note: |
+      ***********
+continue button field: answers_reviewed
+section: confirmation
+progress: 99
+under: ""
+---
+code: |
+  if 'price' in url_args:
+    priceDoc = currency(url_args['price'], decimals= False)
+  else:
+    priceDoc = '$0'
+  files_saved = save_files(the_document, 'Carta de ascenso laboral', True, user_info().session)
+  juzto_callback = get_callback_final_screen_new(priceDoc, files_saved, 'Carta de ascenso laboral', True)
+---
+objects:
+  - thumbnails: DAList
+---
+code: |
+  the_preview.pdf._make_pdf_thumbnail(i + 1)
+  thumbnails[i] = DAFile('thumbnails[%d]' % (i + 1), filename='thumb.png')
+  thumbnails[i].copy_into(the_preview.pdf.page_path(i + 1, 'screen'))
+  thumbnails[i].commit()
+---
+mandatory: True
+code: |
+  from PIL import Image
+  img = Image.open(thumbnails[0].path())
+  w, h = img.size
+  area = (0, 0, w, h)
+  img = img.crop(area)
+  img.save(thumbnails[0].path())
+  thumbnails[0].commit()
+  del img
+  first_thumb_cropped = True
+---
+reconsider: the_document 
+mandatory: True
+progress: null
+event: final_screen
+question: |
+  <div class="container-fluid info-juzto-final"><div class="row"><div class="col-md-4 text-right sec-left-juzto"><b>Tenemos Listo Tu Documento</b><br><ul><li>1) Recibelo en tu correo inmediatamente.</li><li>2) Te lo enviaremos en formato Word y PDF.</li><li>3) Contarás con 30 minutos con un abogado para cambios.</li></ul><b class="final_screen_price_label">Precio:</b><br><b class="final_screen_price">${ priceDoc }</b><br>${ juzto_callback }</div><div class="col-md-1"></div><div class="col-md-7 containaer-doc-pages row"><div class="col-md-4"></div>
+  <div class="col-md-1 back_page show_page"></div><div class="col-md-4 page-text">Página <span class="number_page">1</span> de ${ the_preview.num_pages() }</div><div class="col-md-1 next_page show_page"><i class="fa fa-chevron-right" aria-hidden="true"></i></div>
+  ${ thumbnails[0].show(width="100%") }
+  <div class="col-md-4"></div><div class="col-md-1 back_page show_page"></i></div><div class="col-md-4 page-text">Página <span class="number_page">1</span> de ${ the_preview.num_pages() }</div><div class="col-md-1 next_page show_page"><i class="fa fa-chevron-right" aria-hidden="true"></i></div></div></div></div>
+allow emailing: False
+back button: False
+---
+attachment:
+  variable name: the_document
+  docx template file: IT_JC_V2.0_200821_Carta_de_ascenso_laboral.docx
+---  
+attachment:
+  variable name: the_preview
+  docx template file: IT_JC_V2.0_200821_Carta_de_ascenso_laboral_WM.docx
+---
+event: save_and_resume
+code: |
+  target = 'save_and_resume'
+  wants_email = True
+---
+code: |
+  if 'url' in url_args:
+    _url = url_args['url']+'?i='+encode_name(user_info().filename)+'&session='+encode_name(user_info().session)
+  else:
+    _url = interview_url()
+  data = {'interview': all_variables(special='titles')['full'], 'url':_url}
+  send_email_juzto(data, user_email_address, 'leave')
+  email_sent = True
+---
+question: |
+  Podrás terminar luego tu ${ all_variables(special='titles')['full'] }
+subquestion: |
+  Si deseas reanudar tu documento más tarde, podemos enviarte por correo electrónico un enlace en el que puedes hacer clic para reanudar tu documento en un momento posterior.
+fields:
+  - Correo electrónico: user_email_address
+    datatype: email
+continue button label: Enviar correo
+back button label: No gracias, continuar mi documento
+under: ""
+---
+code: |
+  target = 'normal'  
+---

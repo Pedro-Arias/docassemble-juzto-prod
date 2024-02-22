@@ -1,0 +1,341 @@
+metadata:
+  title: |
+   Carta de retiro de cesantias
+  short title: |
+   Carta retiro de cesantias
+  description: |
+   Carta retiro de cesantias
+  authors:
+    - name: Felipe Gómez
+      organization: juzto.co
+    - name: Juan David Castilla
+      organization: juzto.co
+---
+sections:
+  - Empleado
+  - Entidad
+  - Solicitud
+  - Empleador
+  - Firmas
+---
+features:
+  navigation: True
+  progress bar: True
+  show progress bar percentage: True
+  hide standard menu: False
+  hide navbar: True
+  question back button: True
+---
+include:
+  - docassemble.playground3:autoterms.yml
+---
+modules:
+  - docassemble.playground3.juztoModules
+  - docassemble.playground3.juztoListChoices
+---
+mandatory: True
+code: |
+  multi_user = True
+---
+mandatory: True
+question: |
+  ¿A nombre de quién están las cesantías que se van a retirar?
+fields: 
+  - Nombre completo del empleado: employee_name
+    hint: 'Nombre(s) y apellido(s)'
+  - Correo electrónico: employee_email
+    datatype: email
+    hint: 'ejemplo@mail.com'
+  - Tipo de identificación: employee_type_id
+    input type: dropdown
+    code: get_list_dni('N')
+  - Número de identificación: employee_id
+    hint: dni
+  - Ciudad: employee_city
+    input type: dropdown
+    code: get_cities()
+  - Dirección: employee_address
+    hint: 'Calle 122 # 17 - 29'
+section: Empleado
+prevent going back: True
+progress: 20
+---
+mandatory: True
+question: |
+  ¿A qué entidad se le presentará la solicitud de retiro de cesantías?
+fields:
+  - no label: company_name
+    datatype: combobox
+    choices: 
+      - Porvenir
+      - Skandia
+      - Colfondos
+      - Protección
+section: Entidad
+progress: 30
+---
+mandatory: True
+question: |
+  ¿Cuál es el correo electrónico de ${ company_name.lower() }?
+subquestion: |
+  Este campo es opcional
+fields: 
+  - no label: email_company
+    datatype: email
+    hint: 'info@porvenir.co'
+    required: false
+section: Entidad
+progress: 40
+---
+mandatory: True
+question: |
+  ¿Cuál es la causa para retirar las cesantías?
+fields:
+  - no label: cause
+    input type: radio
+    choices: 
+      - Licencia no remunerada (Covid19)
+      - Vivienda
+      - Estudio
+      - Estudio programado o seguro educativo
+      - Terminación contrato de trabajo
+      - Sustitución de empleadores (patronal) 
+      - Cambio a salario integral
+section: Solicitud
+progress: 60
+---
+mandatory: |
+  cause == "Licencia no remunerada (Covid19)"
+question: |
+  ¿ Cómo se verán afectados los ingresos del empleado por la licencia no remunerada?
+fields:
+  - ¿Cuál es el salario devengado por ${ title_case(employee_name) }?: net_salary
+    hint: money
+  - ¿Cuánto es el ingreso mensual de ${ title_case(employee_name) }?: gross_salary
+    hint: money
+  - ¿Cuánto se redujo el ingreso mensual de ${ title_case(employee_name) }?: salary_decrease
+    hint: money
+validation code: |
+  if get_only_number(net_salary) < get_only_number(gross_salary):
+    validation_error("El salario devengado por el trabajador no puede ser inferior al ingreso mensual")
+  if get_only_number(gross_salary) < get_only_number(salary_decrease):
+    validation_error("El ingreso mensual del trabajador no puede ser inferior a la reducción en el mismo")
+section: Solicitud
+progress: 60    
+---
+mandatory: |
+  cause == "Vivienda"
+question:
+  ¿En qué será invertido el dinero?
+fields:
+  - no label: housing
+    datatype: radio
+    choices:
+      - Adquisición de vivienda
+      - Adquisición de terreno o lote solamente
+      - Construcción de vivienda
+      - Ampliación, reparación o mejora de la vivienda
+      - Liberación de gravámenes hipotecarios 
+      - Pago de impuesto predial de la vivienda
+section: Solicitud
+progress: 60      
+---
+mandatory: |
+  cause == "Terminación contrato de trabajo"
+question:
+  ¿Cuál es la fecha de terminación del contrato de trabajo?
+fields:
+  - no label: termiantion_date
+    datatype: date
+section: Solicitud
+progress: 60    
+---
+mandatory: |
+  cause == "Sustitución de empleadores (patronal)"
+question:
+  ¿Cuándo se realiza la sustitución patronal?
+fields:
+  - no label: substitution_date
+    datatype: date
+section: Solicitud
+progress: 60    
+---
+mandatory: |
+  cause == "Sustitución de empleadores (patronal)"
+question:
+  ¿Cuáles son los datos del nuevo empleador?
+fields:
+  - Nombre: new_employer
+  - Nit: new_employer_id
+    hint: nit
+section: Solicitud
+progress: 60    
+---
+mandatory: |
+  cause == "Cambio a salario integral"
+question:
+  ¿Desde qué día ${ title_case(employee_name.lower()) } tiene salario integral?
+fields:
+  - no label: salary_change_date
+    datatype: date
+section: Solicitud
+progress: 60    
+---
+code: |
+  if cause in["Estudio", "Estudio programado o seguro educativo"]:
+    wildcard = True
+  else:
+    wildcard = False  
+---
+mandatory: |
+  wildcard == True
+question: |
+  % if cause == "Estudio":
+  ¿Quíen estudiará con estos recursos?
+  % elif cause == "Estudio programado o seguro educativo":
+  ¿Quíen estudiará o tomará el seguro con estos recursos?
+  % endif
+fields: 
+  - no label: beneficiary_type
+    datatype: radio
+    choices:
+      - El trabajador
+      - Cónyuge o compañero(a) permanente
+      - Hijo(a)
+section: Solicitud
+progress: 60      
+---
+mandatory: |
+  wildcard == True and beneficiary_type != "El trabajador"
+question: |
+ ¿Cuales son los datos del ${ beneficiary_type.lower() }?
+fields: 
+  - Nombre y apellido del ${ beneficiary_type }: beneficiary_name
+  - Tipo de identificación: beneficiary_type_id
+    input type: dropdown
+    code:  get_list_dni('A')
+  - Número de identificación: beneficiary_id_number
+    hint: dni
+section: Solicitud
+progress: 60    
+---
+mandatory: |
+  cause in ["Estudio","Estudio programado o seguro educativo"]
+question: |
+  % if cause == "Estudio":
+  ¿En qué institución se estudiará y cuáles son los datos de la cuenta donde se deberán consignar los recursos?
+  % elif cause == "Estudio programado o seguro educativo":
+  ¿Cuál es el nombre de la entidad en donde se estudiará o se tomará el seguro y cuáles son los datos de la cuenta donde se deberán consignar los recursos? 
+  % endif
+fields: 
+  - Nombre de la institución: institution_name
+  - Nombre del banco: institution_account_bank
+    input type: dropdown
+    code: get_list('banks')
+  - Tipo de cuenta bancaria: institution_account_type
+    input type: radio
+    code: get_list('bankaccount')
+  - Número de cuenta: instituion_account_number
+section: Solicitud
+progress: 60  
+---
+code: |
+ if cause == "Terminación contrato de trabajo" or cause == "Sustitución de empleadores (patronal)" or cause == "Cambio a salario integral":
+   withdrawal = "Total"
+ else:
+   withdrawal = "Parcial"
+---
+mandatory: |
+  withdrawal == "Parcial"
+question: |
+  ¿Cuánto vas a retirar?
+subquestion: |
+  Ten en cuenta que no puede ser el valor total ya que la entidad puede rechazar el trámite. 
+  % if cause == "Licencia no remunerada (Covid19)":
+  En el caso de retiro de cesantias no remuneradas por COVID-19 el máximo que podrás retirar es igual a la reducción que hizo el empleador del ingreso: $(${ salary_decrease })
+  % endif
+fields:
+  - valor: withdrawal_amount
+    hint: money
+validation code: |
+  if cause ==  "Licencia no remunerada (Covid19)" and withdrawal_amount > salary_decrease:
+    validation_error("No puedes retirar un valor superior a la reducción en el ingreso")
+section: Solicitud
+progress: 60    
+---
+mandatory: True
+question: |
+  Danos los datos del empleador
+fields:
+  - Nombre de la empresa: employer_name
+    hint: 'Razón social'
+  - NIT: employer_id_number
+    hint: nit
+  - Correo eléctronico: employer_email
+    hint: 'ejemplo@mail.com'
+    datatype: email
+  - Ciudad: employer_city
+    input type: dropdown
+    code: get_cities()
+  - Dirección: employer_address
+    hint: 'Calle 122 # 17 - 29'
+  - Nombre completo del representate legal: employer_legal_rep_name
+    hint: 'Nombre(s) y Apellido(s)'
+  - Tipo de identificación: employer_legal_rep_type_id
+    input type: dropdown
+    code:  get_list_dni('M')
+  - Número de identificación: employer_legal_rep_id_number
+    hint: dni
+section: Empleador
+progress: 80    
+---
+mandatory: |
+  wildcard == False
+question: |
+  Danos los datos de la cuenta bancaria donde se consignarán las cesantías 
+fields: 
+  - Nombre del banco: account_bank
+    input type: dropdown
+    code: get_list('banks')
+  - Tipo de cuenta bancaria: account_type
+    input type: radio
+    code: get_list('bankaccount')
+  - Número de cuenta: account_number
+section: Empleador
+progress: 80  
+---
+mandatory: true
+question: |
+  ¿En que fecha y ciudad se presentará esta solicitud?
+fields:
+  - Fecha: letter_date
+    datatype: date
+  - Ciudad: letter_city
+    input type: dropdown
+    code: get_cities()
+section: Firmas
+progress: 90    
+---
+mandatory: true
+code: |
+  if 'price' in url_args:
+    price = currency(url_args['price'], decimals= False)
+  else:
+    price = '$0'
+  files_saved = save_files(the_document, 'solicitud de retiro de cesantias', True, user_info().session)
+  juzto_callback = get_callback_final_screen(price, files_saved, 'solicitud de retiro de cesantias', True)
+---
+attachment:
+  variable name: the_document
+  docx template file: IT_FG_20200402_V.1.0_carta_retiro_cesantIas.docx
+---
+event: final_screen
+mandatory: true
+progress: 100
+question: |
+  ${ z_text_final_screen }
+subquestion: |
+  ${ juzto_callback }
+allow emailing: False
+back button: False
+---

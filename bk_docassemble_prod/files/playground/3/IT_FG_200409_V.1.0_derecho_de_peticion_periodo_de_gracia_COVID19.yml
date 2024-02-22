@@ -1,0 +1,297 @@
+metadata:
+  title: |
+   Derecho de peticion periodo de gracia
+  short title: |
+   Periodo Gracia
+  description: |
+   Derecho de peticion periodo de gracia
+  authors:
+    - name: Felipe Gómez
+      organization: juzto.co
+    - name: Juan David Castilla
+      organization: juzto.co
+---
+sections:
+  - Tus datos
+  - Productos bancarios
+  - Cuentanos tu caso
+  - Firma
+---
+features:
+  navigation: True
+  progress bar: True
+  show progress bar percentage: True
+  hide standard menu: False
+  hide navbar: True
+  question back button: True
+---
+include:
+  - docassemble.playground3:autoterms.yml
+---
+modules:
+  - docassemble.playground3.juztoModules
+  - docassemble.playground3.juztoListChoices
+---
+mandatory: True
+code: |
+  multi_user = True
+---
+mandatory: True
+question: |
+  ¿Eres persona o empresa?
+fields:
+  - no label: client_type
+    input type: radio
+    choices:
+      - Persona
+      - Empresa
+  - Nombre de la persona: client_name    
+    hint: 'Nombre(s) y Apellido(s)'
+    show if:
+      variable: client_type
+      is: Persona
+  - Email: client_email
+    datatype: email
+    hint: 'ejemplo@mail.com'
+    show if:
+      variable: client_type
+      is: Persona
+  - Tipo de identificación: client_type_id
+    input type: dropdown
+    code:  get_list_dni('N')
+    show if:
+      variable: client_type
+      is: Persona
+  - Número de identificación: client_id
+    hint: dni
+    show if:
+      variable: client_type
+      is: Persona
+  - Ciudad: client_city
+    input type: dropdown
+    code: get_cities()
+    show if:
+      variable: client_type
+      is: Persona
+  - Dirección: client_address
+    hint: 'Calle 122 # 17 - 29 Apto 302'
+    show if:
+      variable: client_type
+      is: Persona
+  - Nombre de la empresa: client_name
+    hint: 'Razón social'
+    show if:
+      variable: client_type
+      is: Empresa
+  - Email: client_email
+    datatype: email
+    hint: 'ejemplo@mail.com'
+    show if:
+      variable: client_type
+      is: Empresa
+  - NIT: client_id
+    hint: nit
+    show if:
+      variable: client_type
+      is: Empresa
+  - Ciudad: client_city
+    input type: dropdown
+    code: get_cities()
+    show if:
+      variable: client_type
+      is: Empresa
+  - Dirección: client_address
+    hint: 'Calle 122 # 17 - 29 Oficina 302'
+    show if:
+      variable: client_type
+      is: Empresa
+  - Nombre completo del representante legal: client_rep_legal    
+    hint: 'Nombre(s) y Apellido(s)'
+    show if:
+      variable: client_type
+      is: Empresa
+  - Email del representante legal: client_rep_legal_email
+    datatype: email
+    hint: 'ejemplo@mail.com'
+    show if:
+      variable: client_type
+      is: Empresa
+  - Tipo de identificación del representante legal: client_rep_legal_type_id
+    input type: dropdown
+    code:  get_list_dni('N')
+    show if:
+      variable: client_type
+      is: Empresa
+  - Número de identificación del representante legal: client_rep_legal_id
+    hint: dni
+    show if:
+      variable: client_type
+      is: Empresa
+section: Tus datos
+progress: 15
+prevent going back: True
+---
+code: | 
+  if client_type == "Empresa":    
+    client_id = generateNit(client_id)
+---
+mandatory: True
+question: |
+  ¿A qué banco le presentas la petición?
+fields:
+  - no label: bank_name
+    input type: dropdown
+    code: get_list('banks')
+  - Correo electrónico del banco: bank_email
+    datatype: email
+    hint: 'Opcional'
+    required : false
+section: Productos bancarios
+progress: 10
+---
+objects:
+  - bank_product: DAList.using(object_type=DAObject, complete_attribute='complete')
+---
+code: |
+ bank_product.gather()
+ bank_product.reviewed
+ bank_prodcut
+---
+code: |
+  bank_product[i].name
+  bank_product[i].complete = True
+---
+table: bank_product.table
+rows: bank_product
+columns:
+  - Obligación: |
+      row_item.name
+edit:
+  - name
+allow reordering: True
+---
+code: |
+  bank_product.there_are_any = True
+---
+question: |
+  ¿Necesitas agregar otro producto que tengas con ${ bank_name }?
+yesno: bank_product.there_is_another
+section: Productos bancarios
+progress: 50
+---
+question: |
+  ¿Cuál es el ${ get_ordinal("male",i) } producto que tienes en ${ bank_name }?
+fields:
+  - Producto: bank_product[i].name
+    input type: combobox
+    hint: Selecciona una opción o esribe el producto
+    choices:
+      - Cuenta de ahorros
+      - Cuenta corriente
+      - Tarjeta de crédito Visa
+      - Tarjeta de crédito Master Card
+      - Préstamo (Crédito de consumo / crédito libre inversión, etc)
+      - Hipoteca
+      - Prenda
+      - Leasing (habitacional / vehículo etc)
+section: Productos bancarios
+progress: 50
+---
+mandatory: True
+question: |
+  Estos son los productos que tienes en ${ bank_name }
+subquestion: |
+  ${ bank_product.table }
+  ${ bank_product.add_action() }
+continue button field: bank_product.reviewed
+section: Productos bancarios
+progress: 50
+---
+mandatory: True
+question: |
+  ¿Cuál de tus productos se encontraba al día en pagos al 29 de febrero de 2020?
+subquestion: |
+  Recuerda que solamente podrás solicitar un periodo de gracia para los productos que se encontraban con todos sus pagos al día en esta fecha.
+fields: 
+  - no label: products
+    datatype: checkboxes
+    none of the above: False
+    code: |
+      [i.name for i in bank_product]
+section: Cuentanos tu caso
+progress: 60
+---
+code: |
+  elegible_products = products.true_values()
+---
+mandatory: |
+  client_type == "Persona"
+question: |
+  ¿Por qué razón solicitas el periodo de gracia?
+fields:
+  - no label: reazon
+    input type: radio
+    choices:
+      - No tengo trabajo y estoy buscando
+      - Me quedé sin trabajo
+      - Estoy en licencia no remunerada
+      - Soy independiente y me vi obligado a suspender la venta de mis productos y/o servicios.
+      - Soy independiente y la venta de mis productos y/o servicios a disminuido sustancialmente.
+section: Cuentanos tu caso
+progress: 75
+---
+mandatory: |
+  client_type == "Empresa"
+question: |
+  ¿Por qué razón solicitas el periodo de gracia?
+fields:
+  - no label: reazon
+    input type: radio
+    choices:
+      - La(s) actividad(es) de la compañía no se encuentra(n) dentro de las excepciones establecidas en el Decreto 457 de 2020 y por lo tanto debe suspender la operación de la misma.
+      - La(s) operación(es) de la compañía se ha(n) visto gravemente afectada(s) y por lo tanto las ventas han disminuido considerablemente.
+section: Cuentanos tu caso
+progress: 85
+---
+mandatory: True
+question: |
+  ¿Consideras qué has cumplido a cabalidad tus obligaciones con el ${ bank_name }? 
+subquestion: |
+  Será mas contundente tu carta si resaltamos tu buen historial con esta entidad. 
+yesno: breach
+section: Cuentanos tu caso
+progress: 90
+---
+question: |
+  ¿En qué fecha y ciudad se presentará esta solicitud?
+fields:
+  - Fecha: letter_date
+    datatype: date
+  - Ciudad: city
+    input type: dropdown
+    code: get_cities()
+section: Firma
+progress: 95
+---
+mandatory: true
+code: |
+  if 'price' in url_args:
+    price = currency(url_args['price'], decimals= False)
+  else:
+    price = '$0'
+  files_saved = save_files(the_document, 'Derecho peticion de periodo de gracia', True, user_info().session)
+  juzto_callback = get_callback_final_screen(price, files_saved, 'Derecho peticion de periodo de gracia', True)
+---
+attachment:
+  variable name: the_document
+  docx template file: IT_FG_200409_V.1.0_derecho_de_peticion_periodo_de_gracia_COVID19.docx
+---
+event: final_screen
+mandatory: true
+progress: 100
+question: |
+  ${ z_text_final_screen }
+subquestion: |
+  ${ juzto_callback }
+allow emailing: False
+back button: False

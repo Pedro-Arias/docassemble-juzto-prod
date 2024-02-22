@@ -1,0 +1,988 @@
+metadata:
+  title: |
+   Contrato de arrendamiento de local comercial
+  short title: |
+    Contrato arrendamiento local comercial
+  description: |
+   Contrato arrendamiento local comercial
+  authors:
+    - name: Julian Cogua
+      organization: juzto.co
+    - name: Juan David Castilla
+      organization: juzto.co
+  create_date: 2020-04-15
+---
+sections:
+  - Datos del arrendador
+  - Datos del arrendatario
+  - Datos del codeudor
+  - Datos del local
+  - Servicios
+  - Estado del local
+  - Fechas del contrato
+  - Renovación
+  - Terminación del contrato
+  - Precios y metodos de pago
+  - Mobiliario
+  - Documentos
+  - Derechos
+  - Sub-arrendar
+  - Acta
+  - Penalidad
+  - Pagos
+  - Fecha y ciudad del contrato
+---
+features:
+  navigation: True
+  progress bar: True
+  show progress bar percentage: True
+  hide standard menu: False
+  hide navbar: True
+  question back button: True
+---
+include:
+  - docassemble.playground3:autoterms.yml
+---
+modules:
+  - docassemble.playground3.juztoModules
+  - docassemble.playground3.juztoListChoices
+---
+mandatory: True
+code: |
+  multi_user = True
+---
+mandatory: True
+question: |
+  ¿El arrendador es una empresa o persona?
+fields:
+  - no label: landlord
+    input type: radio
+    code: get_list('type')
+section: Datos del arrendador
+prevent going back: True
+---
+mandatory: True
+need:
+  - landlord
+question: |
+   ¿Cuáles son los datos de la ${ landlord.lower() }?
+fields:
+  - Nombre completo de la ${ landlord.lower() }: landlord_name
+    hint: ${ landlord.lower() }
+  - Tipo de identificación: id_type_landlord
+    input type: dropdown
+    code:  get_list_dni('N')
+    show if:
+      code: |
+        landlord == "Persona"
+  - Número de identificación: number_id_landlord
+    hint: dni
+    show if:
+      code: |
+        landlord == "Persona"
+  - NIT: number_id_landlord
+    hint: nit
+    show if:
+      code: |
+        landlord == "Empresa"
+  - Correo electrónico: landlord_email
+    datatype: email
+    hint: 'ejemplo@mail.com'
+  - Ciudad: landlord_city
+    input type: dropdown
+    code: get_cities()
+  - Dirección: landlord_adress
+    hint: 'Calle 122 # 17 - 29 Oficina 302'
+  - Nombre del representate legal: legal_representative_landlord
+    hint: 'Nombres y Apellidos'
+    show if:
+      code: |
+        landlord == "Empresa"
+  - Tipo de identificación: id_type_landlord_legal_representative
+    input type: dropdown
+    code:  get_list_dni('N')
+    show if:
+      code: |
+        landlord == "Empresa"
+  - Número de identificación: number_id_landlord_legal_representative
+    hint: dni
+    show if:
+      code: |
+        landlord == "Empresa"
+section: Datos del arrendador
+id: blockglobal
+---
+mandatory: true
+code: |
+  if landlord == "Empresa":
+    number_id_landlord = generateNit(number_id_landlord)
+---
+mandatory: True
+need:
+  - landlord_name
+question: |
+  ¿Quién es el arrendatario, es una empresa o persona?
+fields:
+  - no label: lessee
+    input type: radio
+    code: get_list('type')
+section: Datos del arrendatario
+---
+mandatory: true
+need:
+  - lessee
+question: |
+   ¿Cuáles son los datos de la ${ lessee.lower() }?
+fields:
+  - Nombre completo de la ${ lessee.lower() }: lessee_name
+    hint: ${ lessee.lower() }
+  - Tipo de identificación: id_type_lessee
+    input type: dropdown
+    code:  get_list_dni('N')
+    show if:
+      code: |
+        lessee == "Persona"
+  - Número de identificación: number_id_lessee
+    hint: dni
+    show if:
+      code: |
+        lessee == "Persona"
+  - NIT: number_id_lessee
+    hint: nit
+    show if:
+      code: |
+        lessee == "Empresa"
+  - Correo electrónico: lessee_email
+    datatype: email
+    hint: 'ejemplo@mail.com'
+  - Ciudad: lessee_city
+    input type: dropdown
+    code: get_cities()
+  - Dirección: lessee_adress
+    hint: 'Calle 122 # 17 - 29 Oficina 302'
+  - Nombre del representate legal: legal_representative_lessee_name
+    hint: 'Nombre(s) y Apellido(s)'
+    show if:
+      code: |
+        lessee == "Empresa"
+  - Tipo de identificación: id_type_lessee_legal_representative
+    input type: dropdown
+    code:  get_list_dni('N')
+    show if:
+      code: |
+        lessee == "Empresa"
+  - Número de identificación: number_id_lessee_legal_representative
+    hint: dni
+    show if:
+      code: |
+        lessee == "Empresa"
+section: Datos del arrendatario
+id: blockglobal
+---
+mandatory: true
+code: |
+  if lessee == "Empresa":
+    number_id_lessee = generateNit(number_id_lessee)
+---
+objects:
+  -  joint_debtor: DAList.using(object_type=Individual, complete_attribute='complete')
+---
+mandatory: |
+  joint_debtor.there_are_any == True
+code: |
+ joint_debtor.gather()
+ joint_debtor.reviewed
+---
+code: |
+ joint_debtor[i].type
+ joint_debtor[i].name
+ joint_debtor[i].id_type
+ joint_debtor[i].id_number
+ joint_debtor[i].email
+ joint_debtor[i].adress
+ joint_debtor[i].city
+ joint_debtor[i].legal_rep_name
+ joint_debtor[i].legal_rep_id_type
+ joint_debtor[i].legal_rep_id_number
+ joint_debtor[i].complete = True
+---
+table: joint_debtor.table
+rows: joint_debtor
+columns:
+  - Codeudores: |
+      row_item.name
+edit:
+	- name
+	- id_type
+	- id_number
+	- email
+	- adress
+	- city
+	- legal_rep_name
+	- legal_rep_id_type
+	- legal_rep_id_number
+allow reordering: True
+---
+need:
+  - lessee_name
+question: |
+  ¿El arrendatario tendrá codeudor para el pago de las mensualidades?
+yesno: joint_debtor.there_are_any
+section: Datos del codeudor
+---
+question: |
+  ¿Necesitas agregar otro codeudor ?
+yesno: joint_debtor.there_is_another
+section: Datos del codeudor
+---
+question: |
+  ¿El ${ get_ordinal("male", i) } codeudor es una empresa o una persona?
+fields:
+  - no label: joint_debtor[i].type
+    input type: radio
+    code: get_list('type')
+section: Datos del codeudor
+---
+code: |
+  if joint_debtor[i].type == 'Empresa':
+    joint_debtor[i].id_type = 'NIT'
+  else:  
+    joint_debtor[i].legal_rep_name = None
+    joint_debtor[i].legal_rep_id_type = None
+    joint_debtor[i].legal_rep_id_number = None
+---
+question: |
+  ¿Cuáles son los datos de la ${ joint_debtor[i].type }?
+fields:  
+  - Nombre completo de la ${ joint_debtor[i].type }: joint_debtor[i].name
+    hint: ${ joint_debtor[i].type }
+  - Tipo de identificación: joint_debtor[i].id_type
+    input type: dropdown
+    code:  get_list_dni('N')
+    show if:
+      code: |
+        joint_debtor[i].type == "Persona"
+  - Número de identificación: joint_debtor[i].id_number
+    hint: dni
+    show if:
+      code: |
+        joint_debtor[i].type == "Persona"
+  - NIT: joint_debtor[i].id_number
+    hint: nit
+    show if:
+      code: |
+        joint_debtor[i].type == "Empresa"
+  - Correo electrónico: joint_debtor[i].email
+    hint: 'ejemplo@mail.com'
+  - Ciudad: joint_debtor[i].city
+    input type: dropdown
+    code: get_cities()
+  - Dirección: joint_debtor[i].adress
+    hint: 'Calle 122 # 17 - 29 Oficina 302'
+  - Nombre del representate legal: joint_debtor[i].legal_rep_name
+    hint: 'Nombre(s) y Apellido(s)'
+    show if:
+      code: |
+        joint_debtor[i].type == "Empresa"
+  - Tipo de identificación: joint_debtor[i].legal_rep_id_type
+    input type: dropdown
+    code:  get_list_dni('N')
+    show if:
+      code: |
+        joint_debtor[i].type == "Empresa"
+  - Número de identificación: joint_debtor[i].legal_rep_id_number
+    hint: dni
+    show if:
+      code: |
+        joint_debtor[i].type == "Empresa"
+section: Datos del codeudor
+---
+question: |
+  Estos son los codeudores que indicaste
+subquestion: |
+  ${ joint_debtor.table }
+  ${ joint_debtor.add_action() }
+section: Datos del codeudor
+continue button field: joint_debtor.reviewed
+---
+mandatoty: true
+question: |
+ 	¿Cuál es la dirección, ciudad y matrícula del local?
+fields:
+  - Ciudad del local: city_commercial_property
+    input type: dropdown
+    code: get_cities()
+  - Dirección del local: commercial_property_adress
+    hint: 'Calle 122 # 17 - 29 Oficina 302'
+  - Número de matrícula del local: id_commercial_property
+under: |
+    [FILE Imagen_matricula_inmobiliaria.png, 100%]  
+section: Datos del local
+---
+objects:
+  - public_services: DAList.using(object_type=DAObject, complete_attribute='complete')
+---
+code: |
+ public_services.gather()
+ public_services.reviewed
+ final_screen
+---
+code: |
+ public_services[i].name
+ public_services[i].complete = True
+---
+table: public_services.table
+rows: public_services
+columns:
+  - Servicios: |
+      row_item.name
+edit:
+  - name
+allow reordering: True
+---
+code: |
+  public_services.there_are_any = True
+  public_services.there_is_another = False
+---
+need:
+  - commercial_property_adress
+question: |
+   ¿Cuál es el ${ get_ordinal('male', i) } servicio público con el que se entregá el local?
+fields:
+  - no label: public_services[i].name
+    hint: Agua, luz, gas, Internet
+section: Servicios
+progress: 50
+---
+question: |
+  Estos son los servicios públicos con los que cuenta el local
+subquestion: |
+  ${ public_services.table }
+  ${ public_services.add_action() }
+section: Servicios
+continue button field: public_services.reviewed
+mandatory: true
+---
+mandatory: true
+question: |
+  ¿Se podrán solicitar servicios públicos adicionales?
+yesno: new_public_services
+section: Servicios
+---
+mandatory: true
+question: |
+  ¿En qué estado se recibe el local?
+fields:
+  - no label: comercial_property_condition
+    input type: radio
+    choices:
+      - Bueno
+      - Regular
+      - Malo
+section: Estado del local
+---
+mandatory: true
+question: |
+  ¿Cuándo recibe el local?
+fields:
+  - no label: start_date
+    datatype: date
+section: Fechas del contrato
+---
+mandatory: true
+question: |
+ ¿Cuál es la duración del contrato?
+fields:
+  - Número de periodos: contract_term_number
+    datatype: number
+  - no label: contract_term
+    input type: radio
+    choices:
+      - Días: days
+      - Mes(es): months
+      - año(s): years
+section: Fechas del contrato
+---
+code: |
+  if contract_term == 'days':
+    ends_date = start_date + date_interval(days=int(contract_term_number))
+  elif contract_term == 'months':
+    ends_date = start_date + date_interval(months=int(contract_term_number))
+  else:
+    ends_date = start_date + date_interval(years=int(contract_term_number))
+---
+mandatory: true
+question: |
+  La fecha de finalización del contrato es ${ends_date} ¿El contrato se renovará automáticamente?
+yesno: renewable
+section: Renovación
+---
+mandatory: true
+question: |
+  ¿Se puede terminar el contrato por anticipado?
+fields:
+  - no label: advance_termination
+    datatype: yesnoradio
+  - ¿Quién lo puede terminar?: advance_termination_form
+    input type: radio
+    choices:
+      - Cualquiera de las dos partes
+      - Arrendador
+      - Arrendatario
+    show if:
+      variable: advance_termination
+      is: True
+  - ¿Cuántos días antes se debe dar el aviso de terminación?: termination_notice_currency
+    input type: number
+    show if:
+      variable: advance_termination
+      is: True
+  - ¿Habrá sanción por la terminación anticipada?: advance_termination_penalty
+    datatype: yesnoradio
+    show if:
+      variable: advance_termination
+      is: True
+  - ¿La sanción la quieres en valor o en mensualidades?: penalty_form
+    input type: radio
+    choices: 
+      - Valor: valor
+      - Mensualidades: mensual
+    show if:
+      variable: advance_termination_penalty
+      is: True
+  - ¿Cuál es el valor?: penalty_early_termination_currency
+    input type: currency
+    hint: money
+    show if:
+      variable: penalty_form
+      is: valor
+  - ¿Dinos cuántas mensualidades?: penalty_rental_value_currency
+    datatype: number
+    show if:
+      variable: penalty_form
+      is: mensual
+section: Terminación del contrato
+id: blockglobal
+---
+mandatory: true
+need: 
+  - advance_termination
+question: |
+  ¿Cuál es el valor mensual del arriendo?
+fields:
+  - no label: rental_value_currency
+    hint: money
+id: blockglobal
+section: Precios y metodos de pago
+---
+mandatory: true
+need:
+  - rental_value_currency
+question: |
+  ¿El arrendador está obligado a cobrar IVA?
+fields:
+  - no label: iva
+    datatype: yesnoradio
+  - ¿Ese valor incluye IVA?: price_iva
+    datatype: yesnoradio
+    show if:
+      variable: iva
+      is: True
+section: Precios y metodos de pago
+---
+mandatory: true
+question: |
+  ¿El valor del arriendo incluye administración?
+yesno: administration
+section: Precios y metodos de pago
+---
+mandatory: true
+question: |
+  ¿El valor del arriendo incluye servicios públicos?
+fields:
+  - no label: servicios_publicos
+    datatype: yesnoradio
+section: Precios y metodos de pago
+---
+mandatory: true
+question: |
+  ¿Quién pagará los servicios públicos?
+fields:
+  - no label: servicios_publicos_responsable
+    input type: radio
+    choices:
+      - Arrendatario
+      - Arrendador
+section: Precios y metodos de pago
+---
+mandatory: true
+question: |
+   ¿Quieres que haya un incremento en el valor del contrato?
+fields:
+  - no label: increase
+    datatype: yesnoradio
+  - ¿Cuándo quieres que la mensualidad se incremente?: increase_method
+    input type: radio
+    choices:
+      - El 1 de enero de cada año
+      - Cada que se cumpla 1 año del contrato
+    show if:
+      variable: increase
+      is: True
+  - ¿Cómo es el incremento?: forma_incremento
+    input type: radio
+    choices:
+      - IPC del año anterior: ipc
+      - Porcentaje: porcentaje
+      - IPC + Porcentaje: ipc_porcentaje
+    show if:
+      variable: increase
+      is: True
+  - ¿Cúal es el porcentaje?: increased_percentage_currency
+    datatype: number
+    show if:
+      variable: forma_incremento
+      is: porcentaje
+  - IPC + Porcentaje: ipc_porcent
+    datatype: number
+    show if:
+      variable: forma_incremento
+      is: ipc_porcentaje
+section: Precios y metodos de pago
+---
+mandatory: true
+question: |
+  ¿Cómo quieres que se pague el valor mensual?
+fields:
+  - no label: payment_month
+    input type: radio
+    choices:
+      - Los primeros 5 días de cada mes
+      - Los primeros 10 días de cada mes
+      - Los últimos 5 días de cada mes
+section: Precios y metodos de pago
+---
+objects:
+  -  assets: DAList.using(object_type=DAObject, complete_attribute='complete')
+---
+mandatory: |
+  assets.there_are_any == True
+code: |
+ assets.gather()
+ assets.reviewed
+---
+code: |
+ assets[i].name
+ assets[i].complete = True
+---
+table: assets.table
+rows: assets
+columns:
+  - Mobiliario: |
+      row_item.name
+edit:
+  - name
+allow reordering: True
+---
+mandatory: True
+question: |
+  ¿El local se entrega con mobiliario?
+yesno: assets.there_are_any
+section: Mobiliario
+---
+question: |
+  ¿Necesitas agregar otro mobiliario?
+yesno: assets.there_is_another
+section: Mobiliario
+---
+question: |
+  ¿Qué mobiliario se entregará?
+fields:
+  - Mobiliario: assets[i].name
+    hint: Mesas, sillas, computadore, etc
+section: Mobiliario
+---
+question: |
+  Estos son los mobiliarios que indicaste
+subquestion: |
+  ${ assets.table }
+  ${ assets.add_action() }
+section: Mobiliario
+continue button field: assets.reviewed
+---
+objects:
+  - attached: DAList.using(object_type=DAObject, complete_attribute='complete')
+  - exhibit_cover: DAList
+---
+mandatory: |
+  attached.there_are_any == True
+code: |
+ attached.gather()
+ attached.reviewed
+ final_screen
+---
+code: |
+  attached[i].title
+  attached[i].complete = True
+---
+table: attached.table
+rows: attached
+columns:
+  - Anexo: alpha(row_index)
+  - Nombre: row_item.title
+edit:
+  - title
+allow reordering: True
+---
+question: |
+  ¿Tienes algún documento que se utilice como anexo para este contrato?
+yesno: attached.there_are_any
+section: Documentos
+---
+question: |
+  Sube el ${ get_ordinal('male', i) } documento que hagan parte del contrato y sirvan de anexo para este contrato
+fields:
+  - Nombre: attached[i].title
+    hint: Certificado de tradición, Cámara de comercio
+  - Archivo: attached[i].file
+    datatype: file
+    accept: |
+      "application/pdf, image/jpeg, image/png"
+    validation messages:
+      accept: Solo puedes subir archivos pdf.
+section: Documentos
+---
+question: |
+  ¿Deseas subir más documentos?
+yesno: attached.there_is_another
+section: Documentos
+---
+question: |
+  Estos son los documentos que subiste.
+subquestion: |
+  ${ attached.table }  
+  ${ attached.add_action() }
+section: Documentos
+continue button field: attached.reviewed
+---
+code: |
+  file_list = [cover_page.pdf]
+  for indexno in range(len(attached)):
+    file_list.append(exhibit_cover[indexno].pdf)
+    file_list.append(attached[indexno].file[0])
+  the_document = pdf_concatenate(file_list)
+---
+mandatory: true
+question: |
+  ¿El arrendatario puede ceder sus derechos y obligaciones a otra persona?
+fields:
+  - no label: release
+    datatype: yesnoradio
+section: Derechos
+---
+mandatory: true
+question: |
+  ¿El arrendatario puede sub-arrendar el local?
+fields:
+  - no label: sublease
+    datatype: yesnoradio
+  - no label: subleas
+    input type: radio
+    choices:
+      - Todo
+      - Una parte
+    show if:
+      variable: sublease
+      is: True
+section: Sub-arrendar
+---
+mandatory: true
+question: |
+  ¿Al finalizar el contrato se firmará un acta de devolución?
+fields:
+  - no label: restitution_document
+    datatype: yesnoradio
+section: Acta
+---
+mandatory: true
+question: |
+  ¿En caso de incumplimiento quieres que aplique una sanción?
+fields:
+  - no label: penalty_clause
+    datatype: yesnoradio
+  - ¿ Quién debe pagar la sanción?: penalty_clause_form
+    input type: radio
+    choices:
+      - Arrendatario
+      - Arrendador
+      - La parte que incumpla
+    show if:
+      variable: penalty_clause
+      is: True
+  - Establece la sanción: penalty_clause_method
+    input type: radio
+    choices:
+      - 3 mensualidades: months
+      - Dinero: money
+      - Porcentaje del valor total del contrato: percentage
+    show if:
+      variable: penalty_clause
+      is: True
+  - ¿Cuánto dinero?: penalty_clause_value
+    hint: money
+    show if:
+      variable: penalty_clause_method
+      is: money
+  - ¿Cúal es el porcentaje?: penalty_clause_percentege
+    datatype: number
+    show if:
+      variable: penalty_clause_method
+      is: percentage
+section: Penalidad
+id: blockglobal
+---
+mandatory: true
+need: 
+  - penalty_clause
+question: |
+  ¿En caso del no pago de la mensualidad a cargo del arrendatario, el arrendador está autorizado para reportar negativamente al arrendatario?
+fields:
+  - no label: negative_report_authorization
+    datatype: yesnoradio
+section: Penalidad
+---
+mandatory: true
+question: |
+  ¿En caso de conflictos quieres que se resuelvan en un Tribunal de Arbitramento?
+fields:
+  - no label: arbitration
+    datatype: yesnoradio
+  - ¿Cuántos árbitros quieres que conozcan?: arbitration_number
+    input type: radio
+    choices:
+      - 1
+      - 3
+    show if:
+      variable: arbitration
+      is: True
+section: Penalidad
+---
+mandatory: true
+question: |
+  ¿Se va a solicitar póliza de cumplimiento sobre el pago de la mensualidad?
+fields:
+  - no label: policy
+    datatype: yesnoradio
+section: Penalidad
+---
+mandatory: true
+question: |
+  ¿Cómo se hará el pago del arriendo?
+fields:
+  - no label: methods_payment
+    input type: radio
+    choices:
+      - Transferencia y/o consignación: transfer
+      - Pago efectivo: cash_payment
+      - Cualquier medio: any_means
+  - Nombre del banco: bank_name
+    datatype: dropdown
+    code: get_list('banks')
+    show if:
+      variable: methods_payment
+      is: transfer
+  - Tipo de cuenta: bank_account_type
+    datatype: radio
+    code: get_list('bankaccount')
+    show if:
+      variable: methods_payment
+      is: transfer
+  - Número de cuenta: bank_account_number
+    show if:
+      variable: methods_payment
+      is: transfer
+  - ¿En dónde se realizará el pago?: where_payment
+    input type: radio
+    choices:
+      - En la dirección del local: address_local
+      - En la dirección del arrendador: address_property
+      - En cualquira de las anteriores: address_previous
+      - Otra: other
+    show if:
+      variable: methods_payment
+      is: cash_payment
+  - no label: commercial_property_adress
+    input type: radio
+    choices:
+      - ${commercial_property_adress}
+    show if:
+      variable: where_payment
+      is: address_local
+  - no label: landlord_adress
+    input type: radio
+    choices:
+      - ${landlord_adress}
+    show if:
+      variable: where_payment
+      is: address_property
+  - no label: previous_address
+    datatype: checkboxes
+    none of the above: False
+    choices:
+      - ${commercial_property_adress}
+      - ${landlord_adress}
+    show if:
+      variable: where_payment
+      is: address_previous
+  - ¿En que dirección?: payment_adress
+    show if:
+      variable: where_payment
+      is: other    
+  - no label: any_means_methods
+    datatype: radio
+    choices:
+      - Transferencia: any_means_tranfers
+      - Pago en efectivo: any_means_payment
+    show if:
+      variable: methods_payment
+      is: any_means
+  - Nombre del banco: bank_name
+    datatype: dropdown
+    code: get_list('banks')
+    show if:
+      variable: any_means_methods
+      is: any_means_tranfers
+  - Tipo de cuenta: bank_account_type
+    datatype: radio
+    code: get_list('bankaccount')
+    show if:
+      variable: any_means_methods
+      is: any_means_tranfers
+  - Número de cuenta: bank_account_number
+    show if:
+      variable: any_means_methods
+      is: any_means_tranfers
+  - ¿En dónde se realizará el pago?: where_payment_means
+    input type: radio
+    choices:
+      - En la dirección del local: address_local_means
+      - En la dirección del arrendador: address_property_means
+      - En cualquira de las anteriores: address_previous_means
+      - Otra: other_means
+    show if:
+      variable: any_means_methods
+      is: any_means_payment
+  - no label: commercial_property_adress
+    input type: radio
+    choices:
+      - ${commercial_property_adress}
+    show if:
+      variable: where_payment_means
+      is: address_local_means
+  - no label: landlord_adress
+    input type: radio
+    choices:
+      - ${landlord_adress}
+    show if:
+      variable: where_payment_means
+      is: address_property_means
+  - no label: previous_address_means
+    datatype: checkboxes
+    none of the above: False
+    choices:
+      - ${commercial_property_adress}
+      - ${landlord_adress}
+    show if:
+      variable: where_payment_means
+      is: address_previous_means
+  - ¿En que dirección?: payment_adress_means
+    hint: 'Calle 122 # 17 - 29'
+    show if:
+      variable: where_payment_means
+      is: other_means
+section: Pagos
+---
+mandatory: true
+question: |
+  ¿A quién se le va a realizar el pago de la mensualidad?
+fields:
+  - no label: beneficiary
+    input type: radio
+    choices:
+      - Arrendador: lessor_beneficiary
+      - Tercero: beneficiary_third
+  - ¿Ese tercero es persona o empresa?: third_beneficiary
+    input type: radio
+    choices:
+      - Persona: beneficiary_person
+      - Empresa: beneficiary_company
+    show if:
+      variable: beneficiary
+      is: beneficiary_third
+  - Nombres y apellidos del tercero: name_third_beneficiary
+    show if:
+      variable: third_beneficiary
+      is: beneficiary_person
+  - Tipo de identificación: id_type_third_beneficiary
+    input type: dropdown
+    code:  get_list_dni('N')
+    show if:
+      variable: third_beneficiary
+      is: beneficiary_person
+  - Número de documento: number_id_third_beneficiary
+    hint: dni
+    show if:
+      variable: third_beneficiary
+      is: beneficiary_person
+  - Nombre de la compañía: name_third_beneficiary
+    show if: 
+      variable: third_beneficiary
+      is: beneficiary_company
+  - NIT: number_id_third_beneficiary
+    hint: nit
+    show if:
+      variable: third_beneficiary
+      is: beneficiary_company 
+section: Pagos
+id: blockglobal
+---
+mandatory: true
+need: 
+  - beneficiary
+question: |
+  ¿Cuál es la fecha y ciudad en la que se firma el contrato?
+fields:
+  - no label: sign_date
+    datatype: date
+  - no label: sign_city
+    input type: dropdown
+    code: get_cities()
+section: Fecha y ciudad del contrato
+#---
+#code: |
+#  contract_term_number = int(contract_term_number)
+---
+mandatory: true
+code: |
+  if 'price' in url_args:
+    price = currency(url_args['price'], decimals= False)
+  else:
+    price = '$0'
+  files_saved = save_files(the_document, 'Contrato arrendamiento comercial', True, user_info().session)
+  juzto_callback = get_callback_final_screen(price, files_saved, 'Contrato arrendamiento comercial', True)
+---
+attachment:
+  variable name: the_document
+  docx template file: IT-JC-v.1.0-200415-contrato_arrendamiento_local_comercial.docx  
+---
+event: final_screen
+mandatory: true
+progress: 100
+question: |
+  ${ z_text_final_screen } - COD ${ user_info().session }
+subquestion: |
+  ${ juzto_callback }
+id: juzto_da_final    
+allow emailing: False
+back button: False
+---

@@ -1,0 +1,316 @@
+metadata:
+  title: |
+    Derecho de petición igualdad
+  short title: |
+   DP igualdad
+  description: |
+   Documento que las personas podrán usar para solicitar el archivo del comparendo por aplicación a su derecho a la iguladad ya que en otros casos la secretaria de movilidad ha archivado casos porque no puede identificar al conductor. 
+  authors:
+    - name: juan
+      organization: Juzto.co
+    - name: Laura Pardo
+      organization: Juzto.co
+---
+features:
+  navigation: True
+  progress bar: True
+  show progress bar percentage: True
+  hide standard menu: False
+  hide navbar: True
+  question back button: True
+---
+include:
+  - docassemble.playground3:autoterms.yml
+---
+modules:
+  - docassemble.playground3.juztoModules
+  - docassemble.playground3.juztoListChoices
+---
+initial: True
+code: |
+  infraction_type
+  if infraction_type == "d02" or infraction_type == "c35":
+    final_screen2
+  else:
+    comparendo_bogota
+    if comparendo_bogota == True:
+      fotomulta_number
+      infraction_date
+      c038 = as_datetime('2/7/2020') 
+      if infraction_date >= c038:
+        sentenciac038 = True
+        client_type  
+        if client_type == "Persona Natural":
+          natural.name
+          complaining_type_id
+          complaining_id_number = get_dni_formated(id_person)
+        else:
+          legal.name
+          complaining_id_number = generateNit(id_person)
+          legal_representative_type_id
+          legal_representative_name
+          legal_representative_id_number = get_dni_formated(legal_representative_id_number)
+        requested_hearing
+        if requested_hearing == True:
+          hearing_date
+        derecho_peticion
+        resolution_sancionatory
+        if resolution_sancionatory == True:
+          resolution_sancionatory_number
+          resolution_sancionatory_date
+        correo
+        do_sign
+        if do_sign == True:
+          sign_method
+          sign_file
+          final_screen
+        else:
+          sign_file = ""
+          final_screen5
+      else:
+        sentenciac038 = False    
+        final_screen4        
+    else:
+      final_screen3
+---
+objects:
+  - natural: Individual
+  - legal: Individual
+---
+question: |
+  Selecciona el tipo de infracción de tu comparendo
+subquestion: |
+  Por ejemplo: C29 es exeso de velocidad / C02 Estacionar un vehículo en sitios prohibidos, entre otros.
+fields:
+  - no label: infraction_type
+    choices:
+      - c29
+      - c02
+      - c14
+      - d04
+      - c03
+      - c31
+      - c32
+      - c35
+      - d02
+progress: 9  
+---
+question: |
+  ¿Tu comparendo fue impuesto por la Secretaría de Movilidad de Bogotá?
+yesno: comparendo_bogota
+progress: 18
+---
+question: |
+  ¿Cuál es el número y fecha del comparendo? 
+fields:
+  - no label: fotomulta_number
+    datatype: integer
+  - no label: infraction_date
+    datatype: date
+progress: 27
+---
+question: |
+  ¿Eres una persona o una compañía?
+fields:
+  - no label: client_type
+    input type: radio
+    code: get_list('type_j')
+progress: 36
+---
+question: |
+  ¿Cuáles son los datos de la persona?
+fields:
+  - Nombres: natural.name.first
+    hint: Nombres
+  - Apellidos: natural.name.last
+    hint: Apellidos
+  - Tipo de identificación: complaining_type_id
+    input type: dropdown
+    code:  get_list_dni('N')
+  - Número de identificación: id_person
+    #hint: dni
+id: blockglobal
+progress: 45
+---
+question: |
+  ¿Cuáles son los datos de la compañía?
+fields:
+  - Nombre de la compañia: legal.name.first
+  - NIT: id_person
+    hint: nit
+  - Nombre del representate legal: legal_representative_name
+  - Tipo de identificación: legal_representative_type_id
+    input type: dropdown
+    code:  get_list_dni('N')
+  - Número de identificación: legal_representative_id_number
+    #hint: dni
+id: blockglobal
+progress: 45
+---
+question: |
+  ¿Tienes audiencia agendada para el comparendo No. ${fotomulta_number}?
+subquestion:  |
+  Ten en cuenta que este documento no te exime de asistir a tu audiencia de impugnación. En ningún caso este documento reemplaza el proceso contravencional.
+fields:
+  - no label: requested_hearing
+    datatype: yesnoradio
+  - fecha de la audiencia: hearing_date
+    datatype: date
+    show if:
+      variable: requested_hearing
+      is: True
+progress: 54
+---
+question: |
+  ¿Has presentado derechos de petición ante la Secretaría de Movilidad de Bogotá reclamando por tu comparendo No. ${fotomulta_number}?
+fields:
+  - no label: derecho_peticion 
+    datatype: yesnoradio
+progress: 63
+---
+question: |
+  ¿La secretaría de movilidad de bogotá ya te sancionó?
+fields:
+  - no label: resolution_sancionatory
+    datatype: yesnoradio
+  - Número de la resolución que te sancionó: resolution_sancionatory_number
+    datatype: integer
+    show if:
+      variable: resolution_sancionatory
+      is: True    
+  - Fecha de la resolución que te sancionó: resolution_sancionatory_date    
+    datatype: date
+    show if:
+      variable: resolution_sancionatory
+      is: True
+progress: 72
+---
+question: |
+  ¿Cuál es el número y fecha de la sanción?
+fields:
+  - Número de la resolución que te sancionó: resolution_sancionatory_number
+    datatype: integer
+  - Fecha de la resolución que te sancionó: resolution_sancionatory_date    
+    datatype: date
+---
+question: |
+  ¿Cuál es tu correo electrónico?
+fields: 
+  - no label: correo
+    datatype: email
+progress: 81
+---
+question: |
+  Sube tu firma en formato de imagen
+fields:
+  - no label: sign_file
+    datatype: file
+    accept: |
+      "image/jpeg, image/png"
+---
+question: |
+  Firma del documento
+review:
+  - label: Editar
+    fields:
+      - do_sign
+      - follow up:
+        - sign_method
+        - sign_file
+    button: |
+      % if do_sign:
+      Haz contestado que quieres poner la firma en el documento.[BR]
+      **Firma:** [BR]
+      ${sign_file}
+      % else:
+      Haz contestado que no deseas firmar el documento
+      % endif
+under: ""
+---
+question: |
+  ¿Quieres firmar el derecho de petición?
+fields:
+  - no label: do_sign
+    datatype: yesnoradio
+  - ¿Cómo deseas firmar?: sign_method
+    input type: radio
+    choices:
+      - Subir imagen de la firma: sign_upload
+      - Hacer la firma en la pantalla o con el mouse: sign_screen
+    show if:
+      variable: do_sign
+      is: True
+progress: 90      
+---
+depends on:
+  - do_sign
+  - sign_method
+if: do_sign == True and sign_method == 'sign_upload'
+question: |
+  Sube tu firma en formato de imagen
+fields:
+  - no label: sign_file
+    datatype: file
+progress: 99
+---
+depends on:
+  - do_sign
+  - sign_method
+if: do_sign == True and sign_method == 'sign_screen'
+question: |
+  Haz la firma en el recuadro
+signature: sign_file
+progress: 99
+---
+event: final_screen
+mandatory: true
+question: |
+  Ya puedes descargar tu documento. Recuerda que lo debes radicar en el siguiente link https://www.movilidadbogota.gov.co/radicacionwebsdm/formulario.php 
+progress: 100
+attachment:
+  name: derecho de petición igualdad 
+  filename: derecho de petición igualdad 
+  docx template file: leadmagnet_JD_04_08_2023_DP_igualdad_V1.0.docx
+  valid formats:
+    - pdf
+    - docx
+allow emailing: False
+buttons:
+  - Restart: restart
+---
+event: final_screen2
+mandatory: true
+question: |
+  Como la infracción de tu caso es SOAT o Tecnomecánica no debes usar este documento.
+buttons:
+  - Restart: restart
+---
+event: final_screen3
+mandatory: true
+question: |
+  Este documento solo aplica para los comparendos impuestos en Bogotá, pues es la Secretaría de Movilidad de Bogotá quien archivó más de 200.000 comparendos por no poder identificar al infractor. 
+buttons:
+  - Restart: restart
+---
+event: final_screen4
+mandatory: true
+question: |
+  Tu comparendo fue impuesto antes de la sentencia C-038 de 2020, por lo que no debes usar este documento.
+buttons:
+  - Restart: restart
+---
+event: final_screen5
+mandatory: true
+question: |
+  Decidiste no firmar el derecho de petición
+progress: 100
+attachment:
+  name: derecho de petición igualdad 
+  filename: derecho de petición igualdad 
+  docx template file: leadmagnet_JD_04_08_2023_DP_igualdad_V1.0.docx
+  valid formats:
+    - pdf
+    - docx
+allow emailing: False
+buttons:
+  - Restart: restart

@@ -1,0 +1,319 @@
+/*Este archivo contiene reglas de estilos CSS para las entrevistas DA
+Se cambian las asiganaciones a clases-calss e indentificadores-id que lo permitan en DA
+y WP no los afecte, tambien se crean reglas de asignacion de obligatoriedad con el uso de !important-mandatory
+o con el uso de anidación HTML*/
+.daterm{
+  color: #038291 !important;
+  text-decoration: underline !important;  
+}
+.nav-pills .nav-link.active, .nav-pills .show>.nav-link{
+  background-color: #80CFE3 !important;
+}
+.btn-primary, .dasigsave {
+    background-color: #FCCF31 !important;
+    color: #0040CB !important;
+    border-radius: 25px !important;
+    padding-left: 20px !important;
+    padding-right: 20px !important;
+    border: none;
+}
+.btn-warning, .dasigclear{
+    color: #ff7518 !important;
+    border-color: #1D1CD8;
+    border-width: 2px;
+    background-color: white !important;
+    border-radius: 25px !important;
+    padding-left: 20px !important;
+    padding-right: 20px !important;
+ 
+}
+.btn-secondary {
+    background-color: #777777 !important;
+    border-color: #777777 !important;
+    color: #fff !important;
+}
+.btn-info {
+    background-color: #CCCCCC !important;
+    border-color: #CCCCCC !important;
+}
+.btn-danger {
+    background-color: #962734 !important;
+    border-color: #962734 !important;
+    color: #fff !important;
+}
+.btn-link {
+  color: #038291 !important;  
+}
+.progress-bar{
+  background-color: #272eb8 !important;
+}
+.progress{
+  background-color: #dfdfdf !important;
+}
+.dachoicehelp{
+  color: #80CFE3 !important;
+}
+.btn-success{
+  background-color: #038291 !important;
+  border-color: #038291 !important;
+}
+.groovy input::text::placeholder{
+  text-transform: capitalize !important;
+}
+.container-nit .caret-nit{
+  float: left !important;
+  font-weight: bold !important; 
+  height: 35px !important; 
+  line-height: 20px !important;
+}
+.container-nit .inp-verificode{
+  width: 10% !important;
+  margin-left: 4% !important;
+  float: left !important;
+  text-align: center;
+  font-weight: bold;
+  padding: 5px;
+}
+.container-nit .inp-nit{
+  width: 80% !important;
+  float: left !important;
+  margin-right: 3% !important;
+}
+.container-nit .info-nit{
+  text-align: left;
+  width: 100%;
+  float: left;
+}
+.question-waitforme .dafieldpart{
+  margin-left: 0% !important;
+  max-width: 100% !important;
+  flex: auto !important;
+}
+::-webkit-input-placeholder { /* WebKit browsers */
+    text-transform: none !important;
+}
+:-moz-placeholder { /* Mozilla Firefox 4 to 18 */
+    text-transform: none !important;
+}
+::-moz-placeholder { /* Mozilla Firefox 19+ */
+    text-transform: none !important;
+}
+:-ms-input-placeholder { /* Internet Explorer 10+ */
+    text-transform: none !important;
+}
+::placeholder { /* Recent browsers */
+    text-transform: none !important;
+}
+.da-price{
+  color: #038291;
+  font-size: x-large;
+}
+.add_da_to_cart{
+  background-color: #034051 !important;
+}
+.nit-error{
+  float: left !important;
+  font-size: small !important;
+}
+body{
+  font-family: "Muli", sans-serif !important;
+  color: #777777 !important;
+}
+#dablock .tab-content{
+  width: 100% !important;
+}
+button, button, input, textarea, select, fieldset {
+    /*margin-bottom: 1em !important;*/
+}
+.nav .danav .danav-vertical .danavlinks{
+  align-items: flex-start !important;
+}
+label, legend{
+  font-weight: 300 !important;
+}
+select{
+  box-shadow: none !important;
+}
+.daquestionbackbutton{
+  color: #7F7F7F !important;
+  background: #E5E5E5 !important;
+  border-color: #002888 !important;
+  border: none !important;
+  border-radius: 25px !important;
+  padding-left: 30px !important;
+  padding-right: 30px !important;
+}
+#daform .form-actions .btn-primary, .da-field-buttons .btn-primary{
+  color: #0040CB !important;
+  background: #FCCF31 !important;
+  border: none !important;
+  border-radius: 25px !important;
+  padding-left: 30px !important;
+  padding-right: 30px !important;
+}
+.da-subquestion h3{
+  color: #3A3A3A !important;
+}
+select.form-control, .file-caption{
+  border-radius: 21px 21px 21px 21px;
+}
+#daform .form-actions .btn-danger{
+  color: #0040CB !important;
+  background: #FCCF31 !important;
+  border: none  !important;
+  border-radius: 25px;
+  padding-right: 20px;
+  padding-right: 20px;
+}
+.dropdown-menu .dropdown-item{
+  color: #3a3a3a;
+}
+.btn-da-pdf, .btn-da-docx{
+  color: #fff !important;
+}
+/*.da-field-checkboxes label span:nth-child(2){
+  text-transform: capitalize !important;
+}*/
+#daform .col-md-4, #daform .col-md-8{
+  -webkit-box-flex: 0 !important;
+  -ms-flex: 0 0 100% !important;
+  flex: 0 0 100% !important;
+  max-width: 100% !important;
+}
+#daform .datext-right{
+  text-align: left !important;
+}
+#daform .form-group.darequired .da-form-label:after{
+    position: static !important;
+}
+.da-form-label{
+  color: #3A3A3A !important;
+}
+.da-page-header h1{
+  color: #0040CB !important;
+  font-weight: 700 !important;
+  font-size: 1.666667rem !important;
+}
+.danav > a.danavlink{
+  color: #3A3A3A;
+}
+#dablock a.btn-darevisit, #dablock .da-subquestion a.btn-success{
+  color: #fff !important;
+}
+#dablock a.datableup, #dablock a.databledown{
+  color: #3A3A3A !important;
+}
+.da-field-checkboxes label{
+  color: #3A3A3A !important;
+}
+.da-field-checkboxes label.btn-primary{
+  color: #fff !important;
+}
+.nav{
+  align-items: normal !important;
+}
+.da-review-action-button{
+    background: #0040D0 !important;
+    color: #fff !important;
+    border-radius: 25px !important;
+    padding-left: 20px;
+    padding-right: 20px;
+ 
+}
+.danavlinks .daclickable:not(.danotavailableyet):not(.active){
+  text-decoration: underline !important;
+  cursor: pointer !important;
+  color: #002888 !important;
+  font-weight: 600 !important;
+}
+.danavlinks .daclickable:not(.danotavailableyet):hover{
+  color: #0040D0 !important;
+}
+.dabody .form-group{
+  margin-bottom: unset !important;
+}
+.daundertext .destroy-interview{
+  float: right !important;
+  font-size: small !important;
+  color: red !important;
+}
+.daundertext .destroy-interview{
+  color: red !important;
+}
+.da-field-container-note hr{
+  margin: 5px !important;
+  background-color: #3A3A3A !important;
+}
+.dawidecol{
+  padding: 0 !important;
+}
+.show_page{
+  color: #FFC800;
+  cursor: pointer;
+  font-size: small;
+}
+.show_page:hover{
+  color: #0040D0;
+}
+.number_page, .page-text{
+  color: #7f7f7f;
+  font-size: small;
+}
+.containaer-doc-pages .dawideimage{
+  border: solid 1px #7F7F7F !important;
+  margin: 1rem !important;
+}
+.info-juzto-final b:first-child{
+  font-weight: 700 !important;
+  font-size: large !important;
+  color: #000 !important;
+  float: right !important;
+  margin-bottom: 1rem !important;
+}
+.info-juzto-final b:first-child a{
+  color: #000 !important;
+  text-decoration: none !important;
+}
+.info-juzto-final ul{
+  font-size: 12px !important;
+  line-height: 1.4 !important;
+  margin-top: 1rem !important;
+  list-style: none !important;
+  margin-bottom: 0 !important;
+}
+.final_screen_price_label{
+  color: #ffc800 !important;
+  font-weight: 800 !important;
+  font-size: large !important;
+}
+.final_screen_price{
+  font-weight: 700 !important;
+}
+.info-juzto-final .add_da_to_cart{
+    border-radius: 20px !important;
+    background-color: #0040D0 !important;
+    border-color: #0040D0 !important;
+    font-size: small;
+    font-weight: 600 !important;
+}
+.sec-left-juzto{padding:30px 0 !important;}
+.price_wo_price{
+  display:none !important;
+}
+.form-control{
+  height: calc(1.7em + 0.75rem + 2px) !important;
+  border-color: #1D1CD8  !important;
+  border-radius: 25px  !important;
+  border-width: 2px !important;
+}
+.dafieldpart input[type=number]{
+  max-width: 100% !important;
+}
+
+#dasigcanvas {
+  border-color: #0040CB !important;
+  border-width: 2px !important;
+  border-radius: 20px;
+  border-style: dashed !important;
+  height: 100% !important;
+}

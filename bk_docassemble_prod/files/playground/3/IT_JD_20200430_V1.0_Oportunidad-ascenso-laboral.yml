@@ -1,0 +1,178 @@
+metadata:
+  title: |
+   Carta ascenso laboral
+  short title: |
+    Carta Ascenso laboral
+  description: |
+    Carta para que la empresa informe al trabajador la oportunidad de ascender en el cargo.
+  authors:
+    - name: Juan David
+      organization: Programador
+    - name: Edna Avendaño
+      organization: Proyectó
+    - name: Edna Avendaño y Juan David
+      organization: Revisó
+  revision_date: 2020-04-28
+---
+sections:
+  - Información del empleador
+  - Información del trabajador
+  - Información del ascenso
+  - Información general
+---
+features:
+  navigation: True
+  progress bar: True
+  show progress bar percentage: True
+  hide standard menu: False
+  hide navbar: True
+  question back button: True
+---
+include:
+  - docassemble.playground3:autoterms.yml
+---
+modules:
+  - docassemble.playground3.juztoModules
+  - docassemble.playground3.juztoListChoices
+---
+mandatory: True
+code: |
+  multi_user = True
+---
+mandatory: True
+question: |
+  ¿Quién es el empleador?
+subquestion: |
+  Identifica si es persona o empresa  
+fields:
+  - no label: employer_type 
+    datatype: radio
+    choices:
+      - Persona
+      - Empresa
+section: Información del empleador
+prevent going back: True
+progress: 11
+---
+mandatory: True
+question: |
+  Danos los datos del empleador
+fields:
+  - Nombre completo: employer_name
+    hint: "Nombre(s) y apellido(s)"
+    show if:
+      code: |
+       employer_type == "Persona"
+  - Nombre de la compañia: employer_name
+    hint: "Nombre de la compañía SAS"
+    show if:
+      code: |
+       employer_type == "Empresa"
+  - Tipo de identificación: employer_type_id
+    datatype: dropdown
+    code: get_list_dni('N')
+    show if:
+      code: |
+       employer_type == "Persona"
+  - Número de identificación: employer_id_number
+    hint: dni
+    show if:
+      code: |
+       employer_type == "Persona"
+  - NIT: employer_id_number
+    hint: nit
+    show if:
+      code: |
+       employer_type == "Empresa"
+section: Información del empleador
+progress: 22
+---
+mandatory: |
+  employer_type == 'Empresa'
+question: |
+  ¿Qué funcionario de ${ employer_name.upper() } firma la carta?
+subquestion: |
+  Por lo general firma el jefe inmediato o el jefe de recursos humanos
+fields:
+  - Nombre completo: sign_worker_name
+    hint: "Nombre(s) y apellido(s)"
+  - Cargo: position_employer
+section: Información del empleador
+progress: 33
+---
+mandatory: True
+question: |
+  Datos del trabajador
+fields:
+  - Nombre completo: employee_name
+    hint: "Nombre(s) y apellido(s)"
+  - Cargo actual: actual_position_employee
+section: Información del trabajador
+progress: 44
+---
+mandatory: True
+question: |
+  ¿Se informará el nuevo salario?
+fields:
+  - no label: salary
+    datatype: yesnoradio
+section: Información del ascenso
+---
+mandatory: |
+  salary == True
+question: |
+  ¿Cuál es el nuevo salarrio?
+fields:
+  - Salario: new_salary
+    hint: money
+section: Información del ascenso
+progress: 55
+---
+mandatory: True
+question: |
+  Información del nuevo cargo que ocupará ${ title_case(employee_name) }
+fields:
+  - Nuevo cargo: new_position_employee
+  - Fecha inicio del cargo: new_position_date
+    datatype: date
+section: Información del ascenso
+progress: 80
+---
+mandatory: True
+question: |
+  ¿Cuál es la fecha y la ciudad en que se presentará este documento?
+fields:
+  - Ciudad: city
+    input type: dropdown
+    code: get_cities()
+  - Fecha de la carta: creation_date
+    datatype: date
+validation code: |
+    if new_position_date < creation_date:
+      validation_error("La fecha de la carta no puede ser después de la fecha de inicio del cargo")
+section: Información general
+progress: 90
+---
+mandatory: true
+code: |
+  if 'price' in url_args:
+    price = currency(url_args['price'], decimals= False)
+  else:
+    price = '$0'
+  files_saved = save_files(the_document, 'Carta ascenso laboral', True, user_info().session)
+  juzto_callback = get_callback_final_screen(price, files_saved, 'Carta ascenso laboral', True)
+---
+attachment:
+  variable name: the_document
+  docx template file: IT_JD_200430_V1.0_aviso-ascenso-laboral.docx
+---
+event: final_screen
+mandatory: true
+progress: 100
+question: |
+  ${ z_text_final_screen }
+subquestion: |
+  ${ juzto_callback }
+id: juzto_da_final  
+allow emailing: False
+back button: False

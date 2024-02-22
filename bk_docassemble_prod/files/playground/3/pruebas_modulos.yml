@@ -1,0 +1,280 @@
+---
+metadata:
+  title: |
+   Reclamación por reporte negativo ante centrales de riesgo
+  short title: |
+    Reporte_Negativo
+  description: |
+   Reporte negativo en datacredito
+  authors:
+    - name: Felipe Gómez
+      organization: juzto.co
+    - name: Juan David Castilla
+      organization: juzto.co
+---
+sections:
+  - Tus datos
+  - Empresa que te reporto
+  - Cuentanos tu caso
+  - Anexos
+  - Firma
+---
+features:
+  navigation: True
+  progress bar: True
+  show progress bar percentage: True
+  hide standard menu: False
+  hide navbar: True
+  question back button: True
+---
+modules:
+  - docassemble.playground3.juztoModules
+  - docassemble.playground3.juztoListChoices
+---
+code: |
+  notification_date = today()
+  report_date = today ()
+  diference_date = date_difference(starting=notification_date, ending=report_date)
+---
+mandatory: True
+code: |
+  multi_user = True
+---
+mandatory: true
+question: |
+  ¿Quién fue reportado negativamente?
+fields:
+  - no label: client_type
+    input type: radio
+    code: get_list('type')
+section: Tus datos
+prevent going back: True
+progress: 15
+---
+mandatory: True
+need:
+  - client_type
+question: |
+  ¿Cuáles son los datos de la ${ client_type }?
+fields:
+  - Nombre completo de la ${ client_type.lower() }: client_name
+    hint: ${ client_type.lower() }
+  - Email: client_email
+    datatype: email
+    hint: ejemplo@mail.com
+  - Tipo de identificación: client_type_id
+    input type: dropdown
+    code:  get_list_dni('N')
+    show if:
+      code: |
+        client_type == "Persona"
+  - Número de identificación: client_id
+    hint: dni
+    show if:
+      code: |
+        client_type == "Persona"
+  - Ciudad: client_city
+    input type: dropdown
+    code: get_cities()
+  - Dirección: client_address
+    hint: 'Calle 122 # 17 - 29 Apto 302'
+  - NIT: number_id_landlord
+    hint: nit
+    show if:
+      code: |
+        client_type == "Empresa"
+  - Nombre del representate legal: client_rep_legal
+    show if:
+      code: |
+        client_type == "Empresa"
+  - Email del representante legal: client_rep_legal_email
+    datatype: email
+    hint: Correo electrónico
+    show if:
+      code: client_type == "Empresa"
+  - Tipo de identificación: client_rep_legal_type_id
+    input type: dropdown
+    code:  get_list_dni('N')
+    show if:
+      code: |
+        client_type == "Empresa"
+  - Número de identificación: client_rep_legal_id
+    hint: dni
+    show if:
+      code: |
+        client_type == "Empresa"
+section: Tus datos
+progress: 15
+---
+code: | 
+  if client_type == "Empresa":    
+    client_id = generateNit(client_id)
+---
+mandatory: True
+question: |
+  ¿Qué empresa hizo el reporte negativo?
+fields:
+  - Nombre: company_name
+    hint: 'Claro, Davivienda, Movistas, etc.'
+  - Dirección: company_address
+    hint: 'Calle 122 # 17-30'
+    required: false
+  - Ciudad: conmpany_city
+    input type: dropdown
+    code: get_cities()
+  - Correo Eléctronico: company_email
+    datatype: email
+    required: false
+    hint: Correo electrónico
+section: Empresa que te reporto
+progress: 15
+---
+mandatory: True
+question: |
+  ¿Tienes alguna relación con la empresa que te reportó negativamente?
+yesno: prev_relation
+section: Cuentanos tu caso
+progress: 20
+---
+mandatory: True
+question: |
+  ¿Firmaste una autorización para que te reportaran negativamente?
+yesno: prev_authorization
+section: Cuentanos tu caso
+progress: 25
+---
+mandatory: True
+question: |
+  ¿Incumpliste algún pago con la empresa?
+yesno: overdue_payment
+section: Cuentanos tu caso
+progress: 30
+---
+mandatory: True
+question: |
+  ¿Te avisaron que te iban a reportar negativamente?
+subquestion: |
+  Según la Ley 1266 de 2008 la empresa que te reporta negativamente debe enviarte un aviso informando que te van a reportar.
+fields:
+  - no label: advance_notice
+    input type: radio
+    choices:
+      - Fuí notificado y tengo las fechas de notificación: si
+      - Fuí notificado per no tengo las fechas de notificación: sino
+      - No fuí notificado: no
+  - ¿En qué fecha te enviaron el aviso?: notification_date
+    datatype: date
+    show if:
+      variable: advance_notice
+      is: si
+  - ¿En qué fecha te reportaron negativamente?: report_date
+    datatype: date
+    show if:
+      variable: advance_notice
+      is: si
+section: Cuentanos tu caso
+progress: 40
+---
+#ACA ARRANCA LA LISTA DE ADJUNTOS
+#CODIGO DE LOS ANEXOS
+objects:
+  - attachments: DAList.using(object_type=DAObject, complete_attribute='complete')
+  - exhibit_cover: DAList
+---
+code: |
+  attachments.gather()
+  attachments.reviewed
+---
+code: |
+  attachments[i].title
+  attachments[i].complete = True
+---
+table: attachments.table
+rows: attachments
+columns:
+  - Anexo: alpha(row_index)
+  - Titulo: row_item.title
+edit:
+  - title
+allow reordering: True
+---
+mandatory: True
+question: |
+  ¿Tienes un soporte que muestre que estás reportado negativamente?
+yesno: attachments.there_are_any
+section: Anexos
+progress: 60
+---
+table: attachments.document_table
+rows: attachments
+columns:
+  - Soporte: alpha(row_index)
+  - Nombre: row_item.title
+---
+question: |
+  Sube el ${ get_ordinal('male', i) } soporte.
+fields:
+  - Nombre del soporte: attachments[i].title
+  - Archivo: attachments[i].file
+    datatype: file
+    accept: |
+      "application/pdf"
+    validation messages:
+      accept: Solo puedes subir archivos pdf.
+section: Anexos
+progress: 60
+---
+question: |
+  ¿Quieres subir más soportes?
+yesno: attachments.there_is_another
+section: Anexos
+progress: 70
+---
+mandatory: |
+  attachments.there_are_any == True
+question: |
+  Estos son los soportes que haz subido hasta el momento.
+subquestion: |
+  ${ attachments.table }
+  ${ attachments.add_action() }
+section: Anexos
+progress: 80
+continue button field: attachments.reviewed
+---
+mandatory: true
+question: |
+  ¿En que fecha y ciudad se presentará esta solicitud?
+fields:
+  - Fecha: letter_date
+    datatype: date
+  - Ciudad: city
+    input type: dropdown
+    code: get_cities()
+section: Firma
+progress: 90
+---
+mandatory: true
+code: |
+  if 'price' in url_args:
+    price = currency(url_args['price'], decimals= False)
+  else:
+    price = '$0'
+  files_saved = save_files(the_document, 'Reclamacion reporte negativo', True, user_info().session)
+  juzto_callback = get_callback_final_screen(price, files_saved, 'Reclamacion reporte negativo', True)
+#  [BR]${ user_info().session }  
+---
+attachment:
+  variable name: the_document
+  docx template file: IT_FG_200415_V1.0_Carta-reporte-negativo.docx
+---
+event: final_screen
+mandatory: true
+progress: 100
+question: |
+  ${ z_text_final_screen }
+subquestion: |
+  ${ juzto_callback }
+id: juzto_da_final
+allow emailing: False
+back button: False
+---

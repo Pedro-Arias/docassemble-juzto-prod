@@ -1,0 +1,640 @@
+---
+metadata:
+  title: |
+   Contrato de prestación de servicios
+  short title: |
+    Contrato prestación de servicios
+  description: |
+   Contrato de prestación de servicios
+  authors:
+    - name: Felipe Gómez
+      organization: juzto.co
+    - name: Juan David Castilla
+      organization: juzto.co
+---
+sections:
+  - Las partes:
+    - Datos del contratista
+    - Datos del contratante
+  - Objeto del contrato
+  - Valor y forma de pago
+  - Obligaciones:
+    - Del contratante
+    - Del contratista
+  - Terminación del contrato
+  - Cesión del contrato
+  - Pólizas del contrato
+  - Cláusula penal
+  - Firmas
+---
+features:
+  navigation: True
+  progress bar: True
+  show progress bar percentage: True
+  hide standard menu: False
+  hide navbar: True
+  question back button: True
+---
+include:
+  - docassemble.playground3:autoterms.yml
+---
+modules:
+  - docassemble.playground3.juztoModules
+  - docassemble.playground3.juztoListChoices
+---
+code: |  
+  contract_value_numberstring = number_to_string(get_only_number(contract_value))
+  contract_value_currency = currency(get_only_number(contract_value), decimals = False)
+  advance_payment_numberstring = number_to_string(get_only_number(advance_payment_value))
+  advance_payment_currency = currency(get_only_number(advance_payment_value), decimals = False)
+  no_periodos_numberstring = number_to_string(no_periodos)
+  termination_notification_numberstring = number_to_string(termination_notification)
+  clausula_penal_value_currency = currency(get_only_number(clausula_penal_value), decimals = False)
+  clausula_penal_value_numberstring = number_to_string(clausula_penal_value)  
+  clausula_penal_percent_numberstring = number_to_string(clausula_penal_percent)
+---
+mandatory: True
+code: |
+  multi_user = True
+---
+mandatory: true
+question: |
+  ¿Dinos quién va a prestar el servicio? (Contratista)
+fields:
+  - no label: contratista_type
+    input type: radio
+    code: get_list('type')
+section: Datos del contratista
+prevent going back: True
+---
+code: |
+  if contratista_type == "Persona":
+    with_iva = False
+---
+mandatory: true
+question: |
+  Ingresa los datos de la ${ contratista_type.lower() } (Contratista)
+fields:
+  - Nombre completo de la ${ contratista_type.lower() }: contratista_name
+    hint: '${ contratista_type.lower() }'
+  - Tipo de identificación: contratista_type_id
+    input type: dropdown
+    code:  get_list_dni('N')
+    show if:
+      code: |
+        contratista_type == "Persona"
+  - Número de identificación: contratista_id
+    hint: dni
+    show if:
+      code: |
+        contratista_type == "Persona"
+  - NIT: contratista_id
+    hint: nit  
+    show if:
+      code: |
+        contratista_type == "Empresa"
+  - Correo electrónico: contratista_email
+    hint: 'ejemplo@mail.com'
+    datatype: email
+  - Ciudad: contratista_city
+    input type: dropdown
+    code: get_cities()
+  - Dirección: contratista_address
+    hint: 'Calle 122 # 17 - 29'
+  - Nombres y apellidos completos del representante legal: contratista_rep_legal
+    hint: 'Nombres y apellidos'
+    show if:
+      code: |
+        contratista_type == "Empresa"
+  - Tipo de identificación: contratista_rep_legal_type_id
+    input type: dropdown
+    code:  get_list_dni('N')
+    show if:
+      code: |
+        contratista_type == "Empresa"
+  - Número de identificación: contratista_rep_legal_id
+    hint: dni
+    show if:
+      variable: contratista_type
+      is: "Empresa"
+section: Datos del contratista
+id: blockglobal
+---
+mandatory: true
+question: |
+  ¿Dinos quién va a recibir el servicio? (Contratante)
+fields:
+  - no label: contratante_type
+    input type: radio
+    code: get_list('type')
+section: Datos del contratante
+---
+mandatory: true
+question: |
+  Ingresa los datos de la ${ contratante_type.lower() } (Contratante)
+fields:
+  - Nombre completo de la ${ contratante_type.lower() }: contratante_name
+    hint: '${ contratante_type.lower() }'
+  - Correo electrónico: contratante_email
+    hint: 'ejemplo@mail.com'
+    datatype: email
+  - Tipo de identificación: contratante_type_id
+    input type: dropdown
+    code:  get_list_dni('N')
+    show if:
+      code: |
+        contratante_type == "Persona"
+  - Número de identificación: contratante_id
+    hint: dni
+    show if:
+      code: |
+        contratante_type == "Persona"
+  - (NIT): contratante_id
+    hint: nit   
+    show if:
+      code: |
+        contratante_type == "Empresa"
+  - Ciudad: contratante_city
+    input type: dropdown
+    code: get_cities()
+  - Dirección: contratante_address
+    hint: 'Calle 122 # 17 - 29 Apartament 302'
+  - Nombres y apellidos completos del representante legal: contratante_rep_legal
+    hint: 'Nombres y apellidos'
+    show if:
+      code: |
+        contratante_type == "Empresa"
+  - Tipo de identificación: contratante_rep_legal_type_id
+    input type: dropdown
+    code:  get_list_dni('N')
+    show if:
+      code: |
+        contratante_type == "Empresa"
+  - Número de identificación: contratante_rep_legal_id
+    hint: dni    
+    show if:
+      code: |
+        contratante_type == "Empresa"
+section: Datos del contratante
+id: blockglobal
+---
+mandatory: true
+question: |
+  Descríbenos las actividades o servicios del contrato para con ${ contratante_name }
+fields:
+  - no label: services
+    hint: describe claramente el servicio a prestar
+    input type: area
+    rows: 4
+section: Objeto del contrato
+---
+mandatory: true
+need:
+  - services
+question: |
+  ¿Cuál es el valor y forma de pago del contrato?
+fields:
+  - Valor: contract_value
+    hint: money
+  - "¿Este valor incluye el IVA?": with_iva
+    datatype: yesnoradio
+    show if:
+      code: |
+        contratista_type == "Empresa"
+  - ¿Se dará un anticipo?: advance_payment
+    datatype: yesnoradio
+  - Valor del anticipo: advance_payment_value
+    hint: money
+    show if: advance_payment
+  - ¿Cómo es la forma de pago?: payment_method
+    datatype: dropdown
+    choices:
+      - Semanal: semanal
+      - Quincenal: quincenal
+      - Mensual: mensual
+      - Totalidad al terminar el contrato: total al terminar
+    show if: advance_payment
+  - ¿Cómo es la forma de pago?: payment_method
+    datatype: dropdown
+    choices:
+      - Semanal: semanal
+      - Quincenal: quincenal
+      - Mensual: mensual
+      - Totalidad con la firma del contrato: total al firmar
+      - Totalidad al terminar el contrato: total al terminar
+    show if: 
+      variable: advance_payment
+      is: False
+  - ¿Cuántos días tiene el contratante para pagar una vez reciba la factura o cuenta de cobro?: payment_days
+    datatype: integer
+    hint: 15,30,60 o 90 días
+  - ¿Cuál es la duración del contrato?: period
+    datatype: dropdown
+    code: get_list('period')
+  - No de periodos: no_periodos
+    datatype: integer
+  - ¿Se renuevará automáticamente?: renewable
+    datatype: yesnoradio
+    help: |
+      Al decir SI, al terminar, se renovara por el mismo tiempo que se pacto originalmente.
+      Al decir NO, al llegar a la fecha de terminación, se termina el contrato.  
+section: Valor y forma de pago
+id: blockglobal
+---
+code: |
+  if advance_payment == False:
+    advance_payment_value = 0
+---
+mandatory: true
+need:
+  - renewable
+question: |
+  ¿${ contratante_name } ${ contratante_type.lower() } quien contrata podrá pagar a favor de terceros?
+fields:
+  - no label: pay_third_party
+    datatype: yesnoradio
+  - ¿Ese tercero es persona o empresa?: pay_third_party_type
+    input type: radio
+    code: get_list('type')
+    show if: pay_third_party
+  - Nombre del tercero: pay_third_party_name
+    hint: Nombres y apellidos completos
+    show if:
+      variable: pay_third_party_type
+      is: "Persona"
+  - Tipo de identificación: pay_third_party_type_id
+    input type: dropdown
+    code: get_list_dni('N')
+    show if:
+      variable: pay_third_party_type
+      is: "Persona"
+  - Número de identificación: pay_third_party_id
+    hint: dni
+    show if:
+      variable: pay_third_party_type
+      is: "Persona"
+  - Nombre: pay_third_party_name
+    hint: Nombre de la empresa
+    show if:
+      variable: pay_third_party_type
+      is: "Empresa"
+  - NIT: pay_third_party_id
+    hint: nit
+    show if:
+      variable: pay_third_party_type
+      is: "Empresa"
+section: Valor y forma de pago
+id: blockglobal
+---
+objects:
+  - contratante_obligations: DAList.using(object_type=DAObject, complete_attribute='complete')
+---
+code: |
+ contratante_obligations.gather()
+ contratante_obligations.reviewed
+---
+code: |
+ contratante_obligations[i].name
+ contratante_obligations[i].complete = True
+---
+table: contratante_obligations.table
+rows: contratante_obligations
+columns:
+  - Obligación: |
+      row_item.name
+edit:
+  - name
+allow reordering: True
+---
+code: |
+  contratante_obligations.there_are_any = True
+---
+question: |
+  ¿Necesitas agregar otra obligación de la ${ contratante_type.lower() } contratante ${ contratante_name }?
+yesno: contratante_obligations.there_is_another
+section: Del contratante
+---
+need:
+  - pay_third_party
+question: |
+  ¿Cuál es la ${ get_ordinal("female", i)} obligación de la ${ contratante_type.lower() } contratante ${ contratante_name }?
+fields:
+  - Obligación: contratante_obligations[i].name
+    hint: Dar permisos de acceso al servidor
+section: Del contratante
+---
+mandatory: true
+question: |
+  Estas son las obligaciones que tendrá la ${ contratante_type.lower() } contratante ${ contratante_name }.
+subquestion: |
+  ${ contratante_obligations.table }
+  ${ contratante_obligations.add_action() }
+continue button field: contratante_obligations.reviewed
+section: Del contratante
+---
+objects:
+  - equipment: DAList.using(object_type=DAObject, complete_attribute='complete')
+---
+code: |
+ equipment.gather()
+ equipment.reviewed
+---
+code: |
+ equipment[i].name
+ equipment[i].complete = True
+---
+table: equipment.table
+rows: equipment
+columns:
+  - Equipo: |
+      row_item.name
+edit:
+  - name
+allow reordering: True
+---
+mandatory: True
+need:
+  - contratante_obligations
+question: |
+  ¿Se entregarán equipos al contratista?
+yesno: equipment.there_are_any
+section: Del contratante
+---
+question: |
+  ¿Necesitas agregar otro equipo?
+yesno: equipment.there_is_another
+section: Del contratante
+---
+question: |
+  Describe el ${ get_ordinal("male", i) } equipo que será entregado al contratista
+fields:
+  - Equipo: equipment[i].name
+    hint: Computador MacBook Pro
+---
+mandatory: |
+ equipment.there_are_any == True
+question: |
+  Estos son los equipos que se entregarán al contratista
+subquestion: |
+  ${ equipment.table }
+  ${ equipment.add_action() }
+continue button field: equipment.reviewed
+section: Del contratante
+---
+objects:
+  - contratista_obligations: DAList.using(object_type=DAObject, complete_attribute='complete')
+---
+code: |
+ contratista_obligations.gather()
+ contratista_obligations.reviewed
+---
+code: |
+ contratista_obligations[i].name
+ contratista_obligations[i].complete = True
+---
+table: contratista_obligations.table
+rows: contratista_obligations
+columns:
+  - Obligación: |
+      row_item.name
+edit:
+  - name
+allow reordering: True
+---
+code: |
+  contratista_obligations.there_are_any = True
+---
+question: |
+  ¿Necesitas agregar otra obligación de la ${ contratista_type.lower() } contratista ${ contratista_name }?
+yesno: contratista_obligations.there_is_another
+section: Del contratista
+---
+need:
+  - equipment.there_are_any
+question: |
+  ¿Cuál es la ${ get_ordinal("female", i) } obligación de la  ${ contratista_type.lower() } contratista ${ contratista_name }?
+fields:
+  - Obligación: contratista_obligations[i].name
+    hint: Enviar un informe semanlmente con hitos logrados
+section: Del contratista
+---
+mandatory: true
+question: |
+  Estas son las obligaciones que tendrá la ${ contratista_type.lower() } contratista ${ contratista_name }.
+subquestion: |
+  ${ contratista_obligations.table }
+  ${ contratista_obligations.add_action() }
+continue button field: contratista_obligations.reviewed
+section: Del contratista
+---
+mandatory: true
+need:
+  - contratista_obligations
+question: |
+  ¿Al finalizar el contrato se firmará acta de terminación?
+yesno: termination_minute
+section: Terminación del contrato
+---
+mandatory: true
+need:
+  - termination_minute
+question: |
+  ¿Se puede terminar el contrato antes de cumplir su duración?
+fields:
+  - no label: advance_termination
+    datatype: yesnoradio
+  - "¿Quién lo puede terminar?": termination_part
+    input type: radio
+    code: get_list('termination')
+    show if: advance_termination
+  - "Días de aviso para la terminación": termination_notification
+    datatype: integer
+    min: 0
+    show if: advance_termination
+    help: ¿Con cuántos días se debe avisar antes de la terminación?
+section: Terminación del contrato
+---
+code: |
+  if advance_termination == False:
+    termination_notification = 0
+---
+mandatory: true
+need:
+  - advance_termination
+question: |
+  ¿En caso de conflictos quieres que se resuelva en un Tribunal de Arbitramento?
+fields:
+  - no label: arbitration
+    datatype: yesnoradio
+  - "¿Cuantos árbitros quieres que conozcan?": number_of_arbitrator
+    input type: radio
+    choices:
+      - 1
+      - 3
+    show if: arbitration
+    help: Según la ley debe ser numero impar. Las partes puede escoger los árbitros, si no lo hacen la justicia lo hará por ellos. Fijando esto como requisito, 3 árbitro por mayor cuantía ( más de 150 smlmv) ley 1 por Menor Cuantía (entre 40 smlmv y 150 smlmv).
+section: Terminación del contrato
+---
+mandatory: true
+need:
+  - arbitration
+question: |
+  ¿Alguna de las Partes puede ceder los derechos y obligaciones del contrato a otra persona?
+fields:
+  - no label: contract_cesion
+    datatype: yesnoradio
+    help: Cambiar quien es el contratista o contratante, para el resto del contrato. Se debe avisar y dar justificación.
+  - ¿Qué parte puede ceder el contrato?: cesion_part
+    input type: radio
+    code: get_list('cesion')
+    show if: contract_cesion
+section: Cesión del contrato
+---
+mandatory: True
+need:
+  - contract_cesion
+question: |
+  ¿Quisieras proteger el cumplimiento del contrato con pólizas de seguro que deberá pagar el contratista?
+fields:
+  - no label: polizas 
+    datatype: yesnoradio
+section: Pólizas del contrato
+---
+mandatory: |
+  polizas == True
+question: |
+  ¿Qué pólizas quieres agregar al contrato?
+fields:
+  - Póliza de cumplimiento: poliza_cumplimiento
+    datatype: yesnoradio
+  - Valor de la poliza de cumplimiento: valor_pol_cumplimiento
+    hint: money
+    show if: poliza_cumplimiento
+  - Póliza de salarios y prestaciones sociales: poliza_salarios
+    datatype: yesnoradio
+  - Dinos que porcentaje respecto del valor del contrato: porcent_poliza_salarios
+    datatype: integer
+    min: 0
+    show if: poliza_salarios
+  - Póliza de buen manejo del anticipo: poliza_anticipo
+    datatype: yesnoradio
+    show if:
+      code: |
+        advance_payment == True
+  - Póliza de responsabilidad civil extracontractual: poliza_civil
+    datatype: yesnoradio
+  - Porcentaje respecto del valor del contrato: percent_pol_civil
+    datatype: integer
+    min: 0
+    show if: poliza_civil
+  - Póliza de responsabilidad profesional: poliza_profesional
+    datatype: yesnoradio
+  - Porcentaje respecto del valor del contrato: percent_pol_profesional
+    datatype: integer
+    min: 0
+    show if: poliza_profesional  
+section: Pólizas del contrato
+id: blockglobal
+---
+code: |
+  if polizas:
+    if advance_payment == False:
+      poliza_anticipo = False
+    count_polizas = get_list_arguments([poliza_cumplimiento, poliza_salarios, poliza_anticipo, poliza_civil, poliza_profesional])
+    if poliza_cumplimiento == True:
+      valor_pol_cumplimiento_currency = currency(get_only_number(valor_pol_cumplimiento), decimals = False)
+  else :
+    count_polizas = 0
+    valor_pol_cumplimiento = 0
+---
+mandatory: true
+need:
+  - count_polizas
+question: |
+  ¿En caso de incumplimiento quieres que aplique una sanción?
+fields:
+  - no label: clausula_penal
+    datatype: yesnoradio
+  - "¿Quién debe pagar la sanción?": clausula_penal_part
+    input type: radio
+    code: get_list('clausula_penal')
+    show if: clausula_penal
+  - "¿Cómo se debe calcular la sanción?": clausula_penal_paramount
+    input type: radio
+    show if: clausula_penal
+    choices:
+      - Porcentaje
+      - Monto
+  - Valor: clausula_penal_value
+    hint: money
+    datatype: currency
+    min: 0
+    max: ${ get_only_number(contract_value) }
+    show if:
+      variable: clausula_penal_paramount
+      is: Monto
+  - Define el porcentaje: clausula_penal_percent
+    datatype: integer
+    min: 0
+    max: 100
+    show if:
+      variable: clausula_penal_paramount
+      is: Porcentaje
+section: Cláusula penal
+id: blockglobal
+---
+code: |
+  if clausula_penal == False:
+    clausula_penal_paramount = 'Monto'
+    clausula_penal_value = 0
+    clausula_penal_percent = 0
+  else:  
+    if clausula_penal_paramount == "Porcentaje":
+      clausula_penal_value = 0
+    else:
+      clausula_penal_percent = 0;  
+#  if contratista_type == "Empresa":  
+#    contratista_id = generateNit(contratista_id)
+#  if contratante_type == "Empresa":    
+#    contratante_id = generateNit(contratante_id)
+#  if pay_third_party == True:
+#    pay_third_party_id = generateNit(pay_third_party_id)  
+---
+mandatory: true
+need:
+  - clausula_penal
+question: |
+  ¿Cuál es la fecha del contrato y la ciudad donde se firma?
+fields:
+  - Ciudad: contract_city
+    input type: dropdown
+    code: get_cities()
+  - Fecha del contrato: contract_date
+    datatype: date
+section: Firmas
+id: blockglobal
+---
+mandatory: true
+code: |
+  if 'price' in url_args:
+    price = currency(url_args['price'], decimals= False)
+  else:
+    price = '$0'
+  files_saved = save_files(the_document, 'Contrato de prestacion de servicios', True, user_info().session)
+  juzto_callback = get_callback_final_screen(price, files_saved, 'Contrato de prestacion de servicios', True)
+---
+attachment:
+  variable name: the_document
+  docx template file: IT_AG_200406_V1.0_Contrato-prestacion-servicios.docx
+---
+event: final_screen
+mandatory: true
+progress: 100
+question: |
+  ${ z_text_final_screen }
+subquestion: |
+  ${ juzto_callback }
+id: juzto_da_final  
+allow emailing: False
+back button: False
+---

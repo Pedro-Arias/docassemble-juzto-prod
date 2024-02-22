@@ -1,0 +1,220 @@
+metadata:
+  title: |
+    IT_DA_220601_V.1.0_impugnacion_tutela_comparendo
+  short title: |
+    Impugnación Bogotá Variación
+  description: |
+    Con este documento se impugnan los fallos de tutela en contra del agendamiento de audiencia en Bogotá.
+  authors:
+    - name: Laura Pardo
+      organization: Juzto.co
+    - name: Dario Agaton
+      organization: Juzto.co
+---
+features:
+  navigation: True
+  progress bar: True
+  show progress bar percentage: True
+  hide standard menu: False
+  hide navbar: True
+  question back button: True
+---
+include:
+  - docassemble.playground3:autoterms.yml
+---
+modules:
+  - docassemble.playground3.juztoModules
+  - docassemble.playground3.juztoListChoices
+---
+initial: True
+code: |
+  case_number
+  impugnacion_type 
+  client_type
+  if client_type == "Persona Natural":
+    natural.name
+    complaining_type_id
+    complaining_id_number
+    complaining_id_number = get_dni_formated(complaining_id_number)
+  else:
+    legal.name
+    complaining_id_number = generateNit(complaining_id_number)
+    legal_representative_type_id
+    legal_representative_name
+    legal_representative_id_number = get_dni_formated(legal_representative_id_number)
+  company_or_entity_name
+  tutela_number
+  judge_name
+  Signature ="{{signature:0}}"
+  final_screen
+---
+objects:
+  - natural: Individual
+  - legal: Individual
+---
+question: |
+  ¿Cuál es la línea de defensa a la que corresponde este documento? Ejemplo: LD-780
+fields:
+  - no label: case_number
+---
+question: |
+  ¿Cuál es el tipo de impugnación?
+field: impugnacion_type
+choices:
+  - normal
+  - variante
+---
+question: |
+  ¿Nombre completo del juzgado?
+subquestion: |
+  Por ejemplo: Juzgado 60 Civil Municipal de Bogota
+fields:
+  - no label: judge_name
+---
+question: |
+  ¿Cuál es el número del proceso?
+subquestion: |
+  Este número se encuentra en el fallo de tutela que se quiere impugnar. Por ejemplo: 702154089002-2021-00076-00 o 2021-034
+fields:
+  - no label: tutela_number
+---
+question: |
+  ¿Cuál es la entidad de movilidad?
+fields:
+  - no label: company_or_entity_name
+    datatype: dropdown
+    code: get_list('entidades')
+---
+question: |
+  ¿El cliente es persona o empresa?
+fields:
+  - no label: client_type
+    input type: radio
+    code: get_list('type_j')
+progress: 1
+---
+question: |
+  ¿Cuáles son los datos de la persona?
+fields:
+  - Nombres: natural.name.first
+    hint: Nombres
+  - Apellidos: natural.name.last
+    hint: Apellidos
+  - Tipo de identificación: complaining_type_id
+    input type: dropdown
+    code: get_list_dni('N')
+  - Número de identificación: complaining_id_number
+    hint: dni
+id: blockglobal
+---
+question: |
+  ¿Cuáles son los datos de la compañía?
+fields:
+  - Nombre de la compañia: legal.name.first
+  - NIT: complaining_id_number
+    #hint: nit
+  - Nombre del representate legal: legal_representative_name
+  - Tipo de identificación: legal_representative_type_id
+    input type: dropdown
+    code: get_list_dni('N')
+  - Número de identificación: legal_representative_id_number
+    #hint: dni
+---
+question: |
+  ¿La entidad de movilidad informó que ya hay una resolución sancionatoria?
+subquestion: |
+  POR FAVOR validar en el SIMIT y en la página de la secretaría de movilidad si se encuentra con resolución sancionatoria o ya se están causando intereses de mora y la FECHA de esa resolución.
+yesno: sancionatory_resolution
+---
+if: sancionatory_resolution == True
+question: |
+  ¿La resolución sancionatoria tiene más de 4 meses?
+yesno: resolution_term
+---
+question: |
+  El juez dijo que se tiene otro medio de defensa?
+subquestion: |
+  Por ejemplo: El juez dijo que debe presentarse nulidad, o demandar ante la justicia o acudir ante lo Contencioso Administrativo
+yesno: alternative_defense
+---
+question: |
+  El juez dijo que por haberse vencido el plazo de los 11 días ya no se puede solicitar la audiencia?
+yesno: hearing_term
+---
+question: |
+  El juez señaló que no ha vencido el plazo para responder la solicitud de audiencia de conformidad con la ampliación del plazo del decreto 491 de 2020.
+yesno: petition_term
+---
+question: |
+  El juez negó la tutela por ya encontrarse programada la audiencia pero la entidad nunca la llevó a cabo.
+fields:
+  - no label: hearing_scheduled
+    datatype: yesnoradio
+  - fecha de la audiencia: hearing_date
+    datatype: date
+    show if:
+      variable: hearing_scheduled
+      is: True
+---
+question: |
+  ¿El juez dice que no se ha notificado el comparendo?
+fields:
+  - no label: notification
+    datatype: yesnoradio
+  - ¿En el simit aparece con fecha de notificación?: simit_notification
+    datatype: yesnoradio
+    show if:
+      variable: notification
+      is: True
+---
+question: |
+  ¿La entidad informó que no se ha dado a conocer la intención de rechazar la infracción?
+yesno: dispute
+---
+question: |
+  ¿El juez negó la tutela por falta de requisitos en el poder?
+subquestion: |
+  Dentro de estos casos puede ser: 1) el juez dijo que el poder no estaba autenticado. 2) Que el poder era general y no especial 3) Que el poder debía establecer para que comparendos debía ser presentado.
+yesno: attorney_power
+---
+question: |
+  ¿El juez negó la tutela porque el comparendo esta a nombre del banco y no a nuestro cliente?
+subquestion: |
+  Este caso se presenta cuando nuestro cliente tiene el vehículo pero el propietario es un banco o una empresa que le arrendó el vehículo.
+yesno: leasing
+---
+question: |
+  ¿El juez dijo que ya se agendó la audiencia pero fue presencial?
+yesno: hearing_onsite
+---
+question: |
+  ¿El juez dijo que ya se agendó la audiencia pero no sabemos cuándo o cómo se realizará?
+yesno: hearing_silence
+---
+question: |
+  El juez negó la tutela porque la entidad informó que reinició términos pero aún así no ha permitido agendar la audencia.
+fields:
+  - no label: restarting_terms
+    datatype: yesnoradio
+  - ¿Qué día se trató de agendar nuevamente la audiencia?: new_hearing_request
+    datatype: date
+    show if:
+      variable: restarting_terms
+      is: True
+---
+attachment:
+  variable name: the_document
+  docx template file: IT_DA_230403_V.1.1_impugnacion_tutela_comparendo.docx
+---
+code: |
+  files_saved = save_files(the_document, 'Impugnacion_tutela_comparendo', True, user_info().session)
+  juzto_callback = get_callback_final_screen('0', files_saved, 'Impugnacion_tutela_comparendo', True)
+---
+event: final_screen
+question: |
+  ${ z_text_final_screen } - COD: ${user_info().session}
+subquestion: |
+  ${ juzto_callback }
+id: juzto_da_final
+---
+

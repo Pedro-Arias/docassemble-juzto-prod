@@ -1,0 +1,37 @@
+---
+auto terms:
+  NIT: |
+    Número de Identificación Tributaria con el cual se identifican a las empresas.
+  representante legal: |
+    Persona que se encarga de representar a una empresa.
+  Cláusula Penal: |
+    Forma de sancionar, a la parte que no cumpla el contrato.
+  codeudor: |
+    Deudor solidario es la persona que responde perosnalmente por el cumplimiento del pago de las mensualidades
+  servicios públicos: |
+    Agua, luz, gas, telefonía, etc
+  IPC: |
+    IPC es el incremento del valor de las cosas y cambia cada año.
+  Tribunal de Arbitramento: |
+    Es una forma de resolver el conflicto entre las partes sin ir ante un juez, acudiendo a un tercero que sería un árbitro.
+  árbitros: |
+    Según la ley debe ser un número impar. Las partes pueden escoger los árbitros, si no lo hacen la ley lo hará por ellos, teniendo en cuenta que será 1 árbitro si la reclamación es de $131.670.450, si es más de ese valor serán 3 árbitros.
+  intereses de mora: |
+    Es un dinero que se le cobra al deudor, por no pagar dentro del tiempo acordado.
+  Artículo 19 de la Ley 222 de 1995: |
+    ARTICULO 19. REUNIONES NO PRESENCIALES. Siempre que ello se pueda probar, habrá reunión de la junta de socios, de asamblea general de accionistas o de junta directiva cuando por cualquier medio todos los socios o miembros puedan deliberar y decidir por comunicación simultánea o sucesiva. En este último caso, la sucesión de comunicaciones deberá ocurrir de manera inmediata de acuerdo con el medio empleado.
+  artículo 22 de la ley 1258 de 2008: |
+    ARTÍCULO 22. QUÓRUM Y MAYORÍAS EN LA ASAMBLEA DE ACCIONISTAS. Salvo estipulación en contrario, la asamblea deliberará con uno o varios accionistas que representen cuando menos la mitad más una de las acciones suscritas. Las determinaciones se adoptarán mediante el voto favorable de un número singular o plural de accionistas que represente cuando menos la mitad más una de las acciones presentes, salvo que en los estatutos se prevea una mayoría decisoria superior para algunas o todas las decisiones. PARÁGRAFO. En las sociedades con accionista único las determinaciones que le correspondan a la asamblea serán adoptadas por aquel. En estos casos, el accionista dejará constancia de tales determinaciones en actas debidamente asentadas en el libro correspondiente de la sociedad.
+  artículo 20 de la ley 1258 de 2008: |
+    ARTÍCULO 20. CONVOCATORIA A LA ASAMBLEA DE ACCIONISTAS. Salvo estipulación estatutaria en contrario, la asamblea será convocada por el representante legal de la sociedad, mediante comunicación escrita dirigida a cada accionista con una antelación mínima de cinco (5) días hábiles. En el aviso de convocatoria se insertará el orden del día correspondiente a la reunión. Cuando hayan de aprobarse balances de fin de ejercicio u operaciones de transformación, fusión o escisión, el derecho de inspección de los accionistas podrá ser ejercido durante los cinco (5) días hábiles anteriores a la reunión, a menos que en los estatutos se convenga un término superior. PARÁGRAFO. La primera convocatoria para una reunión de la asamblea de accionistas podrá incluir igualmente la fecha en que habrá de realizarse una reunión de segunda convocatoria en caso de no poderse llevar a cabo la primera reunión por falta de quórum. La segunda reunión no podrá ser fijada para una fecha anterior a los diez (10) días hábiles siguientes a la primera reunión, ni posterior a los treinta (30) días hábiles contados desde ese mismo momento.
+  Decreto 398 de 2020: |
+    Reuniones no presenciales. Para los efectos de las reuniones no presenciales de que trata el artículo 19 de la Ley 222 de 1995, modificado por el artículo 148 del Decreto Ley 019 de 2012, cuando se hace referencia a «Iodos los socios o miembros» se entiende que se trata de quienes participan en la reunión no presencial, siempre que se cuente con el número de participantes necesarios para deliberar según lo establecido legal o estatutariamente. El representante legal deberá dejar constancia en el acta sobre la continuidad del quórum necesario durante toda la reunión. Asimismo, deberá realizar la verificación de identidad de los participantes virtuales para garantizar que sean en efecto los socios, sus apoderados o los miembros de junta directiva. Las disposiciones legales y estatutarias sobre convocatoria, quorum y mayor[as de las reuniones presenciales serán igualmente aplicables a las reuniones no presenciales de que trata el artículo 19 de la Ley 222 de 1995, modificado por el articulo 148 del Decreto Ley 019 de 2012. PARÁGRAFO. Las reglas relativas a las reuniones no presenciales serán igualmente aplicables a las reuniones mixtas, entendiéndose por ellas las que permiten la presencia física y virtual de los socios, sus apoderados o los miembros de junta directiva.
+  artículo 46 de la Ley 222 de 1995: |
+    ARTICULO 46. RENDICION DE CUENTAS AL FIN DE EJERCICIO. Terminado cada ejercicio contable, en la oportunidad prevista en la ley o en los estatutos, los administradores deberán presentar a la asamblea o junta de socios para su aprobación o improbación, los siguientes documentos: 1. Un informe de gestión. 2. Los estados financieros de propósito general, junto con sus notas, cort ados a fin del respectivo ejercicio. 3. Un proyecto de distribución de las utilidades repartibles. Así mismo presentarán los dictámenes sobre los estados financieros y los demás informes emitidos por el revisor fiscal o por contador público independiente.
+  artículo 182 del Código de Comercio: |
+    ARTÍCULO 182. <CONVOCATORIA Y DELIBERACIÓN DE REUNIONES ORDINARIAS Y EXTRAORDINARIAS>. En la convocatoria para reuniones extraordinarias se especificarán los asuntos sobre los que se deliberará y decidirá. En las reuniones ordinarias la asamblea podrá ocuparse de temas no indicados en la convocatoria, a propuesta de los directores o de cualquier asociado. La junta de socios o la asamblea se reunirá válidamente cualquier día y en cualquier lugar sin previa convocación, cuando se hallare representada la totalidad de los asociados. Quienes conforme al artículo anterior puedan convocar a la junta de socios o a la asamblea, deberán hacerlo también cuando lo solicite un número de asociados representantes de la cuarta parte o más del capital social.
+  artículo 185 del Código de Comercio: |
+    ARTÍCULO 185. <INCOMPATIBILIDAD DE ADMINISTRADORES Y EMPLEADOS>. Salvo los casos de representación legal, los administradores y empleados de la sociedad no podrán representar en las reuniones de la asamblea o junta de socios acciones distintas de las propias, mientras estén en ejercicio de sus cargos, ni sustituir los poderes que se les confieran.
+  artículo 230 de Codigo Sustantivo del Trabajo: | 
+    ARTICULO 230. SUMINISTRO DE CALZADO Y VESTIDO DE LABOR. <Artículo modificado por el artículo 7o. de la Ley 11 de 1984. El nuevo texto es el siguiente:> Todo {empleador} que habitualmente ocupe uno (1) o más trabajadores permanentes, deberá suministrar cada cuatro (4) meses, en forma gratuita, un (1) par de zapatos y un (1) vestido de labor al trabajador, cuya remuneración mensual sea hasta dos (2) meses el salario mínimo más alto vigente.  Tiene derecho a esta prestación el trabajador que en las fechas de entrega de calzado y vestido haya cumplido más de tres (3) meses al servicio del empleador.  
+---

@@ -1,0 +1,254 @@
+---
+metadata:
+  title: |
+   Carta citación descargos
+  short title: |
+    Carta citación descargos
+  description: |
+    Documento mediante el cual se cita al trabajador para que asista a una audiencia de descargos.
+  authors:
+    - name: Juan David
+      organization: Programador
+    - name: Juan David
+      organization: Proyectó
+    - name: Juan David
+      organization: Revisó
+  revision_date: 2020-04-28
+---
+sections:
+  - Información del empleador
+  - Información del trabajador
+  - Datos de la diligencia de descargos
+  - Motivo de los descargos
+  - Forma de citación
+  - Ciudad y fecha de la citación
+---
+features:
+  navigation: True
+  progress bar: True
+  show progress bar percentage: True
+  hide standard menu: False
+  hide navbar: True
+  question back button: True
+---
+include:
+  - docassemble.playground3:autoterms.yml
+---
+modules:
+  - docassemble.playground3.juztoModules
+  - docassemble.playground3.juztoListChoices
+---
+mandatory: True
+code: |
+  multi_user = True
+---
+mandatory: True
+question: |
+  ¿Quién es el empleador?
+subquestion: |
+  Identifica si es persona o empresa  
+fields:
+  - no label: employer_type 
+    datatype: radio
+    choices:
+      - Persona
+      - Empresa
+section: Información del empleador
+prevent going back: True
+progress: 15
+---
+mandatory: True
+question: |
+  Datos del empleador
+fields:
+  - Nombre completo: employer_name
+    hint: "Nombre(s) y apellido(s)"
+    show if:
+      code: |
+       employer_type == "Persona"
+  - Nombre de la compañia: employer_name
+    hint: "Nombre de la compañía SAS"
+    show if:
+      code: |
+       employer_type == "Empresa"
+  - Tipo de identificación: employer_type_id
+    datatype: dropdown
+    code: get_list_dni('N')
+    show if:
+      code: |
+       employer_type == "Persona"
+  - Numero de identificación: employer_id_number
+    hint: dni
+    show if:
+      code: |
+       employer_type == "Persona"
+  - NIT: employer_id_number
+    hint: nit
+    show if:
+      code: |
+       employer_type == "Empresa"
+section: Información del empleador
+progress: 25
+---
+mandatory: |
+  employer_type == 'Empresa'
+question: |
+  ¿Qué funcionario de ${ employer_name.upper() } firma la carta?
+subquestion: |
+  Por lo general firma el jefe inmediato o el jefe de recursos humanos
+fields:
+  - Nombre completo: sign_worker_name
+    hint: "Nombre(s) y apellido(s)"
+  - Cargo: position_employer
+section: Información del empleador
+progress: 35
+---
+mandatory: True
+question: |
+  Datos del trabajador
+fields:
+  - Nombre completo: employee_name
+    hint: "Nombre(s) y apellido(s)"
+  - Tipo de identificación: employee_type_id
+    datatype: dropdown
+    code: get_list_dni('N')
+  - Numero de identificación: employee_id_number
+    hint: dni
+section: Información del trabajador
+progress: 45
+---
+mandatory: True
+question: |
+  ¿Cuándo se realizará la diligencia de descargos?
+fields:
+  - Fecha: diligence_date
+    datatype: date
+section: Datos de la diligencia de descargos
+progress: 55
+---
+mandatory: True
+question: |
+  ¿En dónde se realizará la diligencia?
+fields:
+  - Dirección: diligence_adress
+    hint: "Calle 122 # 17 - 29 Oficina 302"
+  - Ciudad: diligence_city
+    input type: dropdown
+    code: get_cities()
+section: Datos de la diligencia de descargos
+progress: 65
+---
+mandatory: True
+question: |
+  ¿A qué hora debe presentarse ${ title_case(employee_name.lower()) }?
+fields:
+  - Hora: diligence_hour
+    datatype: time
+section: Datos de la diligencia de descargos
+progress: 70
+---
+question: |
+  Cuéntanos el ${ get_ordinal('male', i) } motivo para citar a ${ title_case(employee_name) } a la diligencia de descargos?
+subquestion: |
+  Algunos ejemplos son: Actos de violencia o malos tratos por parte del trabajador, Reiteradas llegadas tarde, Incumplimiento del manual de funciones y/o del Reglamento Interno de Trabajo, etc
+fields:
+  - no label: reason_dismissal[i].name
+    hint: motivo o causal
+---
+mandatory: True
+question: |
+  Estos son los motivos que describió, por favor verifique, modifique o agregue un nuevo motivo.
+subquestion: |
+  ${ reason_dismissal.table }
+  ${ reason_dismissal.add_action() }
+continue button field: reason_dismissal.reviewed
+section: Motivo de los descargos
+progress: 85
+---
+objects:
+  - reason_dismissal: DAList.using(object_type=DAObject, complete_attribute='complete')
+---
+code: |
+ reason_dismissal.gather()
+ reason_dismissal.reviewed
+ reason_dismissal
+---
+code: |
+ reason_dismissal[i].name
+ reason_dismissal[i].complete = True
+---
+table: reason_dismissal.table
+rows: reason_dismissal
+columns:
+  - motivo: |
+      row_item.name
+edit:
+  - motivo
+allow reordering: True
+---
+code: |
+  reason_dismissal.there_are_any = True
+  reason_dismissal.there_is_another = False
+---
+mandatory: True
+question: |
+  ¿La citación se entregará personalmente?
+subquestion: |
+  En cualquier caso debe quedar la prueba que la citación fue enviada a ${ employee_name.upper() }
+fields:
+  - no label: notification_form
+    datatype: yesnoradio
+section: Forma de citación
+progress: 80
+---
+mandatory: |
+  notification_form == False
+question: |
+  ¿Cuál es la dirección y ciudad de residencia del trabajor?
+fields:
+  - Dirección: employee_adress
+    hint: "Calle 122 # 17 - 29"
+  - Ciudad: employee_city
+    input type: dropdown
+    code: get_cities()
+section: Forma de citación
+progress: 90
+---
+mandatory: True
+question: |
+  ¿En qué ciudad y fecha se elabora la carta? 
+fields:
+  - Ciudad: city
+    input type: dropdown
+    code: get_cities()
+  - Fecha: date_presentation
+    datatype: date
+validation code: |
+    if date_presentation > diligence_date:
+      validation_error("La fecha de la carta no puede ser después de la fecha de la diligencia de descargos")
+section: Ciudad y fecha de la citación
+progress: 95
+---
+mandatory: true
+code: |
+  if 'price' in url_args:
+    price = currency(url_args['price'], decimals= False)
+  else:
+    price = '$0'
+  files_saved = save_files(the_document, 'Citacion a descargos', True, user_info().session)
+  juzto_callback = get_callback_final_screen(price, files_saved, 'Citacion a descargos', True)
+---
+attachment:
+  variable name: the_document
+  docx template file: IT_JD_200508_V.1.0_Carta-citacion-descargos-ultimo.docx
+---
+event: final_screen
+mandatory: true
+progress: 100
+question: |
+  ${ z_text_final_screen }
+subquestion: |
+  ${ juzto_callback }
+id: juzto_da_final  
+allow emailing: False
+back button: False

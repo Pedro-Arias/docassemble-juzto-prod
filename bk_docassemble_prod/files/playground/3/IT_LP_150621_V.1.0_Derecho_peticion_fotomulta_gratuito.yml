@@ -1,0 +1,213 @@
+metadata:
+  title: |
+   Derecho de petición gratuito
+  short title: |
+    Derecho de petición gratuito
+  description: |
+   Derecho de petición gratuito para capturar leads
+  authors:
+    - name: Laura Pardo
+      organization: Juzto.co
+    - name: Juan David Castilla
+      organization: Juzto.co
+---
+features:
+  navigation: True
+  progress bar: False
+  show progress bar percentage: False
+  hide standard menu: False
+  hide navbar: True
+  question back button: True
+  css:
+  - lauraStyles.css
+  - juztoStyles.css
+---
+include:
+  - docassemble.playground3:autoterms.yml
+---
+modules:
+  - docassemble.playground3.juztoModules
+  - docassemble.playground3.juztoListChoices
+---
+initial: True
+code: |
+  url = 'https://flow.zoho.com/724171086/flow/webhook/incoming?zapikey=1001.4c5cb555adee0f7dba5befc723ab7e1d.a34273b8e41c5ec04b35c30f8419cf67&isdebug=false'
+  client_type
+  myobj={}
+  if client_type == "Persona Natural":
+    complaining_name = first_names+" "+last_names
+    myobj = {'first': first_names, 'last':last_names}
+  else:
+    complaining_type_id = "NIT"
+    legal_representative_name = legal_representative_fname+" "+legal_representative_lname
+    myobj = {'company':complaining_name,'legalrepfname':legal_representative_fname ,'legalreplname':legal_representative_lname, 'legalrepno':legal_representative_id_numbre, 'legalreptypeid':legal_representative_type_id}  
+  city
+  fotomulta_number
+  company_or_entity_name = getEntity(city)
+  base = {'id_type':complaining_type_id,'idnum':complaining_id_number, 'email':email_address, 'ticket': fotomulta_number, "city":city,"client_type":client_type}
+  myobj = {**myobj, **base}
+  if company_or_entity_name is None:
+    company_or_entity_name = manualname
+    email = {manualmail}
+    juztomails = {'info@juzto.co', 'it@juzto.co'}
+    send_email(to=list(juztomails), template=internal_alert)
+  else:
+    email = emails[company_or_entity_name]
+  to_email = list(email)
+  to_email.append(email_address)
+  #to_email.append('')
+  signature
+  myobj = {**myobj, **{"entity":company_or_entity_name}}
+  doclist=[thedoc]
+  if upload_pic:
+    doclist.append(user_picture)
+  if user_approves:
+    email_sent_ok = send_email(to=to_email, template=notification, attachments=doclist)
+    the_task
+    final_screen
+  else:
+    fail_screen
+---
+question: |
+  ¿El propietario del vehículo es una persona o es una empresa?
+fields:
+  - no label: client_type
+    input type: radio
+    code: get_list('type_j')
+progress: 1
+---
+question: |
+  ¿Cuáles son los datos del propietario?
+fields:
+  - Nombres: first_names
+    hint: Nombres
+  - Apellidos: last_names
+    hint: Apellidos
+  - Tipo de identificación: complaining_type_id
+    input type: dropdown
+    code:  get_list_dni('N')
+  - Número de identificación: complaining_id_number
+    hint: dni
+  - correo electrónico: email_address
+    datatype: email
+id: blockglobal
+---
+question: |
+  ¿Cuáles son los datos del propietario?
+fields:
+  - Nombre de la compañia: complaining_name
+  - NIT: complaining_id_number
+    hint: nit
+  - Nombres del representate legal: legal_representative_fname
+  - Apellidos del representate legal: legal_representative_lname
+  - Tipo de identificación: legal_representative_type_id
+    input type: dropdown
+    code:  get_list_dni('N')
+  - Número de identificación: legal_representative_id_numbre
+    hint: dni
+  - correo electrónico: email_address
+    datatype: email
+id: blockglobal
+---
+question: |
+  ¿De qué ciudad es el fotocomparendo?
+fields:
+  - no label: city
+    input type: combobox
+    code: get_cities2()
+---
+question: |
+  ¿Cuál es el número del comparendo? 
+fields:
+  - no label: fotomulta_number
+---
+question: |
+  Por favor firma en el rectángulo
+subquestion: |
+  Recuerda que tus datos son protegidos por nuestra política de datos
+signature: signature
+
+---
+question: |
+  No contamos con los datos de esa entidad por favor ingresa los siguientes datos
+subquestion: |
+  Si no sabes el nombre completo, puedes encontrarlo en el directorio de actores del RUNT [click aquí para consultarlo](https://www.runt.com.co/directorio-de-actores). Debes seleccionar como tipo Organismos de tránsito. Recuerda que debes escribir el nombre sin las abreviaciones ej. DIR TTOyTTE FLORIDABLANCA sería Dirección de Tránsito y Transporte de Floridablanca. Te recomendamos buscar en google la página oficial de tu secretaría para obtener los datos correctos. 
+fields:
+  - Nombre de la entidad de movilidad: manualname
+  - Correo electrónico de la entidad: manualmail
+    datatype: email
+---
+attachment:
+  name: Derecho de petición fotomulta ${ complaining_name.title() }
+  filename: Derecho de petición fotomulta ${ complaining_name.title() }
+  variable name: thedoc
+  docx template file: IT_LP_Derecho_petición_fotomulta_gratuito_V.1.0.docx
+  valid formats:
+    - pdf
+---
+question: |
+  Ya tenemos tu derecho de petición para fotomulta, ${ complaining_name }
+subquestion: |
+   ¿Los datos del documento son correctos?
+yesno: user_approves
+under: |
+
+  ${thedoc}
+---
+template: notification
+subject: |
+  Derecho de petición ${ complaining_name } comparendo No. ${fotomulta_number}
+content: |
+  Señores,
+  
+  ${company_or_entity_name}
+  
+  Por medio de la presente se radica derecho de petición respecto del comparendo No. ${fotomulta_number}.
+---
+template: internal_alert
+subject: |
+  Alerta docassemble derecho petición gratuito
+content: |
+  La entidad ${company_or_entity_name} de la ciudad de ${city} y email ${manualmail} no se encuentra dentro de nuestros registros.
+---
+question: |
+  % if client_type == "Persona Natural":
+  Algunas secretarías piden una imágen del documento de identificación de la persona.
+  %else:
+  Algunas secretarías piden una imágen de la identificación del Certificado de existencia y representación legal de la empresa, esto es opcional, sin embargo si decides no subirlo pueden negar tu  derecho de petición.
+  %endif
+  Puedes tomar una foto con la cámara o subir un archivo. ¿Deseas hacerlo?
+yesno: upload_pic
+---
+question: |
+  Subelo aqui
+fields:
+  - Picture: user_picture
+    datatype: camera
+---
+event: fail_screen
+question: |
+  ¿Quieres volver a empezar?
+buttons:
+  Salir: exit
+  Volver a empezar: restart
+---
+event: sendreq
+mandatory: True
+code: |
+  import requests
+  requests.post(url, data = myobj)
+---
+code: |
+  the_task = background_action('sendreq')
+---
+event: final_screen
+prevent going back: True
+question: |
+  Fin de la entrevista
+subquestion: |
+  % if email_sent_ok:
+  El e-mail fue enviado con éxito a la entidad ${company_or_entity_name} con copia al correo que nos suministraste.
+  % else:
+  Hubo un error al enviar el correo, por favor revisa en tu bandeja de entrada si recibiste un correo de Juzto con el asunto: Derecho de petición ${ complaining_name } comparendo No. ${fotomulta_number}.
+  % endif

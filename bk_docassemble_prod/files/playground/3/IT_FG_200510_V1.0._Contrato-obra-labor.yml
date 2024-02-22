@@ -1,0 +1,697 @@
+---
+metadata:
+  title: |
+   Contrato Laboral Por Obra O Labor
+  short title: |
+    Contrato laboral por obra o labor
+  description: |
+    Contrato laboral por obra o labor
+  authors:
+    - name: Felipe Gómez
+      organization: Programador
+    - name: Juan David
+      organization: Reviso
+  revision_date: 2020-04-20
+---
+sections:
+  - Datos del trabajador
+  - Datos del empleador
+  - Información del proyecto
+  - Información del cargo:
+    - Duración
+    - Periodo de prueba
+    - Autorización de descuento
+  - Ciudad de trabajo
+  - Fecha inicio labores
+  - Actividades específicas del trabajador
+  - Causales de terminación
+  - Prohibiciones especiales del trabajador
+  - Obligaciones especiales del trabajador
+  - Fecha de firma del contrato
+  - Anexos
+---
+features:
+  navigation: True
+  progress bar: True
+  show progress bar percentage: True
+  hide standard menu: False
+  hide navbar: True
+  question back button: True
+---
+include:
+  - docassemble.playground3:autoterms.yml
+---
+modules:
+  - docassemble.playground3.juztoModules
+  - docassemble.playground3.juztoListChoices
+---
+mandatory: True
+code: |
+  multi_user = True
+---
+mandatory: True
+question: |
+  Datos del trabajador
+subquestion: |
+  * Si es menor de edad requiere autorización por parte del Ministerio del Trabajo
+  * Si es extranjero requiere visa de trabajo o permiso equivalente
+fields: 
+  - Nombre completo: employee_name
+    hint: "Nombre(s) y apellido(s)"
+  - Tipo de identificación: employee_type_id
+    datatype: dropdown
+    code: get_list_dni('N')
+  - Numero de identificación: employee_id_number
+    hint: dni
+  - Dirección de residencia: employee_address
+    hint: "Calle 122 # 17 - 29"
+  - Ciudad: employee_city
+    input type: dropdown
+    code: get_cities()
+section: Datos del trabajador
+progress: 1
+prevent going back: True
+---
+mandatory: True
+question: |
+  Datos del Empleador
+fields:
+  - no label: employer_type
+    input type: radio
+    code: get_list('type')
+section: Datos del empleador
+---
+mandatory: |
+  employer_type == 'Persona'
+question: |
+  Datos del Empleador 
+fields: 
+  - Nombre completo: employer_name
+    hint: "Nombre(s) y Apellido(s)"
+  - Tipo de identificación: employer_type_id
+    input type: dropdown
+    code:  get_list_dni('N')
+  - Número de identificación: employer_id_number
+    hint: dni
+  - Correo electrónico: employer_email
+    hint: "ejemplo@mail.com"
+  - Dirección: employer_address
+    hint: 'Calle 122 # 17 - 29 Oficina 302'
+  - Ciudad: employer_city
+    input type: dropdown
+    code: get_cities()
+section: Datos del empleador
+---
+mandatory: |
+  employer_type == 'Empresa'
+question: |
+  Datos del Empleador 
+fields:
+  - Nombre de la compañía: employer_name
+    hint: "Nombre de la compañía SAS"
+  - NIT: employer_id_number
+    hint: nit
+  - Correo electrónico: employer_email
+    hint: "ejemplo@mail.com"
+  - Ciudad: employer_city
+    input type: dropdown
+    code: get_cities()
+  - Dirección: employer_address
+    hint: 'Calle 122 # 17 - 29 Oficina 302'
+  - Nombre del representate legal: employer_legal_rep_name
+    hint: "Nombre(s) y Apellido(s)"
+  - Tipo de identificación: employer_legal_rep_type_id
+    input type: dropdown
+    code:  get_list_dni('N')
+  - Número de identificación: employer_legal_rep_id_number
+    hint: dni
+section: Datos del empleador    
+---
+mandatoy: True
+question: |
+  ¿Cuál es el nombre del proyecto en el que se desempeñará el trabajador?
+fields: 
+  - no label: project_name
+    hint: "Ejemplo: Construcción de puente peatonal."
+section: Información del proyecto
+---
+mandatory: True
+need: project_name
+question: |
+  Por favor describe detalladamente el proyecto en el que se hará el trabajo.
+fields:
+  - no label: project_description
+    hint: "Ejemplo: construcción de puente peatonal de 50 metros, en concreto reforzado y estructura metálica en la cuidad de Bogotá."
+    input type: area
+section: Información del proyecto
+---
+mandatory: True
+question: |
+  Cargo del trabajador
+fields:
+  - no label: employee_position 
+section: Información del cargo
+---
+mandatory: True
+question: |
+  ¿Cómo es la jornada laboral? 
+fields:
+  - no label: working_day 
+    input type: radio
+    choices:
+      - Tiempo completo (48 horas semanales): 48
+      - Medio tiempo (24 horas semanales): 24
+      - Otro: otro
+  - ¿Cuántas horas a la semana?: week_working_hours
+    datatype: integer
+    min: 1
+    max: 48
+    show if:
+      variable: working_day
+      is: otro
+#    js show if: |
+#      val("working_day") == 'otro'
+section: Información del cargo
+---
+code: |
+  if working_day != 'otro':
+    week_working_hours = working_day
+---
+code: |
+  minimum_salary = (z_minimum_salary/48)*float(week_working_hours)
+---
+mandatory: True
+question: |
+  Salario mensual del trabajador
+subquestion: |
+  El salario mínimo legal para una jornada laboral de ${ week_working_hours } horas semanales en Colombia es de: **${ currency(minimum_salary) }**
+fields: 
+  no label: salary
+  hint: money
+validation code: |
+  if get_only_number(salary) < minimum_salary:
+    validation_error("El salario mínimo debe ser " + currency(minimum_salary) + " para una jornada laboroal de " + str(week_working_hours) + " horas semanales")
+section: Información del cargo    
+---
+code: |
+  if get_only_number(salary) >= z_integral_salary:
+    integral = True
+  else:  
+    integral = False
+---
+mandatory: |
+  integral == True
+question: |
+  ¿El salario es integral? 
+subquestion: |
+  El salario integral incluye el factor prestacional con un recargo del 30% sobre el salario base
+yesno: integral_salary
+section: Información del cargo
+---
+code: |
+  if integral == False:
+    integral_salary = False
+---
+mandatory: True
+question: |
+  ¿Cada cuánto se le pagará al trabajador?
+fields:
+  - no label: payment_form 
+    input type: radio
+    choices:
+      - Quincenal
+      - Mensual
+section: Información del cargo
+---
+mandatory: True
+question: |
+  ¿Se hará alguna parte del pago en especie?
+subquestion: |
+  Incluir el pago en especie como salario del trabajador aumenta el valor a pagar de cesantías, prima del servicio, vacaciones, pensión, salud, y eventuales indemnizaciones.
+yesno: salary_in_kind
+section: Información del cargo
+---
+code: |
+  if get_only_number(salary) <= ((minimum_salary)*0.7)*2:
+    max_salary_kind = get_only_number(salary) - (float(minimum_salary)*0.7)
+  else:
+    max_salary_kind = get_only_number(salary)*0.5
+---
+objects:
+  - kind_payment: DAList.using(object_type=DAObject, complete_attribute='complete')
+---
+mandatory: |
+  kind_payment.there_are_any == True
+code: |
+  kind_payment.gather()
+  kind_payment.reviewed
+---
+code: |
+  kind_payment[i].name
+  kind_payment[i].value
+  kind_payment[i].complete = True
+---
+table: kind_payment.table
+rows: kind_payment
+columns:
+  - Bien o servicio: |
+      row_item.name
+  - Valor: |
+      currency(row_item.value)
+edit:
+  - name
+allow reordering: True
+---
+code: |
+ if salary_in_kind == True:
+   kind_payment.there_are_any = True
+ else:
+   kind_payment.there_are_any = False
+---
+question: |
+ ¿Cuál es el ${ get_ordinal("male", i) } bien o servicio que se entregará al trabajador y cuál es su valor?
+subquestion: |
+ % if i == 0:
+ El valor máximo de los bienes o servicios que se entregarán podrá ser de ${ currency(max_salary_kind) }
+ % else: 
+ Se han agregado bienes o servicios por un valor de ${ currency(sum(float(kind_pay.value) for kind_pay in kind_payment.complete_elements()))}[BR]
+ Aún puede agregar bienes o servicios por un valor de hasta ${ currency(max_salary_kind - sum(float(kind_pay.value) for kind_pay in kind_payment.complete_elements())) }
+ % endif
+fields:
+  - Bien o servicio: kind_payment[i].name
+  - Valor: kind_payment[i].value
+    datatype: currency
+    min: 0
+    max: |
+      ${max_salary_kind - sum(kind_pay.value for kind_pay in kind_payment.complete_elements())}
+section: Información del cargo
+---
+question: |
+  ¿Necesitas agregar otro bien o servicio como pago en especie?
+subquestion: |
+  Aun puede agregar bienes o servicios por un valor de hasta ${ currency(max_salary_kind - sum(float(kind_pay.value) for kind_pay in kind_payment.complete_elements())) }
+yesno: kind_payment.there_is_another 
+---
+question: |
+  Estos son los bienes o servicios con los que se pagará.
+subquestion: |
+  Se han agregado bienes o servicios por un total de:[BR]
+  **${ currency(sum(float(kind_pay.value) for kind_pay in kind_payment.complete_elements()))}**[BR]
+  Aún es posible agregar bienes o servicios por un valor de hasta:[BR]
+  **${ currency(max_salary_kind - sum(float(kind_pay.value) for kind_pay in kind_payment.complete_elements())) }**[BR]
+  ${ kind_payment.table }
+  ${ kind_payment.add_action() }
+continue button field: kind_payment.reviewed
+section: Información del cargo
+---
+mandatory: True
+question: |
+  ¿El trabajador tendrá exclusividad?
+subquestion: |
+  La exclusividad no le permitirá a ${ employee_name.upper() } prestar sus servicios a personas diferentes a ${ employer_name.upper() }.
+yesno: exclusivity 
+section: Información del cargo
+---
+mandatory: |
+  get_only_number(salary) > z_minimum_salary
+question: |
+  ¿El trabajador es de Confianza?
+subquestion: |
+  Si el empleado realiza actividades de dirección o administración es de un alto nivel de confianza. Por ello, no le aplica la limitación de horarios y no se deben pagar horas extra. 
+yesno: trust
+section: Información del cargo
+---
+code: |
+  if get_only_number(salary) <= z_minimum_salary:
+    trust == False
+---
+mandatory: True
+question: |
+  ¿Cuál es la duración aproximada de la actividad del empleado dentro del proyecto
+fields:
+  - ¿Cómo se definirá la duración del contrato?: term_period
+    input type: radio
+    choices:
+      - En días: días
+      - En meses: meses
+      - En años: años
+  - Duración en días: term_number
+    datatype: integer
+    min: 1
+    show if:
+      variable: term_period
+      is: días
+#    js show if:
+#      val("term_period") == 'días' 
+  - Duración en meses: term_number
+    datatype: integer
+    min: 1
+    show if:
+      variable: term_period
+      is: meses
+#    js show if:
+#      val("term_period") == 'meses'
+  - Duración en años: term_number
+    datatype: integer
+    min: 1
+    show if:
+      variable: term_period
+      is: años
+#    js show if:
+#      val("term_period") == 'años'
+section: Duración
+---
+code: |
+  if term_period == 'años':
+    period_days = term_number*360
+  elif term_period == 'meses':
+    period_days = term_number*30
+  elif term_period == 'días':
+    period_days = term_number    
+---
+code: |
+  if period_days*0.2 >= 60:
+    max_period_test = 60
+  else:
+    max_period_test = period_days*0.2
+---
+mandatory: True
+question: |
+  ¿Habrá periodo de prueba?
+subquestion: |
+  El periodo de prueba debe ser máximo un 20% de la duración del contrato y no podrá superar 2 meses. Este contrato es por una duración de **${ period_days } días** y el periodo de prueba máximo podrá ser de **${ max_period_test } días**
+fields:
+  - no label: period_test
+    datatype: yesnoradio
+  - Cuanto durará el periodo de prueba: period_test_type
+    input type: radio
+    choices:
+      - El máximo permitido, ${ max_period_test } días: máximo
+      - ¿Otro?: otro
+    show if: 
+      variable: period_test
+      is: True
+  - Duración en días: period_test_term
+    datatype: integer
+    min: 1
+    max: ${ max_period_test }
+    show if:
+      variable: period_test_type
+      is: otro
+#    js show if: 
+#      val("period_test_type") == 'otro'
+section: Periodo de prueba
+---
+code: |
+  if period_test_type ==  'máximo':
+    period_test_term = max_period_test
+---
+mandatory: |
+  get_only_number(salary) > z_minimum_salary
+question: |
+  ¿El trabajador autoriza descuentos en su salario para pagar deudas que tenga con el empleador? 
+yesno: authorization
+section: Autorización de descuento
+---
+mandatory: True
+question: |
+  ¿En qué ciudad trabará ${ title_case(employee_name.lower()) }?
+fields:
+  - no label: work_city
+    input type: dropdown
+    code: get_cities()
+section: Ciudad de trabajo
+---
+mandatory: True
+question: |
+  ¿Cuándo empieza a trabajar ${ title_case(employee_name.lower()) }?
+fields:
+  - no label: date_start_working
+    datatype: date
+section: Fecha inicio labores
+---
+objects: 
+  - activity_list: DAList.using(object_type=DAObject, complete_attribute='complete')
+---
+mandatory: |
+  activity_list.there_are_any == True
+code: |
+  activity_list.gather()
+  activity_list.reviewed
+---
+code: |
+  activity_list[i].name
+  activity_list[i].complete = True
+---
+question: |
+  ¿Se agregarán actividades específicas para el trabajador?
+subquestion: |
+  Es muy importante definir bien cuales son los detalles de la actividad que hará el trabajador y cuando se entiende que la actividad está terminada, pues de esto dependerá la terminación del contrato.
+yesno: activity_list.there_are_any
+section: Actividades específicas del trabajador
+---
+question: |
+  ¿Cuál es la ${ get_ordinal("female", i) } actividad? 
+subquestion: |
+  Aquí debes poner todas las actividades específicas que ejecutará el trabajador como: realizar los planos del puente peatonal, enviar un informe semanal, hacer las compras para la obra, etc.
+fields: 
+  - no label: activity_list[i].name
+    hint: "Ingresar solo una actividad a la vez."
+section: Actividades específicas del trabajador
+---
+question: |
+  ¿Necesitas agregar otra actividad específica para el trabajador?
+yesno: activity_list.there_is_another 
+section: Actividades específicas del trabajador
+---
+question: |
+  Estas son las actividades específicas que serán agregadas al contrato:
+subquestion: |
+  % for activity in activity_list:
+  * ${ title_case(activity.name) }
+  % endfor
+continue button field: activity_list.reviewed
+section: Actividades específicas del trabajador
+---
+objects: 
+  - termination_list: DAList.using(object_type=DAObject, complete_attribute='complete')
+---
+mandatory: |
+  termination_list.there_are_any == True
+code: |
+  termination_list.gather()
+  termination_list.reviewed
+---
+code: |
+  termination_list[i].name
+  termination_list[i].complete = True
+---
+question: |
+  ¿Se agregará causales específicas para la terminación del contrato?
+subquestion: |
+  El contrato estándar de Juzto incluye: La terminación del contrato laboral por la terminación de la obra. 
+yesno: termination_list.there_are_any
+section: Causales de terminación
+---
+question: |
+  ¿Cuál es la ${ get_ordinal("female", i) } causal de terminación? 
+subquestion: |
+  Ejemplo: cuando se termine la obra, o cuando se termine el contrato de prestación de servicios.
+fields: 
+  - no label: termination_list[i].name
+    hint: "Ingresar solo una causal a la vez."
+section: Causales de terminación
+---
+question: |
+  ¿Necesitas agregar otra causal especial para la terminación del contrato?
+yesno: termination_list.there_is_another 
+section: Causales de terminación
+---
+question: |
+  Estas son las causales de terminación que serán agregadas al contrato:
+subquestion: |
+  % for cause in termination_list:
+  * ${ title_case(cause.name) }
+  % endfor
+continue button field: termination_list.reviewed
+section: Causales de terminación
+---
+---
+objects: 
+  - prohibition_list: DAList.using(object_type=DAObject, complete_attribute='complete')
+---
+mandatory: |
+  prohibition_list.there_are_any == True
+code: |
+  prohibition_list.gather()
+  prohibition_list.reviewed
+---
+code: |
+  prohibition_list[i].name
+  prohibition_list[i].complete = True
+---
+question: |
+  ¿Se agregarán prohibiciones específicas para el trabajador?
+subquestion: |
+   El contrato estándar de Juzto incluye estas prohibición específica para el trabajador:[BR]
+   [FILE Contrato_laboral_termino_indefinido_prohibiciones.jpg, 100%]
+yesno: prohibition_list.there_are_any
+section: Prohibiciones especiales del trabajador
+---
+question: |
+  ¿Cuál es la ${ get_ordinal("female", i) } prohibición del trabajador? 
+fields: 
+  - no label: prohibition_list[i].name
+    hint: Ingresar solo una prohibición a la vez. 
+section: Prohibiciones especiales del trabajador
+---
+question: |
+  ¿Necesitas agregar otra prohibición del trabajador?
+yesno: prohibition_list.there_is_another
+section: Prohibiciones especiales del trabajador
+---
+question: |
+  Estas son las prohibiciones del trabajador que serán agregadas al contrato:
+subquestion: |
+  % for prohibition in prohibition_list:
+  * ${ title_case(prohibition.name) }
+  % endfor
+continue button field: prohibition_list.reviewed
+section: Prohibiciones especiales del trabajador
+---
+objects: 
+  - obligations_list: DAList.using(object_type=DAObject, complete_attribute='complete')
+---
+mandatory: |
+  obligations_list.there_are_any == True
+code: |
+  obligations_list.gather()
+  obligations_list.reviewed
+---
+code: |
+  obligations_list[i].name
+  obligations_list[i].complete = True
+---
+question: |
+  ¿Se agregarán obligaciones específicas para el trabajador?
+subquestion: |
+   El contrato estandar de Juzto incluye estas obligaciones específicas para el trabajador:[BR]
+   [FILE Contrato_laboral_termino_indefinido_obligaciones.jpg, 100%]
+yesno: obligations_list.there_are_any
+section: Obligaciones especiales del trabajador
+---
+question: |
+  ¿Cuál es la ${ get_ordinal("female", i) } obligación del trabajador? 
+fields: 
+  - no label: obligations_list[i].name
+    hint: Ingresar solo una obligación a la vez. 
+section: Obligaciones especiales del trabajador
+---
+question: |
+  ¿Necesitas agregar otra obligación del trabajador?
+yesno: obligations_list.there_is_another 
+section: Obligaciones especiales del trabajador
+---
+question: |
+  Estas son las prohibiciones del trabajador que serán agregadas al contrato:
+subquestion: |
+  % for obligation in obligations_list:
+  * ${ title_case(obligation.name) }
+  % endfor
+continue button field: obligations_list.reviewed
+section: Obligaciones especiales del trabajador
+---
+mandatory: true
+question: |
+  ¿Cuál es la fecha y ciudad donde se firmará el contrato?
+fields:
+  - Ciudad: sign_city
+    input type: dropdown
+    code: get_cities()
+  - Fecha del contrato: sign_date
+    datatype: date
+section: Fecha de firma del contrato
+---
+mandatory: true
+question: |
+  ¿La empresa cuenta con alguno de los siguientes documentos?
+fields:
+  - no label: attached
+    datatype: checkboxes
+    choices:
+      - Acuerdo de confidencialidad
+      - Política para el uso y manejo de los equipos de cómputo y claves de acceso.
+      - Manual del empleado.
+      - Reglamento Interno de Trabajo.
+      - Código de ética y conducta.
+      - Protocolo de seguridad.
+      - Manual de funciones del cargo.
+      - Otros documentos
+section: Anexos
+---
+objects: 
+  - other_attached: DAList.using(object_type=DAObject, complete_attribute='complete')
+---
+mandatory: |
+  other_attached.there_are_any == True
+code: |
+  other_attached.gather()
+  other_attached.reviewed
+---
+code: |
+  other_attached[i].name
+  other_attached[i].complete = True
+---
+code: |
+  if attached['Otros documentos']:
+    other_attached.there_are_any = True
+  else:
+    other_attached.there_are_any = False
+---
+question: |
+  ¿Cuál es el ${ ordinal(i) } documento extra? 
+fields: 
+  - no label: other_attached[i].name
+    hint: Ingresar solo una actividad a la vez. 
+section: Anexos
+---
+question: |
+  ¿Necesitas agregar otro documento extra?
+yesno: other_attached.there_is_another 
+section: Anexos
+---
+question: |
+  Estos son los documentos que se anexaran al contrato:
+subquestion: |
+  % for item in [item for item in attached.true_values() if item != 'Otros documentos']:
+  * ${ item }
+  % endfor
+  % for document in other_attached:
+  * ${ title_case(document.name) }
+  % endfor
+continue button field: other_attached.reviewed
+section: Anexos
+---
+mandatory: true
+code: |
+  if 'price' in url_args:
+    price = currency(url_args['price'], decimals= False)
+  else:
+    price = '$0'
+  files_saved = save_files(the_document, 'Contrato por obra o labor', True, user_info().session)
+  juzto_callback = get_callback_final_screen(price, files_saved, 'Contrato por obra o labor', True)
+---
+attachment:
+  variable name: the_document
+  docx template file: IT_FG200510_V1.0._Contrato-laboral-obra-labor.docx
+---
+event: final_screen
+mandatory: true
+progress: 100
+question: |
+  ${ z_text_final_screen }
+subquestion: |
+  ${ juzto_callback }
+id: juzto_da_final
+allow emailing: False
+back button: False

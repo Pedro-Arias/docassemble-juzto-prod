@@ -1,0 +1,173 @@
+metadata:
+  title: |
+    IT_DA_220809_V.1.1_Nueva_Revocatoria
+  short title: |
+   Nueva Revocatoria directa
+  description: |
+   Nueva Revocatoria directa
+  authors:
+    - name: Dario Agaton
+      organization: DocumentosLegales.co
+    - name: Laura Pardo
+      organization: DocumentosLegales.co
+---
+features:
+  navigation: True
+  progress bar: True
+  show progress bar percentage: True
+  hide standard menu: False
+  hide navbar: True
+  question back button: True
+---
+include:
+  - docassemble.playground3:autoterms.yml
+---
+modules:
+  - docassemble.playground3.juztoModules
+  - docassemble.playground3.juztoListChoices
+---
+initial: True
+code: |
+  case_number
+  client_type
+  if client_type == "Persona Natural":
+    natural.name
+    complaining_type_id
+    complaining_id_number
+    complaining_id_number = get_dni_formated(complaining_id_number)
+  else:
+    legal.name
+    complaining_id_number = generateNit(complaining_id_number)
+    legal_representative_name
+    legal_representative_type_id
+    legal_representative_id_number = get_dni_formated(legal_representative_id_number)
+  company_or_entity_name
+  fotomulta_number
+  resolution_number
+  # DE LAS FECHAS -------------------------------------
+  infraction_date
+  resolution_date
+    # DE LAS FECHAS # DE LA C-038
+  fecha = str(date(2020, 2, 6))
+  datess = str(format_date(resolution_date,format='yyyy-MM-dd'))
+  dates = None;
+  if datess >= fecha:
+    dates = True
+  else:
+    dates = False
+    # DE LA INDEBIDA VALIDACIÓN
+  validation_date
+  send_date
+  validation_working_date = compute_date(infraction_date,10)
+  if validation_date.date() > validation_working_date:
+    wrong_validation = True
+    wrong_validation_date = difference_bussiness_days(infraction_date, validation_date)
+  else: 
+    wrong_validation = False
+    # DEL INDEBIDO TÉRMINO DE ENVÍO
+  send_working_date = compute_date(validation_date,3)
+  if send_date.date() > send_working_date:
+    wrong_send = True
+    wrong_send_date = difference_bussiness_days(validation_date, send_date)
+  else: 
+    wrong_send = False
+  # --------------------------------------------------------------------------
+  # PREGUNTA PRINCIPAL --------------------------------
+  fotomulta_notification
+  # FIN PREGUNTA PRINCIPAL ----------------------------
+  if fotomulta_notification == False:
+  # DEL NO ENVÍO A LA DIRECCIÓN ACTUALIZADA
+    wrong_send_address
+    if wrong_send_address == True:
+      actualization
+      if actualization == True:
+        runt_address
+        if runt_address == True:
+          runt_address_image
+      correct_address
+      correct_address_date
+      mistaken_address
+      mistaken_address_prove
+      if mistaken_address_prove == True:
+        mistaken_address_prove_doc
+        mistaken_address_prove_image
+      sim
+  else:
+  # DATOS GENERALES DE LA GUÍA
+  notification_guide
+  # 1 de 3 DE LA NO LICENCIA DEL ACUSADO -------------------------
+  license
+  if license == False:
+    runt_picture
+  # 2 de 3 GUÍA DEVUELTA -----------------------------------------
+  returned_guide
+  if returned_guide == True:
+    returned_guide_reason
+    # 2.1 DE LA DEVOLUCIÓN POR EL ENVÍO A UNA DIRECCIÓN INEXISTENTE ---
+      if returned_guide_reason == "address":
+        google_address
+        mistaken_address
+        correct_address
+    # 2.2 DE LA DEVOLUCIÓN POR DIRECCIÓN “ERRADA” O “INEXISTENTE” ---
+      if returned_guide_reason == "wrong_nonexistent_address":
+        google_maps_picture
+        bogota_address
+        if bogota_address == True:
+          location
+          sinupot_image
+        else:
+          location
+          location_city
+     # 2.3 DE LA ERRONEA CAUSAL DE DEVOLUCIÓN ---
+      if returned_guide_reason == "diferent_guides":
+        same_direction
+        if same_direction == True:
+          other_notification
+          if other_notification == False:
+            other_devolution
+            if other_devolution == False:
+              location
+              location_city
+              personal_notification_image
+          else: 
+            location
+            location_city
+     # 2.4 DE LA ERRONEA CAUSAL DE DEVOLUCIÓN ---
+      if returned_guide_reason == "closed":
+        more_one_try
+        if more_one_try == True:
+          second_notification_guide
+          first_send_date_try
+          second_send_date_try
+          difference_send_date_try = difference_date(first_send_date_try, second_send_date_try)
+          if (difference_send_date_try) > 1:
+            date_try_arguments = True
+     # 2.5 ÚLTIMA CASU DE "DE LOS ERRORES EN LA CORRESPONDENCIA Y EN LA GUÍA" ---
+      # if returned_guide_reason == "return_reason":
+        #X
+  # 3 de 3 ERRORES DE LA GUÍA ------------------------------------
+  mistakes
+  if mistakes == True:
+---
+#---------------------------------------------- PARTE DONDE SE DEBE TRABAJAR ------------------------------------------------
+---
+event: final_screen
+mandatory: true
+progress: 100
+question: |
+  Revocatoria directa
+attachment:
+  name: Nueva revocatoria directa ${ case_number }
+  filename: Nueva revocatoria directa ${ case_number } 
+  docx template file: IT_DA_220809_V.1.1_Nueva_Revocatoria.docx
+  valid formats:
+    - pdf
+    - docx
+allow emailing: False    
+buttons:
+  - Restart: restart
+---
+    
+
+
+

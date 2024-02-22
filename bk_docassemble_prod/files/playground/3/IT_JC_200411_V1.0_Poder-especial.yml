@@ -1,0 +1,301 @@
+metadata:
+  title: |
+   Poder especial
+  short title: |
+   Poder especial
+  description: |
+   Poder especial
+  authors:
+    - name: Julian Cogua
+      organization: DocumentosLegales.co
+    - name: Juan David Castilla
+      organization: DocumentosLegales.co
+  create_date: 2020-04-11
+---
+sections:
+  - Datos del que genera el poder
+  - Datos del que recibe el poder
+  - Fechas
+  - Entidades
+  - Tramites
+  - Restricciones
+  - Vencimiento
+---
+features:
+  navigation: True
+  progress bar: True
+  show progress bar percentage: True
+  hide standard menu: False
+  hide navbar: True
+  question back button: True
+---
+include:
+  - docassemble.playground3:autoterms.yml
+---
+modules:
+  - docassemble.playground3.juztoModules
+  - docassemble.playground3.juztoListChoices
+---
+mandatory: True
+code: |
+  multi_user = True
+---
+mandatory: True
+question: |
+  ¿Quién va a dar el poder?
+fields:
+  - no label: client_type
+    input type: radio
+    code: get_list('type')
+section: Datos del que genera el poder
+prevent going back: True
+---
+mandatory: True
+need:
+  - client_type
+question: |
+   ¿Cuáles son los datos de la ${ client_type.lower() }?
+fields:
+  - Nombre completo de la ${ client_type.lower() }: grantor_name
+  - Tipo de identificación: grantor_type_id
+    input type: dropdown
+    code:  get_list_dni('N')
+    show if:
+      code: |
+        client_type == "Persona"
+  - Número de identificación: grantor_id_number
+    hint: dni
+    show if:
+      code: |
+        client_type == "Persona"
+  - NIT: grantor_id_number
+    hint: nit
+    show if:
+      code: |
+        client_type == "Empresa"
+  - Ciudad: city
+    input type: dropdown
+    code: get_cities()
+  - Dirección: grantor_address
+    hint: 'Calle 122 # 17 - 29 Oficina 302'
+  - Nombre del representate legal: legal_representative_name
+    hint: "Nombre(s) y Apellido(s)"
+    show if:
+      code: |
+        client_type == "Empresa"
+  - Tipo de identificación: grantor_type_id
+    input type: dropdown
+    code:  get_list_dni('N')
+    show if:
+      code: |
+        client_type == "Empresa"
+  - Número de identificación: legal_grantor_id_number
+    hint: dni
+    show if:
+      code: |
+        client_type == "Empresa"
+section: Datos del que genera el poder
+---
+mandatory: true
+code: |
+  if client_type == "Empresa":
+    grantor_id_number = generateNit(grantor_id_number)
+---
+mandatory: true
+need:
+  - grantor_id_number
+question: |
+  ¿A quién le das el poder?
+fields:
+  - no label: agent_type
+    input type: radio
+    code: get_list('type')
+section: Datos del que recibe el poder
+---
+mandatory: True
+need:
+  - agent_type
+question: |
+  ¿Cuáles son los datos de la ${ agent_type.lower() } a la que le entrega el poder?
+fields:
+  - Nombre completo de la ${ agent_type.lower() }: agent_name
+  - Tipo de identificación: agent_type_id
+    input type: dropdown
+    code:  get_list_dni('N')
+    show if:
+      code: |
+        agent_type == "Persona"  
+  - Número de identificación: agent_id_number
+    hint: dni
+    show if:
+      code: |
+        agent_type == "Persona"  
+  - ¿Es abogado?: lawyer
+    input type: radio
+    choices:
+      - Si: Verdadero
+      - No: Falso
+    show if:
+      code: |
+        agent_type == "Persona"    
+  - ¿Cuál es el número de la tarjeta profesional?: profesional_id_number
+    show if:
+      variable: lawyer
+      is: Verdadero
+  - NIT: agent_id_number
+    hint: nit
+    show if:
+      code: |
+        agent_type == "Empresa"    
+  - Correo electrónico: agent_email
+    hint: "ejemplo@mail.com"
+    show if:
+      code: |
+        agent_type == "Empresa"    
+  - Ciudad: agent_city
+    input type: dropdown
+    code: get_cities()
+    show if:
+      code: |
+        agent_type == "Empresa"    
+  - Nombre del representante legal: legal_representative_agent_name
+    hint: "Nombre(s) y Apellido(s)"
+    show if:
+      code: |
+        agent_type == "Empresa"    
+  - Tipo de identificación: agent_type_id
+    input type: dropdown
+    code: get_list_dni('N')
+    show if:
+      code: |
+        agent_type == "Empresa"    
+  - Número de identificación: legal_agent_id_number
+    hint: dni
+    show if:
+      code: |
+        agent_type == "Empresa"
+#    code: get_list('type')
+section: Datos del que recibe el poder
+---
+mandatory: true
+code: |
+  if agent_type == "Empresa":
+    agent_id_number = generateNit(agent_id_number)
+---
+mandatory: true
+need:
+  - agent_id_number
+question: |
+  ¿En qué fecha será presentado este poder?
+fields:
+  - no label: date_presentation
+    datatype: date
+section: Fechas    
+--- 
+mandatory: true
+question: |
+  ¿A qué entidad le presentas el poder?
+fields:
+  - no label: entity_name
+section: Entidades
+---
+mandatory: true
+question: |
+  ¿Qué trámite estás haciendo?
+fields:
+  - no label: object
+section: Tramites
+---
+mandatory: true
+question: |
+ ¿Qué trámite o gestión le estás encargando a ${ agent_name.title() }?
+fields:
+  - no label: activity
+section: Tramites
+---
+objects:
+  -  restrictio: DAList.using(object_type=DAObject, complete_attribute='complete')
+---
+code: |
+ restrictio.gather()
+ restrictio.reviewed
+---
+code: |
+ restrictio[i].name
+ restrictio[i].complete = True
+---
+table: restrictio.table
+rows: restrictio
+columns:
+  - Restricciones: |
+      row_item.name
+edit:
+  - name
+allow reordering: True
+---
+mandatory: True
+question: |
+  ¿ ${ agent_name.title() } tiene alguna restricción?
+yesno: restrictio.there_are_any
+section: Restricciones
+---
+question: |
+  ¿Necesitas agregar otra restricción?
+yesno: restrictio.there_is_another
+section: Restricciones
+---
+question: |
+  Describe cuál es la ${ get_ordinal("male", i) } restricción
+fields:
+  - no label: restrictio[i].name
+    hint: No puede sacar dinero
+section: Restricciones
+---
+mandatory: |
+ restrictio.there_are_any == True
+question: |
+  Estas son las restricciones que indicaste
+subquestion: |
+  ${ restrictio.table }
+  ${ restrictio.add_action() }
+section: Restricciones
+continue button field: restrictio.reviewed
+---
+mandatory: true
+question: |
+ ¿Quieres que éste poder deje de ser válido en una fecha específica?
+fields:
+  - no label: defeated
+    input type: radio
+    choices:
+      - Si: Verdadero
+      - No: Falso
+  - ¿Cuándo?: duration
+    datatype: date
+    show if:
+      variable: defeated
+      is: Verdadero
+section: Vencimiento
+---
+mandatory: true
+code: |
+  if 'price' in url_args:
+    price = currency(url_args['price'], decimals= False)
+  else:
+    price = '$0'
+  files_saved = save_files(the_document, 'Poder especial', True, user_info().session)
+  juzto_callback = get_callback_final_screen(price, files_saved, 'Poder especial', True)
+---
+attachment:
+  variable name: the_document
+  docx template file: IT_JC_200411_V1.0_Poder-especial.docx
+---
+event: final_screen
+mandatory: true
+progress: 100
+question: |
+  ${ z_text_final_screen }
+subquestion: |
+  ${ juzto_callback }
+allow emailing: False
+back button: False

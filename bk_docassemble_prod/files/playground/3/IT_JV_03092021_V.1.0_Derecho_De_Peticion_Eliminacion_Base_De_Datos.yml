@@ -1,0 +1,141 @@
+metadata:
+  title: |
+   Derecho de peticion eliminacion bases de datos
+  short title: |
+    Derecho de peticion eliminacion bases de datos
+  description: |
+   Documento que se presenta para solicitar derecho de peticion de eliminacion en bases de datos
+  authors:
+    - name: Juan Vallarino
+      organization: Juzto.co
+    - name: Juan David Castilla
+      organization: Juzto.co
+---
+features:
+  navigation: True
+  progress bar: True
+  show progress bar percentage: True
+  hide standard menu: False
+  hide navbar: True
+  question back button: True
+---
+include:
+  - docassemble.playground3:autoterms.yml
+---
+modules:
+  - docassemble.playground3.juztoModules
+  - docassemble.playground3.juztoListChoices
+---
+initial: True
+code: |
+  client_type
+  if client_type == "Persona Natural":
+    natural.name
+    complaining_type_id
+    complaining_id_number
+    complaining_id_number = get_dni_formated(complaining_id_number)
+  else:
+    legal.name
+    complaining_id_number
+    legal_representative_name
+    legal_representative_type_id
+    legal_representative_id_number
+    legal_representative_id_number = get_dni_formated(legal_representative_id_number)
+    complaining_id_number = generateNit(complaining_id_number)
+  company_or_entity_name
+  winning_method
+  winning_date
+  fotomulta_number
+  Signature = "{{Signature:Recipient1*}}"
+  final_screen
+---
+objects:
+  - natural: Individual
+  - legal: Individual
+---
+question: |
+  ¿El cliente es persona o empresa?
+fields:
+  - no label: client_type
+    input type: radio
+    code: get_list('type_j')
+---
+question: |
+  ¿Cuáles son los datos de la persona?
+fields:
+  - Nombres: natural.name.first
+    hint: Nombres
+  - Apellidos: natural.name.last
+    hint: Apellidos
+  - Tipo de identificación: complaining_type_id
+    input type: dropdown
+    code:  get_list_dni('N')
+  - Número de identificación: complaining_id_number
+    hint: dni
+id: blockglobal
+---
+question: |
+  ¿Cuáles son los datos de la compañía?
+fields:
+  - Nombre de la compañia: legal.name.first
+  - NIT: complaining_id_number
+    #hint: nit
+  - Nombre del representate legal: legal_representative_name
+  - Tipo de identificación: legal_representative_type_id
+    input type: dropdown
+    code:  get_list_dni('N')
+  - Número de identificación: legal_representative_id_number
+    #hint: dni
+id: blockglobal
+---
+question: |
+  ¿Cuál es el número de la fotomulta? 
+fields:
+  - Numero: fotomulta_number
+---
+question: |
+  ¿Cuál es el número del caso?
+fields:
+  - no caso: case_number
+---
+question: |
+  ¿Cuáles son los datos de la entidad?
+fields:
+  - nombre: company_or_entity_name
+  - email: email
+    datatype: email
+  - email: email2
+    datatype: email
+  - email: email3
+    datatype: email
+  - email: email4
+    datatype: email
+---
+question: |
+  ¿Cómo y cuándo se ganó el caso?
+subquestion: |
+  si el caso se ganó por documento quiere decir que fue por derecho de petición/ revocatoria directa/ caducidad / prescripción / tutela, etc
+fields:
+  - no label: winning_method
+    input type: radio
+    choices:
+      - Audiencia
+      - Documento 
+  - no label: winning_date
+    datatype: date
+---
+attachment:
+  variable name: the_document
+  docx template file: IT_JV_03092021_V.1.0_Derecho_De_Peticion_Eliminacion_Base_De_Datos.docx
+---
+code: |
+  files_saved = save_files(the_document, 'Derecho_de_peticion_eliminacion_bases_de_datos', True, user_info().session)
+  juzto_callback = get_callback_final_screen('0', files_saved, 'Derecho_de_peticion_eliminacion_bases_de_datos', True)
+---
+event: final_screen
+question: |
+  ${ z_text_final_screen } - COD: ${user_info().session}
+subquestion: |
+  ${ juzto_callback }
+id: juzto_da_final
+---

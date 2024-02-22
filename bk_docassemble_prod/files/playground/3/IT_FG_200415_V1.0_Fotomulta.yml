@@ -1,0 +1,340 @@
+metadata:
+  title: |
+   Derecho de peticion fotomulta   
+  short title: |
+   Apelación fotomulta
+  description: |
+   Derecho de peticion fotomulta
+  authors:
+    - name: Felipe Gómez
+      organization: juzto.co
+    - name: Juan David Castilla
+      organization: juzto.co
+---
+sections:
+  - Propietario del vehiculo
+  - Cuéntanos tu caso
+  - Firma
+---
+#features:
+#  navigation: True
+#  progress bar: True
+#  show progress bar percentage: True
+#  hide standard menu: False
+#  hide navbar: True
+#  question back button: True
+---
+default screen parts:
+  under: |
+    % if show_save_resume_message:
+    [Guardar y terminar después](${ url_action('save_and_resume') })
+    % endif
+---    
+include:
+  - docassemble.playground3:autoterms.yml
+---
+modules:
+  - docassemble.playground3.juztoModules
+  - docassemble.playground3.juztoListChoices
+---
+mandatory: True
+code: |
+  target = 'normal'
+  show_save_resume_message = True
+  multi_user = True
+---
+mandatory: True
+scan for variables: False
+code: |
+  if target == 'save_and_resume':
+    if wants_email:
+      if email_sent:
+        log("En contados minutos llegará el correo electrónico.", "info")
+        command('leave', url="https://juzto.co")
+      else:
+        log("Estamos presentando problemas, intentalo mas tarde.", "danger")
+      show_save_resume_message = False
+    undefine('wants_email')
+    undefine('email_sent')
+    target = 'normal'
+  final_screen
+---  
+mandatory: True
+question: |
+  Identifica al propietario del vehículo ${ interview_url() }
+fields:
+  - no label: claimant_type
+    input type: radio
+    code: get_list('type')
+section: Propietario del vehiculo
+progress: 1
+prevent going back: True
+---
+mandatory: True
+question: |
+  ¿Cuáles son los datos de la  ${ claimant_type.lower() } propietaria del vehículo? 
+fields:
+  - Nombre completo de la ${ claimant_type.lower() }: claimant_name
+  - Correo electrónico: claimant_email
+    datatype: email
+    hint: Correo electrónico
+  - Tipo de identificación: claimant_type_id
+    input type: dropdown
+    code: get_list_dni('N')
+    show if:
+     code: |
+       claimant_type == "Persona"
+  - Número de identificación: claimant_id
+    hint: dni
+    show if:
+     code: |
+       claimant_type == "Persona"
+  - (NIT): claimant_id
+    hint: nit
+    show if:
+     code: |
+       claimant_type == "Empresa"
+  - Ciudad: claimant_city
+    input type: dropdown
+    code: get_cities()
+  - Dirección: claimant_address
+    hint: 'Calle 122 # 17 - 29'
+  - Nombres y apellidos completos del representante legal: claimant_rep_legal
+    show if:
+      code: |
+        claimant_type == "Empresa"
+  - Tipo de identificación: claimant_rep_legal_type_id
+    input type: dropdown
+    code:  get_list_dni('N')
+    show if:
+      code: |
+        claimant_type == "Empresa"
+  - Número de identificación: claimant_rep_legal_id
+    hint: dni
+    show if:
+      variable: claimant_type
+      is: "Empresa"
+id: blockglobal  
+section: Propietario del vehiculo
+progress: 15
+---
+mandatory: true
+code: | 
+  if claimant_type == "Empresa":    
+    claimant_id = generateNit(claimant_id)
+---
+mandatory: True
+question: |
+  ¿Cuál es el número de la fotomulta? 
+fields:
+  - no label: fotomulta_number
+    datatype: integer
+    minlength: 10
+  - note: |
+      [FILE fotomulta_fecha_noComparendo.jpg, 100%]
+section: Propietario del vehiculo
+progress: 30
+---
+mandatory: True
+question: |
+  ¿Qué día te pusieron la fotomulta? 
+fields:
+  - no label: date_fotomulta
+    datatype: date
+  - note: |
+      [FILE fotomulta_fecha_imposicion.jpg, 100%]    
+section: Cuéntanos tu caso
+progress: 40
+---
+mandatory: True
+question: |
+  ¿Cómo te enteraste de la fotomulta?
+fields:
+  - no label: reason
+    input type: radio
+    choices:
+      - Me llegó al correo electrónico: correo
+      - Me llegó a la casa: correspondencia
+      - Consulté por internet: internet
+  - ¿Cuándo te enviaron la fotomulta?: fotomulta_send_date
+    datatype: date
+    js show if: |
+      da_val("reason") == 'correo' || da_val("reason") == 'correspondencia'
+  - ¿Pudiste ver la fotomulta?: internet_knowledge
+    datatype: yesnoradio
+    show if:
+      variable: reason
+      is: "internet"
+section: Cuéntanos tu caso
+progress: 50
+---
+code: |
+  if reason == 'internet':
+    fotomulta_send_date = today()
+  else:
+    internet_knowledge = False
+---
+mandatory: True
+question: |
+  ¿Cuándo te enteraste que tenías una fotomulta?
+fields:
+  - no label: notification_date
+    datatype: date
+section: Cuéntanos tu caso
+progress: 60
+---
+mandatory: True
+question: |
+  Dinos el día de la infracción 
+fields:
+  - no label: infraction_date
+    datatype: date 
+  - note: |
+      [FILE fotomulta_fecha_fechainfraccion.jpg, 100%]
+section: Cuéntanos tu caso
+progress: 70
+---
+mandatory: True
+question: |
+  ¿Cuál es la placa del vehículo?
+fields:
+  - no label: placa_vehicle 
+    minlength: 6
+    maxlength: 6
+section: Cuéntanos tu caso
+progress: 75
+---
+mandatory: true
+question: |
+  ¿Tienes licencia de conducción?
+yesno: driving_license
+section: Cuéntanos tu caso
+progress: 95
+---
+mandatory: |
+  claimant_type == "Persona"
+question: |
+  ¿Ibas conduciendo?
+yesno: claimant_driving
+section: Cuéntanos tu caso
+progress: 80
+---
+code: |
+  if claimant_type == "Empresa":
+    claimant_driving = False
+---
+mandatory: true
+question: |
+  ¿Tenías alguna urgencia?
+fields:
+  - no label: was_emergency
+    datatype: yesnoradio
+  - ¿Cuál era la urgencia?: emergency
+    show if: was_emergency
+section: Cuéntanos tu caso
+progress: 85
+---
+mandatory: true
+question: |
+  ¿Sabías si infringías la norma de tránsito?
+yesno: against_norm
+---
+mandatory: true
+question: |
+  ¿Había algún letrero o señal que informara que había cámara fotomultas?
+fields:   
+  - no label: transit_sign
+    input type: radio
+    choices:
+      - Sí
+      - No
+      - No lo sé
+  - ¿La señal estaba oculta?: hided_sign
+    input type: radio
+    choices:
+      - Sí
+      - No
+      - No me acuerdo
+    show if:
+      variable: transit_sign
+      is: Sí
+  - ¿Estaba en buen o mal estado la señal de tránsito?: sign_condition
+    input type: radio
+    choices:
+      - Buen estado
+      - Mal estado
+    show if:
+      variable: transit_sign
+      is: Sí
+section: Cuéntanos tu caso
+progress: 90
+---
+mandatory: true
+question: |
+  ¿Cuál es la fecha y la ciudad en que se presentará este documento?
+fields:
+  - Ciudad: claim_city
+    input type: dropdown
+    code: get_cities()
+  - Fecha del documento: claim_date
+    datatype: date
+id: blockglobal
+section: Firma
+progress: 98
+---
+code: |
+  difference_date_fotomulta_send = difference_date(fotomulta_send_date, date_fotomulta) 
+  fotomulta_deadline = date_fotomulta + date_interval(days=4)
+  dias_incumplidos_notificacion = difference_date(fotomulta_deadline, notification_date)
+  dias_incumplidos_validacion = difference_date(infraction_date, date_fotomulta)
+---
+mandatory: true
+code: |
+  if 'price' in url_args:
+    price = currency(url_args['price'], decimals= False)
+  else:
+    price = '$0'
+  files_saved = save_files(the_document, 'Derecho de peticion reclamacion fotomulta', True, user_info().session)
+  juzto_callback = get_callback_final_screen(price, files_saved, 'Derecho de peticion reclamacion fotomulta', True)
+---
+attachment:
+  variable name: the_document
+  docx template file: IT_FG_200415_V1.0_modelo_derecho_peticion_fotomulta.docx
+---
+event: final_screen
+mandatory: true
+progress: 100
+question: |
+  ${ z_text_final_screen } - COD: ${user_info().session}
+subquestion: |
+  ${ juzto_callback }
+id: juzto_da_final
+allow emailing: False
+back button: False
+---
+event: save_and_resume
+code: |
+  target = 'save_and_resume'
+---
+code: |
+  data = {'interview': all_variables(special='titles')['full'], 'url':interview_url(), 'yml': user_info().filename, 'session':user_info().session}
+  send_email_juzto(data, user_email_address, 'leave')
+  email_sent = True
+---
+question: |
+  Puedes continuar con tu documento para ${ all_variables(special='titles')['full'] }[BR]
+  ${ url_args['url'] }
+subquestion: |
+  Si deseas reanudar tu entrevista más tarde, podemos enviarte por correo electrónico un enlace en el que puedes hacer clic para reanudar tu entrevista en un momento posterior.
+fields:
+  - no label: wants_email
+    input type: radio
+    choices:
+      - "Enviar correo electrónico": True
+      - "No gracias": False
+    default: True
+  - Correo electrónico: user_email_address
+    datatype: email
+    show if: wants_email
+under: ""
+---

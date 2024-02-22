@@ -1,0 +1,1620 @@
+---
+metadata:
+  title: |
+   Estatutos SAS
+  short title: |
+    Estatutos SAS
+  description: |
+   Estatutos SAS
+  authors:
+    - name: Julian Cogua
+      organization: Juzto.co
+    - name: Juan David Castilla
+      organization: Juzto.co
+  create_date: 2020-06-12
+---
+features:
+  navigation: True
+  progress bar: True
+  show progress bar percentage: True
+  hide standard menu: False
+  hide navbar: True
+  question back button: True
+---
+include:
+  - docassemble.playground3:autoterms.yml
+---
+modules:
+  - docassemble.playground3.juztoModules
+  - docassemble.playground3.juztoListChoices
+---
+initial: True
+code: |
+  multi_user: True
+  the_sections = [{'intro':'Introducción'}]
+  the_sections.append({'general':'Información general de la sociedad'})
+  the_sections.append({'society':'Capital y acciones'})
+  the_sections.append({'data_shareholders':'Accionistas'})
+  the_sections.append({'preference':'Derecho de Preferencia'})
+  the_sections.append({'assembly':'Asamblea de Accionistas'})
+  the_sections.append({'boards_director':'Junta Directiva'})
+  the_sections.append({'legal_representation':'Representación Legal'})
+  the_sections.append({'special':'Información especial de la sociedad'})
+  nav.set_sections(the_sections)
+---
+auto terms:
+  Capital Autorizado: |
+    Es el monto máximo hasta el cual los accionistas podrán aumentar el capital suscrito de la sociedad sin necesidad de una reforma estatutaria.
+  Capital Suscrito: |
+    Monto total de los aportes que los accionistas se obligan a pagar dentro de un plazo máximo de dos años contados desde la fecha de constitución.
+  S.A.S: |
+    Sociedad por Acciones Simplificada.
+  objeto social: |
+    Actividad o actividades que va a desarrollar la sociedad, que deben encontrarse en los estatutos sociales y que limitan la actuación de los representantes legales.
+  Apoderado: |
+    Cualquier persona mayor de edad puede representar al accionista y firmar en su nombre los estatutos. El apoderado no necesariamente debe ser abogado. Se debe presentar un poder especial autenticado en la Cámara de Comercio. Puedes dar click para obtener el [poder](https://juzto.co/poder-especial/) que necesitas.
+  Acciones suscritas: |
+    Son las acciones que conforman la composición accionaria de la sociedad. La ley definió un plazo máximo para su pago de dos años contados desde la fecha de constitución de la sociedad.
+  Derecho de preferencia para la negociación: |
+    Implica que un accionista no puede vender sus acciones a un tercero, sin antes ofrecerlas primero a la sociedad o a los demás accionistas según se establezca en los estatutos. 
+  Derecho de preferencia en la emisión: |
+    Implica que cuando la sociedad vaya a emitir nuevas acciones, deberá ofrecerlas primero a los accionistas actuales antes que a personas externas.
+  Nuevas acciones: |
+    Son acciones que no han pertenecido a ninguno de los accionistas actuales, sino que la sociedad ha creado.
+  Quorum deliberatorio: |
+    Es el porcentaje mínimo de acciones de la sociedad que deben estar presentes para poder hacer una reunión de asamblea de accionistas.
+  Quorum decisorio: |
+    Es el Porcentaje mínimo de acciones con el que la asamblea toma una decisión.
+  Asamblea de accionistas: |
+    Es el máximo órgano de la sociedad. Como su nombre lo indica, la asamblea de accionistas se conforma por todos los accionistas de la sociedad.
+  Convocatoria: |
+    Número de días de anticipación con la que debe ser citada una reunión de un órgano de administración de la sociedad (Asamblea de Accionistas y/o Junta Directiva).
+  Reuniones ordinarias de la asamblea: |
+    Son reuniones obligatorias que se hacen una vez al año con plazo máximo hasta el 31 de marzo. En estas reuniones obligatoriamente se deben revisar los estados financieros, el informe del representante legal y se debe decidir si se reparten utilidades, entre otros.
+  Reunión extraordinaria: |
+    Son reuniones que puede tener la asamblea en cualquier momento cuando la situación lo amerite. En estas reuniones se pueden tomar decisiones y tratar temas diferentes a los de la reunión ordinaria. La reunión extraordinaria es aquella distinta de la obligatoria que debe hacerse por disposición de los estatutos.
+  Junta Directiva: |
+    La junta directiva es un órgano de dirección y administración de la sociedad. La junta se caracteriza por tener experiencia en los negocios y puede aconsejar, tomar decisiones o aprobar negocios. Normalmente está por encima del representante legal.
+  Reuniones ordinarias de la junta: |
+    Son reuniones que la junta directiva debe tener de manera obligatoria de acuerdo con lo que respondiste en la pregunta anterior.
+  Reuniones extraordinarias de la Junta: |
+    Son reuniones que puede tener la Junta Directiva en cualquier momento cuando la situación lo amerite.
+  Representante legal: |
+    Es quién actúa en nombre de la empresa, quién la representa y quién puede obligarla y comprometerla.
+  Derecho de inspección: |
+    Es el derecho que tienen los accionistas de revisar los libros de actas, libros de accionistas, libros de contabilidad, y en general los documentos de la sociedad. Esto tiene el objetivo de que los accionistas puedan conocer  la situación administrativa y financiera de la sociedad.
+  Revisor fiscal: |
+    El revisor fiscal es un auditor de la sociedad que verifica los estados financieros, además se asegura de que se respeten los estatutos y se cumplan las obligaciones legales.
+  Avales: |
+    El aval es una declaración de voluntad que una persona hace para garantizar el pago de una obligación comercial de otra persona.
+  Fianzas: |
+    La fianza es una declaración de voluntad que una persona hace para garantizar el pago de una obligación civil de otra persona.
+  Sigla: |
+    Es la abreviatura del nombre de la sociedad. Por ejemplo, si la sociedad se llama Innovación Tecnologíca en Derecho S.A.S, la sigla puede ser INTED.
+  Valor nominal: |
+    Es el valor que los accionistas asignan a cada acción.
+  Facultades: |
+    Se entiende como las capacidades que tiene una persona teniendo en cuenta el cargo que ocupa en la sociedad.
+  Tribunal de arbitramento:  |
+    Es una forma de acudir a la justicia sin tener que ir ante un juez ordinaria. El tribunal de arbitramento imparte una justicia privada, normalmente más especializada y más rápida, pero también más costosa que la justicia tradicional.
+  Juez ordinario: |
+   Es cuando acudes a un juez tradicional para que resuelva el conflicto.   
+---
+mandatory: True
+question: |
+  Ahora empezaremos a crear tus estatutos para SAS. 
+subquestion: |
+  Los estatutos son un acuerdo en el que los accionistas definen las reglas de funcionamiento de una sociedad. Los estatutos indican cual será la forma en la que la sociedad funcionará, qué negocios puede hacer, cómo se tomarán las decisiones, qué derechos tienen los accionistas y cómo se reparten las utilidades, entre muchas otras reglas.[BR][BR]
+  Para tu  tranquilidad, este es un documento de gran calidad, preparado por abogados expertos. Pasos por seguir: [BR][BR]
+    1.  Responde todas las preguntas que te haremos. Estas preguntas han sido preparadas por abogados con mucha experiencia en este tipo de documentos.[BR]
+          Cada respuesta cambia el contenido del documento y lo ajusta a tu caso concreto.[BR][BR]
+    2.  Queremos que lo entiendas todo. En cada pregunta encontrarás explicaciones hechas por nuestros abogados.[BR][BR]
+        Las palabras complicadas estarán subrayadas en azul y en un color diferente, también podrán llevar      un signo de interrogación. Haz clic sobre la palabra o el signo de interrogación para leer la explicación. [BR][BR]
+    3.  Al terminar      tendrás un documento hecho especialmente para ti, construido con base en tus respuestas. Además podrás comprender todos los conceptos del documento con claridad. Entenderás lo que vas a firmar.[BR][BR]
+  Si tienes alguna duda adicional puedes <a href="https://juzto.co/asesoria-legal/consulta-abogado/" target="_blank" class="linkjzda">programar una cita con uno de nuestros abogados</a>[BR][BR]
+  Gracias por elegir Juzto, empecemos.
+buttons:
+  Continuar: continue
+section: intro
+progress: 1
+prevent going back: True
+---
+mandatory: True
+question: |
+  Para tus estatutos debes tener lista la siguiente información:
+subquestion: |
+  - Nombre, identificación y domicilio de los accionistas;
+  - Nombre de la sociedad;
+  - Domicilio de la sociedad;
+  - La duración de la sociedad, pudiendo ser indefinida;
+  - Actividades que realizará la sociedad, pudiendo ser cualquier actividad lícita;
+  - Clase, cantidad y valor de las acciones;
+  - El capital máximo que podrá tener la sociedad, las acciones que podrán adquirir los accionistas y las acciones que efectivamente han pagado los accionistas;
+  - Forma en la que los accionistas deben pagar las acciones no pagadas al momento de constituir la sociedad;
+  - Forma en la que se administra la sociedad;
+  - Nombre, identificación y facultades de los administradores. Debe nombrarse por lo menos un representante legal.
+fields:
+  - no label: agrees_to_terms
+    datatype: checkboxes
+    default: "Acepto <a href='https://juzto.co/politica-tratamiento-datos/' target='_blank' class='linkjzdadark'>el tratamiento de los datos personales.</a>"
+    minlength: 1
+    choices:
+      - Acepto <a href='https://juzto.co/politica-tratamiento-datos/' target='_blank' class='linkjzdadark'>el tratamiento de los datos personales.</a>
+    validation messages:
+      minlength: |
+        Debes aceptar el tratamiento de los datos personales para pode continuar.
+section: intro
+prevent going back: True
+progress: 2
+---
+mandatory: True
+question: |
+  ¿Cuál será el nombre de la sociedad?
+subquestion: |
+  El nombre no puede ser el mismo que el de una sociedad ya existente (homonimia). Recomendamos revisar el registro de nombres de las <a href="https://linea.ccb.org.co/ccbConsultasRUE/Consultas/RUE/consulta_empresa.aspx" target="_blank" class="linkjzda">Cámaras de Comercio.</a> El nombre de la compañía puede ser distinto al de la marca bajo la cual se desarrollará el negocio de la Compañía.
+fields:
+  - no label: company_name
+    hint: 'Nombre sociedad'
+  - note: No incluyas las siglas S.A.S
+section: general
+progress: 4
+---
+mandatory: True
+question: |
+  ¿Deseas que la sociedad se identifique con un nombre corto o sigla?
+fields:
+  - no label: initials
+    datatype: yesnoradio
+  - Sigla: acronym
+    hint: 'Ejm: Soc. sigla de Sociedad'
+    show if:
+      variable: initials
+      is: True
+section: general
+progress: 6
+---
+mandatory: True
+question: |
+  Datos de la sociedad que se crea
+fields:
+  - Correo electrónico de la sociedad: company_mail
+    hint: 'info@sociedad.com'
+  - Número de contacto: company_phone
+    hint: '300 1234 567'
+    datatype: integer
+  - Dirección: company_adress
+    hint: 'Calle 122 # 17 - 29 Oficina 302'
+  - Ciudad: company_city
+    input type: dropdown
+    code: get_cities()
+section: general
+progress: 8
+---
+mandatory: True
+question: |
+  La duración de la sociedad será:
+subquestion: |
+  Si se elige "por cierto número de años", al vencimiento de los mismos la sociedad se debe liquidar, a menos que la asamblea extienda la duración. Lo habitual es que la duración sea indefinida.
+fields:
+  - no label: company_term
+    input type: radio
+    default: Indefinida
+    choices:
+      - Indefinida
+      - Por cierto número de años
+  - ¿Cuántos?: company_term_years
+    datatype: integer
+    show if:
+      variable: company_term
+      is: Por cierto número de años
+section: general
+progress: 10
+---
+mandatory: True
+question: |
+  Objeto social de ${ company_name } S.A.S.
+subquestion: |
+  Aquí debes seleccionar cómo será el objeto social de tu sociedad, si será abierto a cualquier actividad legal o especifico a algunas actividades como por ejemplo: comercio al por mayor de libros, servicios jurídicos, cultivos de palma, etc.
+fields:
+  - no label: company_porpuse
+    input type: radio
+    default: Cualquier actividad que sea legal
+    choices:
+      - Cualquier actividad que sea legal
+      - Describe las actividades
+      - Actividades específicas + cualquier actividad legal
+section: general
+progress: 12
+---
+objects: 
+  - activitys: DAList.using(object_type=DAObject, complete_attribute='complete')
+--- 
+mandatory: |
+  activitys.there_are_any == True
+code: |
+  activitys.gather()
+  activitys.reviewed
+---
+code: |
+  activitys[i].name
+  activitys[i].complete = True
+---
+code: |
+  activitys.there_are_any = False
+  activitys.there_is_another  = False
+---
+code: |
+  if company_porpuse == 'Describe las actividades' or company_porpuse == 'Actividades específicas + cualquier actividad legal':
+    activitys.there_are_any = True
+  else:
+    activitys.there_are_any = False
+---
+question: |
+  ¿Cuáles son las actividades? 
+fields: 
+  - no label: activitys[i].name
+    hint: Ingresar solo una actividad a la vez.
+list collect: 
+  label: |
+    ${ new_activity } ${ i+1 }
+section: general
+progress: 14
+---
+code: |
+  new_activity = "Actividad"
+---
+question: |
+  Estas son las actividades que indicaste
+subquestion: |
+  
+  Actividades  |
+  -------------|
+  % for item in activitys:
+  ${item.name} |
+  % endfor
+section: general  
+continue button field: activitys.reviewed
+progress: 14
+---
+mandatory: True
+question: |
+  Valor nominal de cada acción de ${ company_name } S.A.S.
+subquestion: |
+  Los accionistas pueden poner el precio que quieran a cada acción. Un valor nominal de cada acción correspondiente a mil ($1.000) pesos podría facilitar el cálculo de cualquier operación relacionada con el capital de la sociedad.
+fields:
+  - no label: share_price
+    hint: money
+    default: '1.000'
+section: society
+progress: 16
+---
+mandatory: True
+question: |
+  Capital Autorizado
+subquestion: |
+  Solo se fija para establecer un límite inicial hasta el cual se puede llevar el capital de la sociedad. Los accionistas no adquieren ninguna obligación respecto de ese monto. En el futuro, los accionistas pueden aumentar este límite mediante una reforma de estatutos.
+fields:
+  - no label: authorized_capital
+    hint: money
+validation code: |
+  if get_only_number(authorized_capital) % get_only_number(share_price) != 0:
+    validation_error("No puede continuar porque el valor no es multiplo de $" + share_price + " pesos")
+section: society
+progress: 18
+--- 
+mandatory: True
+question: |
+  Capital Suscrito
+subquestion: |
+  Es la parte del capital autorizado que los accionistas se obligan a pagar en un plazo que no puede superar dos años. A medida que lo vayan pagando la sociedad hará entrega de las respectivas acciones. En el futuro, los accionistas podrán aumentar este monto y el número de acciones que poseen. 
+fields:
+  - no label: shared_capital
+    hint: money
+validation code: |
+  if get_only_number(shared_capital) > get_only_number(authorized_capital):
+    validation_error("El capital suscrito no puede ser mayor a el autorizado")
+  if get_only_number(shared_capital) % get_only_number(share_price) != 0:
+    validation_error("No puede continuar porque el valor no es multiplo $" + share_price + " pesos")
+section: society
+progress: 20
+---
+mandatory: True
+question: |
+  Resumen
+subquestion: |
+  
+  Valor nominal  | Capital autorizado    | Capital Suscrito  |
+  ---------------|-----------------------|-------------------|
+  $${share_price}| $${authorized_capital}| $${shared_capital}|
+  
+buttons:
+  - Continuar: continue
+section: society
+progress: 22
+---
+code: |
+  authorized_shares = get_only_number(authorized_capital) / get_only_number(share_price)
+---
+objects:
+  - accionistas: DAList.using(object_type=Individual, complete_attribute='complete')
+  - accionistas[i].user: DAList.using(object_type=Individual, complete_attribute='complete')
+---
+mandatory: True
+code: |
+ accionistas.gather()
+ accionistas.reviewed
+---
+code: |
+  accionistas[i].shareholder_type
+  accionistas[i].name
+  accionistas[i].shareholder_nationality
+  accionistas[i].shareholder_residence
+  if accionistas[i].shareholder_type == "Persona Jurídica":
+    accionistas[i].company_name
+    accionistas[i].company_legal_rep_id_type
+    accionistas[i].company_legal_rep_id_number
+  else:
+    accionistas[i].shareholder_id_type
+    accionistas[i].shareholder_id_number
+  accionistas[i].shareholder_shared_capital
+  accionistas[i].shareholder_paid
+  accionistas[i].prices_capitals
+  accionistas[i].restante
+  accionistas[i].prices
+  accionistas[i].shares
+  accionistas[i].user.gather()
+  accionistas[i].resumen
+  accionistas[i].complete = True
+---
+code: |
+  accionistas.there_are_any = True
+---
+code: |
+  accionistas[i].user.there_are_any = True
+---
+code: |
+  accionistas[i].user.there_is_another = False
+---
+code: |
+  accionistas[i].user[j].proxy
+  if accionistas[i].user[j].proxy == "Apoderado":
+    accionistas[i].user[j].name
+    accionistas[i].user[j].proxy_shareholder_id_type
+    accionistas[i].user[j].proxy_shareholder_id_number
+  accionistas[i].user[j].complete = True
+---
+question: |
+  Identifica al ${ get_ordinal("male", i ) }  accionista
+fields:
+  - no label: accionistas[i].shareholder_type
+    input type: radio
+    code: get_list('type_j')
+  - Nombre(s): accionistas[i].name.first
+    hint: Nombre(s)
+    show if:
+      variable: accionistas[i].shareholder_type
+      is: "Persona Natural"
+  - Apellido(s): accionistas[i].name.last
+    hint: Apellido(s)
+    show if:
+      variable: accionistas[i].shareholder_type
+      is: "Persona Natural"
+  - Nombre: accionistas[i].company_name
+    hint: Nombre de la compañia
+    show if:
+      variable: accionistas[i].shareholder_type
+      is: "Persona Jurídica"
+  - NIT: accionistas[i].shareholder_id_number
+    hint: nit
+    show if:
+      variable: accionistas[i].shareholder_type
+      is: "Persona Jurídica"
+  - Nacionalidad: accionistas[i].shareholder_nationality
+    datatype: dropdown
+    code: get_list_countries()
+    js show if: |
+      da_val('accionistas[i].shareholder_type') == "Persona Natural" ||  da_val('accionistas[i].shareholder_type') == "Persona Jurídica"
+  - Ciudad de la compañía: accionistas[i].shareholder_residence
+    datatype: dropdown
+    code: get_cities()
+    show if:
+      variable: accionistas[i].shareholder_type
+      is: "Persona Jurídica"
+  - Nombre(s) del representante legal: accionistas[i].name.first
+    hint: Nombre(s)
+    show if:
+      variable: accionistas[i].shareholder_type
+      is: "Persona Jurídica"
+  - Apellido(s) del representante legal: accionistas[i].name.last
+    hint: Apellido(s)
+    show if:
+      variable: accionistas[i].shareholder_type
+      is: "Persona Jurídica"
+  - Tipo de identificación: accionistas[i].company_legal_rep_id_type 
+    datatype: dropdown
+    code: get_list_dni('N')
+    show if:
+      variable: accionistas[i].shareholder_type
+      is: "Persona Jurídica"
+  - Número de identificación: accionistas[i].company_legal_rep_id_number
+    hint: dni
+    show if:
+      variable: accionistas[i].shareholder_type
+      is: "Persona Jurídica"
+  - Tipo de identificación: accionistas[i].shareholder_id_type
+    datatype: dropdown
+    code: get_list_dni('N')
+    show if:
+      variable: accionistas[i].shareholder_type
+      is: "Persona Natural"
+  - Número de identificación: accionistas[i].shareholder_id_number
+    hint: dni
+    show if:
+      variable: accionistas[i].shareholder_type
+      is: "Persona Natural"
+  - Lugar donde vive: accionistas[i].shareholder_residence
+    datatype: dropdown
+    code: get_cities()
+    show if:
+      variable: accionistas[i].shareholder_type
+      is: "Persona Natural"
+section: data_shareholders
+progress: 24
+---
+question: |
+  ¿Qué porcentaje tendra ${ title_case(str(accionistas[i].name).lower()) if accionistas[i].shareholder_type == "Persona Natural" else str(accionistas[i].company_name).upper() }?, Hay  ${ 100 if (i) == 0 else (100-sum(accionista.shareholder_shared_capital for accionista in accionistas.complete_elements())) }% de acciones pendientes por asignar?
+fields:
+  - no label: accionistas[i].shareholder_shared_capital
+    datatype: integer
+    min: 1
+    max: |
+      ${ 100 if (i) == 0 else (100-sum(accionista.shareholder_shared_capital for accionista in accionistas.complete_elements())) }
+section: data_shareholders
+progress: 24
+---
+code: |
+  accionistas[i].prices_capitals = get_only_number(shared_capital) * (accionistas[i].shareholder_shared_capital/100)
+---
+question: |
+  Recuerda que ${ title_case(str(accionistas[i].name).lower()) if accionistas[i].shareholder_type == "Persona Natural" else str(accionistas[i].company_name).upper() } esta obligado a pagar la suma total de $${ juztoThousand(accionistas[i].prices_capitals) } ¿Cuánto ha pagado?
+fields:
+  - no label: accionistas[i].shareholder_paid
+    hint: money
+validation code: |
+  if get_only_number(accionistas[i].shareholder_paid) > accionistas[i].prices_capitals:
+    validation_error("No puedes pagar más del monto correspondiente para la cantidad de tus acciones suscritas")
+  if get_only_number(accionistas[i].shareholder_paid) % get_only_number(share_price) != 0:
+    validation_error("No puede continuar porque el valor no es multiplo $" + share_price + " pesos")
+section: data_shareholders
+progress: 24
+---
+code: |
+  accionistas[i].restante = 0
+  accionistas[i].shareholder_paid_shares = get_only_number(accionistas[i].shareholder_paid)/get_only_number(share_price)
+  accionistas[i].prices = get_only_number(shared_capital) * (accionistas[i].shareholder_shared_capital/100)
+  accionistas[i].shares = accionistas[i].prices/get_only_number(share_price)
+---
+code: |
+  if accionistas[i].prices > get_only_number(accionistas[i].shareholder_paid):
+    accionistas[i].restante = accionistas[i].prices-get_only_number(accionistas[i].shareholder_paid)
+---
+question: |
+  ¿${ title_case(str(accionistas[i].name).lower()) if accionistas[i].shareholder_type == "Persona Natural" else  str(accionistas[i].company_name).upper() } presentará directamente o a través de un apoderado los estatutos en la cámara de comercio?
+fields:
+  - no label: accionistas[i].user[j].proxy
+    input type: radio
+    choices:
+      - Directamente
+      - Apoderado
+  - Nombre(s): accionistas[i].user[j].name.first
+    hint: Nombre(s)
+    show if:
+      variable: accionistas[i].user[j].proxy
+      is: Apoderado
+  - Apellidos: accionistas[i].user[j].name.last
+    hint: Apellido(s)
+    show if:
+      variable: accionistas[i].user[j].proxy
+      is: Apoderado
+  - Tipo de identificación: accionistas[i].user[j].proxy_shareholder_id_type
+    input type: dropdown
+    code: get_list_dni('N')
+    show if:
+      variable: accionistas[i].user[j].proxy
+      is: Apoderado
+  - Número de identificación: accionistas[i].user[j].proxy_shareholder_id_number
+    hint: dni
+    show if:
+      variable: accionistas[i].user[j].proxy
+      is: Apoderado
+section: data_shareholders
+progress: 24
+---
+question: |
+  Este es el resumen de la participación que tiene el accionista ${ title_case(str(accionistas[i].name).lower()) if accionistas[i].shareholder_type == "Persona Natural" else  str(accionistas[i].company_name).upper() }.
+subquestion: |
+
+  Nombre accionista                                                                                              |Porcentaje participación                      |Valor acción        |Acciones suscritas                         |Capital pagado                     |Capital pendiente                           |
+  ---------------------------------------------------------------------------------------------------------------|----------------------------------------------|--------------------|-------------------------------------------|-----------------------------------|--------------------------------------------|
+  ${accionistas[i].name if accionistas[i].shareholder_type == "Persona Natural" else accionistas[i].company_name}|${accionistas[i].shareholder_shared_capital }%|$${share_price}     |${juztoThousand(accionistas[i].shares)}    |$${juztoThousand(accionistas[i].shareholder_paid)}|${juztoThousand(accionistas[i].restante, 1)}|
+field: accionistas[i].resumen
+section: data_shareholders
+progress: 24
+---
+if: 100 != sum(accionista.shareholder_shared_capital for accionista in accionistas.complete_elements())
+code: |
+  accionistas.there_is_another = True
+---
+if: 100 == sum(accionista.shareholder_shared_capital for accionista in accionistas.complete_elements())
+code: |
+  accionistas.there_is_another = False
+---
+question: |
+  Estos son los accionistas que indicaste
+subquestion: |
+
+  Nombre accionista                                                                                                  |Porcentaje participación           |Valor acción   |Acciones suscritas           |Capital pagado           |Capital pendiente                 |
+  -------------------------------------------------------------------------------------------------------------------|-----------------------------------|---------------|-----------------------------|-------------------------|----------------------------------|
+  % for item in accionistas:
+  ${title_case(str(item.name).lower()) if item.shareholder_type == "Persona Natural" else item.company_name.upper() }|${item.shareholder_shared_capital}%|$${share_price}|${juztoThousand(item.shares)}|$${item.shareholder_paid}|${juztoThousand(item.restante,1) }| 
+  % endfor
+continue button field: accionistas.reviewed
+section: data_shareholders
+progress: 24
+---
+code: |
+  paid_in_capital = 0
+  for e in accionistas:
+    paid_in_capital = paid_in_capital + get_only_number(e.shareholder_paid)
+---
+code: |
+  total_paid = False
+  suscribed_share = get_only_number(shared_capital) / get_only_number(share_price)
+  paid_shares = get_only_number(paid_in_capital) / get_only_number(share_price)
+  if get_only_number(paid_in_capital) != get_only_number(shared_capital):
+    total_paid = True
+---
+mandatory: |
+  total_paid == True
+question: |
+  Las acciones suscritas por los accionistas no han sido totalmente pagadas al momento de la constitución de la sociedad, ¿Cuánto tiempo tienen los accionistas para hacer el pago de las acciones que faltan por pagar?
+subquestion: |
+  El tiempo máximo que permite la ley para que los accionistas paguen sus acciones suscritas es de dos años, pero puede ser menor.
+fields:
+  - Los accionistas tendrán un plazo de: term_to_pay
+    default: "Dos años"
+    input type: radio
+    choices:
+      - Dos años
+      - Un tiempo menor
+  - Periodo: term_to_pay_other
+    input type: radio
+    choices:
+      - Meses
+      - Años
+    show if:
+      variable: term_to_pay
+      is: Un tiempo menor
+  - ¿Cuántos?: term_to_pay_other_term
+    datatype: integer
+    min: 1
+    max: 24
+    show if:
+      variable: term_to_pay_other
+      is: Meses
+  - ¿Cuántos?: term_to_pay_other_term
+    datatype: integer
+    min: 1
+    max: 2
+    show if:
+      variable: term_to_pay_other
+      is: Años
+section: data_shareholders
+progress: 26
+---
+mandatory: True
+question: |
+  ¿Habrá Derecho de Preferencia para la negociación de acciones?
+subquestion: |
+  Cuando hay derecho de preferencia en la negociación de acciones, el accionista que esté interesado en vender sus acciones, antes de ofrecerlas a terceros, estará obligado a ofrecer sus acciones a la sociedad o  a los demás accionistas.
+fields: 
+  - no label: preference_right
+    datatype: yesnoradio
+  - ¿En qué orden?: preference_right_order
+    input type: radio
+    choices:
+      - Primero a la sociedad y luego a los accionistas 
+      - Primero a los accionistas y luego a la sociedad
+      - Solo a los accionistas
+      - Solo a la sociedad
+    show if:
+      variable: preference_right
+      is: True
+section: preference
+progress: 28
+---
+mandatory: True
+question: |
+  ¿Habrá Derecho de Preferencia en la emisión de acciones de la sociedad?
+subquestion: |
+  Al responder "Sí", las nuevas acciones que se vayan a emitir primero serán para los accionistas existentes, antes que a personas externas.
+yesno: suscription_preference
+section: preference
+progress: 30
+---
+mandatory: True
+question: |
+  Quorum
+subquestion: |
+  El quorum deliberatorio y El quorum decisorio mínimo permitido por la ley es la mitad más una de las acciones totales de la sociedad, sin embargo, puede establecerse un porcentaje superior para cada uno de ellos.
+fields:
+  - Deliberatorio: deliberatory_votes
+    default: "Mayoria siemple(+1)"
+    input type: radio
+    choices:
+      - Mayoría simple(+1)
+      - Un porcentaje superior
+  - ¿Cuál?: other_percentage
+    datatype: integer
+    min: 50.001
+    max: 100
+    show if:
+      variable: deliberatory_votes
+      is: Un porcentaje superior
+  - Decisorio: decisory_votes
+    default: "Mayoria siemple(+1)"
+    input type: radio
+    choices:
+      - Mayoría simple(+1)
+      - Un porcentaje superior
+  - ¿Cuál?: other_percentage_decisory
+    datatype: integer
+    min: 50.001
+    max: 100
+    show if:
+      variable: decisory_votes
+      is: Un porcentaje superior
+section: assembly
+progress: 32
+---
+mandatory: True
+question: |
+  ¿Con cuántos días hábiles de anticipación se deben citar las reuniones de la asamblea de accionistas y reuniones extraordinarias? 
+subquestion: |
+  Lo habitual es convocar con 5 días hábiles de anticipación, pero puedes escoger cualquier otro plazo (no se cuenta el día de la citación, ni el día de la reunión)
+fields:
+  - Asamblea de accionistas: ordinary_meeting_request_term
+    input type: radio
+    default: "El mínimo legal de 5 días hábiles"
+    choices:
+      - El mínimo legal de 5 días hábiles
+      - Otro
+  - ¿Cuál?: other_ordinary_meeting_request_term
+    min: 5
+    datatype: integer
+    show if:
+      variable: ordinary_meeting_request_term
+      is: Otro
+  - Reuniones extraordinarias: extra_meeting_request_term
+    input type: radio
+    default: "El mínimo legal de 5 días hábiles"
+    choices:
+      - El mínimo legal de 5 días hábiles
+      - Otro
+  - ¿Cuál?: other_extra_meeting_request_term
+    min: 5
+    datatype: integer
+    show if:
+      variable: extra_meeting_request_term
+      is: Otro
+section: assembly
+progress: 34
+---
+mandatory: True
+question: |
+  ¿Con qué porcentaje de votos se podrán aceptar nuevos temas a tratar en una reunión extraordinaria de asamblea de accionistas? 
+fields:
+  - no label: vote_agenda
+    default: "70% (que es el mínimo legal)"
+    input type: radio
+    choices:
+      - 70% (que es el mínimo legal)
+      - Un porcentaje superior
+  - ¿Cuál porcentaje?: vote_agenda_custom
+    datatype: integer
+    min: 70
+    max: 100
+    show if:
+      variable: vote_agenda
+      is: Un porcentaje superior
+section: assembly
+progress: 36
+---
+mandatory: True
+question: |
+  ¿La sociedad tendrá junta directiva?
+subquestion: |
+  No es obligatorio tener junta directiva en la SAS.
+yesno: board_of_directors
+section: boards_director
+progress: 38
+---
+mandatory: |
+  board_of_directors == True
+code: |
+  no_accionistas = len(accionistas)
+  plus_one = half_plus_one(no_accionistas)
+---
+objects:
+  - members: DAList.using(object_type=Individual, complete_attribute='complete', ask_number=True)
+  - members[i].user:  DAList.using(object_type=Individual, complete_attribute='complete')
+---
+mandatory: |
+  board_of_directors == True
+code: |
+  members.gather()
+  members.reviewed
+---
+code: |
+  members[i].director_type
+  members[i].name
+  if members[i].director_type == "Persona Natural":
+    members[i].director_id_type
+  members[i].director_id_number
+  members[i].appointment_acceptance
+  members[i].director_alternate
+  if members[0].director_alternate:
+    members[i].user.gather()
+  members[i].complete = True
+---
+code: |
+  members[i].user[j].director_alternate_type
+  members[i].user[j].name
+  if members[i].user[j].director_alternate_type == "Persona Natural":
+    members[i].user[j].director_alternate_id_type
+  members[i].user[j].director_alternate_id_number
+  members[i].user[j].appointment_acceptance_alternate
+  members[i].user[j].complete = True
+---
+code: |
+  members[i].user.there_is_another = False
+---
+code: |
+  if members[i].director_alternate:
+    members[i].user.there_are_any = True
+  else:   
+    members[i].user.there_are_any = False
+---
+question: |
+ ¿Cuántos miembros de la junta directiva habrá?
+subquestion: |
+  Pueden nombrarse varios miembros, mínimo 3 y máximo 10.
+fields:
+  - no label: members.target_number
+    datatype: integer
+    min: 3
+    max: 10
+section: boards_director
+progress: 40
+---
+if: i == 0
+question: |
+  Danos los datos del ${ get_ordinal("male",i) } miembro de la junta directiva
+subquestion: |
+  Si los miembros de junta o sus suplentes no estuvieron en la reunión de constitución de la sociedad, deberán aceptar su cargo a través de una carta o poniendo su firma y nombre en el documento. Recuerda que si seleccionas un suplente los demás miembros de la junta deberan tener un suplente.
+fields:
+  - no label: members[i].director_type
+    input type: radio
+    code: get_list('type_j')
+  - Nombre(s): members[i].name.first
+    hint: Nombre(s)
+    show if: 
+      variable: members[i].director_type
+      is: "Persona Natural"
+  - Apellido(s): members[i].name.last
+    hint: Apellido(s)
+    show if: 
+      variable: members[i].director_type
+      is: "Persona Natural"
+  - Nombre de la persona jurídica: members[i].name
+    hint: Compañía S.A.S
+    show if: 
+      variable: members[i].director_type
+      is: "Persona Jurídica"
+  - Tipo de identifiación: members[i].director_id_type
+    datatype: dropdown
+    code: get_list_dni('N')
+    show if: 
+      variable: members[i].director_type
+      is: "Persona Natural"
+  - Número de identificación: members[i].director_id_number
+    hint: dni
+    show if:
+      variable: members[i].director_type
+      is: "Persona Natural"
+  - NIT: members[i].director_id_number
+    hint: nit
+    show if: 
+      variable: members[i].director_type
+      is: "Persona Jurídica"
+  - ¿Estuvo presente en la reunión y aceptó el cargo?: members[i].appointment_acceptance
+    datatype: yesnoradio
+    js show if: |
+      da_val('members[i].director_type') == "Persona Natural" ||  da_val('members[i].director_type') == "Persona Jurídica"
+  - ¿Quieres que este miembro tenga un suplente que lo reemplace en caso de que no pueda cumplir sus funciones o esté ausente?: members[i].director_alternate
+    datatype: yesnoradio
+    js show if: |
+      da_val('members[i].director_type') == "Persona Natural" ||  da_val('members[i].director_type') == "Persona Jurídica"
+section: boards_director
+progress: 40
+---
+if: members[i].director_alternate
+question: |
+  ¿Cuales son los datos del suplente?
+fields:
+  - no label: members[i].user[j].director_alternate_type
+    input type: radio
+    code: get_list('type_j')
+  - Nombre(s): members[i].user[j].name.first
+    hint: Nombre(s)
+    show if:
+      variable: members[i].user[j].director_alternate_type
+      is: "Persona Natural"
+  - Apellido(s):  members[i].user[j].name.last
+    hint: Apellido(s)
+    show if:
+      variable: members[i].user[j].director_alternate_type
+      is: "Persona Natural"
+  - Nombre de la persona jurídica: members[i].user[j].name
+    hint: Compañía SAS
+    show if:
+      variable: members[i].user[j].director_alternate_type
+      is: "Persona Jurídica"
+  - Tipo identificación: members[i].user[j].director_alternate_id_type
+    datatype: dropdown
+    code: get_list_dni('N')
+    show if:
+      variable: members[i].user[j].director_alternate_type
+      is: "Persona Natural"
+  - Número de identificación: members[i].user[j].director_alternate_id_number
+    hint: dni
+    show if:
+      variable: members[i].user[j].director_alternate_type
+      is: "Persona Natural"
+  - NIT: members[i].user[j].director_alternate_id_number
+    hint: nit
+    show if:
+      variable: members[i].user[j].director_alternate_type
+      is: "Persona Jurídica"
+  - ¿Estuvo presente en la reunión y aceptó el cargo?: members[i].user[j].appointment_acceptance_alternate
+    datatype: yesnoradio
+    js show if: |
+      da_val('members[i].user[j].director_alternate_type') == "Persona Natural" ||  da_val('members[i].user[j].director_alternate_type') == "Persona Jurídica"
+section: boards_director
+progress: 40
+---
+if: i > 0
+question: |
+  Danos los datos del ${ get_ordinal("male",i) } miembro de la junta directiva
+subquestion: |
+  Si los miembros de junta o sus suplentes no estuvieron en la reunión de constitución de la sociedad, deberán aceptar su cargo a través de una carta o poniendo su firma y nombre en el documento. Recuerda que si seleccionas un suplente los demás miembros de la junta deberan tener un suplente.
+fields:
+  - no label: members[i].director_type
+    input type: radio
+    code: get_list('type_j')
+  - Nombre(s): members[i].name.first
+    hint: Nombre(s)
+    show if:
+      variable: members[i].director_type
+      is: "Persona Natural"
+  - Apellido(s): members[i].name.last
+    hint: Apellido(s)
+    show if:
+      variable: members[i].director_type
+      is: "Persona Natural"
+  - Nombre de la persona jurídica: members[i].name
+    hint: Compañía S.A.S
+    show if: 
+      variable: members[i].director_type
+      is: "Persona Jurídica"
+  - Tipo de identifiación: members[i].director_id_type
+    datatype: dropdown
+    code: get_list_dni('N')
+    show if:
+      variable: members[i].director_type
+      is: "Persona Natural"
+  - Número de identificación: members[i].director_id_number
+    hint: dni
+    show if:
+      variable: members[i].director_type
+      is: "Persona Natural"
+  - NIT: members[i].director_id_number
+    hint: nit
+    show if: 
+      variable: members[i].director_type
+      is: "Persona Jurídica"
+  - ¿Estuvo presente en la reunión y aceptó el cargo?: members[i].appointment_acceptance
+    datatype: yesnoradio
+    js show if: |
+      da_val('members[i].director_type') == "Persona Natural" ||  da_val('members[i].director_type') == "Persona Jurídica"
+section: boards_director
+progress: 40
+---
+code: |
+  if i > 0:
+    if members[0].director_alternate:
+      members[i].director_alternate = True
+    else:
+      members[i].director_alternate = False
+---
+question: |
+  Estos son los miembros de la junta directiva
+subquestion: |
+  Nombres de los miembros  |
+  -------------------------|
+  % for item in members:
+  ${item.name}             |
+  % endfor
+  
+continue button field: members.reviewed
+section: boards_director
+progress: 40
+---
+mandatory: |
+  board_of_directors == True
+question: |
+  ¿Cuál es el periodo de nombramiento de los miembros de la junta directiva?
+subquestion: |
+  Es habitual que los miembros de la junta directiva permanezcan por un (1) año.
+fields:
+  - Número: directors_term
+    datatype: integer
+    default: 1
+  - Periodo: directors_period
+    input type: radio
+    default: Año(s)
+    choices:
+      - Meses
+      - Año(s)
+section: boards_director
+progress: 42
+---
+mandatory: |
+  board_of_directors == True
+question: |
+  ¿Cada cuánto se debe reunir la junta directiva de forma obligatoria?
+subquestion: |
+  Es habitual que la junta directiva se reúna 1 vez al mes o 1 vez cada 2 meses.
+fields:
+  - ¿Cada cuanto tiempo?: bod_session_period
+    input type: radio
+    choices:
+      - 1 vez al mes
+      - 1 vez cada dos meses
+      - 1 vez cada trimestre
+      - 1 vez cada semestre
+      - 1 vez cada año
+section: boards_director
+progress: 44
+---
+code: |
+  if board_of_directors == False:
+    board_of_directors = False
+---
+mandatory: |
+  board_of_directors == True
+question: |
+  ¿Con cuántos días hábiles de anticipación se deben citar las reuniones ordinarias y reuniones extraordinarias de la Junta Directiva?
+subquestion: |
+  Lo habitual es convocar con 5 días hábiles de anticipación, pero puedes escoger cualquier otro plazo (no se cuenta el día de la citación, ni el día de la reunión)
+fields:
+  - Reuniones Ordinarias: bod_ordinary_meeting_request_term
+    input type: radio
+    default: "5 días hábiles"
+    choices:
+      - 5 días hábiles
+      - Otro
+  - ¿Cuáles?: other_days
+    datatype: integer
+    min: 1
+    show if:
+      variable: bod_ordinary_meeting_request_term
+      is: Otro
+  - Reuniones extraordinarias: bod_extra_meeting_request_term
+    input type: radio
+    default: "5 días hábiles"
+    choices:
+      - 5 días hábiles
+      - Otro
+  - ¿Cuáles?: extra_meeting_other_days
+    datatype: integer
+    show if:
+      variable: bod_extra_meeting_request_term
+      is: Otro
+section: boards_director
+progress: 46
+---
+mandatory: |
+  board_of_directors == True
+question: |
+  ¿Cuál es el quorum deliberatorio y quorum decisorio de la junta directiva?
+fields:
+  - Quorum deliberatorio: bod_deliberation_votes
+    default: "Mayoría simple(+1)"
+    input type: radio
+    choices:
+      - Mayoría simple(+1)
+      - Otro número superior
+  - ¿Cuál?: other_deliberation_votes
+    datatype: integer
+    min: |
+      ${ plus_one }
+    show if:
+      variable: bod_deliberation_votes
+      is: Otro número superior
+  - Quorum Decisorio: bod_decision_votes
+    default: "Mayoría simple(+1)"
+    input type: radio
+    choices:
+      - Mayoría simple(+1)
+      - Otro número superior
+  - ¿Cuál?: other_decision_votes
+    datatype: integer
+    min: |
+      ${ plus_one }
+    show if:
+      variable: bod_decision_votes
+      is: Otro número superior
+section: boards_director
+progress: 48
+---
+mandatory: |
+  board_of_directors == True
+question: |
+  Las siguientes son las funciones que normalmente se le dan a la junta directiva. Puedes agregar funciones nuevas si lo deseas. También puedes desmarcar una o varias de las funciones si quieres que estas sean ejecutadas por la Asamblea de Accionistas.
+fields:
+  - no label: bod_functions
+    datatype: checkboxes
+    none of the above: False
+    code: |
+      board_function
+section: boards_director
+progress: 50
+---
+code: |
+  if board_of_directors == False:
+    board_of_directors = False
+---
+code: |
+  board_function = [
+    ["Nombrar al representante legal"],
+    ["Ordenar las acciones legales que correspondan contra el administrador"],
+    ["Aprobar el reglamento de emisión y colocación de acciones"],
+    ["Aprobar la apertura de sucursales o regionales en diferentes ciudades"],
+    ["Dirigir y controlar todos los negocios de la Sociedad"],
+    ["Ordenar al representante legal la firma de contratos"],
+    ["Aprobar la prestación o comercialización de nuevos servicios y/o productos"],
+    ["Decidir sobre las excusas y licencias del Representante legal de la Sociedad"],
+    ["Servir de órgano de interpretación para toda duda o confusión que pueda surgir a propósito de estos estatutos o de cualquier norma interna de la Sociedad"],
+    ["Definir el organigrama de la Sociedad y fijar las escalas de remuneración de los diferentes cargos"],
+    ["Otra(s)"]
+  ]
+---
+objects: 
+  - other_functions: DAList.using(object_type=DAObject, complete_attribute='complete')
+---
+code: |
+  if board_of_directors == True:
+    if bod_functions["Otra(s)"]:
+      other_functions.there_are_any = True
+    else:
+      other_functions.there_are_any = False
+  else:
+    other_functions.there_are_any = False
+---
+mandatory: |
+  other_functions.there_are_any == True
+code: |
+  other_functions.gather()
+  other_functions.reviewed
+---
+code: |
+  other_functions[i].name
+  other_functions[i].complete = True
+---
+code: |
+  other_functions.there_is_another  = False
+---
+question: |
+  ¿Cuáles son las funciones adicionales ? 
+fields: 
+  - no label: other_functions[i].name
+    hint: Ingresar solo una función a la vez.
+list collect: 
+  label: |
+    ${ new_board_funct } ${ i+1 }
+section: boards_director
+progress: 52
+---
+code: |
+  if board_of_directors == True:
+    board = False
+    if other_functions.there_are_any == True:
+      board = True
+  else:
+    board = False
+---
+mandatory: |
+  board == True
+question: |
+  Estas son las nuevas funciones que agregaste:
+fields:
+  - no label: other_board_function
+    datatype: checkboxes
+    none of the above: False
+    code: |
+      [[i.name, i.name, True] for i in other_functions]
+continue button field: other_functions.reviewed
+section: boards_director
+progress: 56
+---
+code: |
+  new_board_funct = "Función"
+---
+mandatory: |
+  board_of_directors == True
+question: |
+  Asamblea de accionistas
+subquestion: |
+  Las siguientes son las funciones que normalmente se le dan a la asamblea de accionistas.
+  
+  % for e in bod_functions.false_values():
+  % if e != "Otra(s)":
+  * ${ e }.[BR]
+  % endif
+  % endfor
+  * Disponer qué reservas deben hacerse además de las legales.[BR]
+  * Fijar el monto del dividendo, así como la forma y plazos en que se pagará.[BR]
+  * Ordenar las acciones que correspondan contra los administradores, funcionarios directivos o el revisor fiscal.[BR]
+  * Elegir y remover libremente a los funcionarios cuya designación le corresponda.[BR]
+  * Disponer que determinada emisión de acciones ordinarias sea colocada sin sujeción al derecho de preferencia, para lo cual se requerirá el voto favorable de no menos del setenta por ciento de las acciones presentes en la reunión.[BR]
+  * Adoptar las medidas que exigiere el interés de la sociedad.[BR]
+  * Ordenar las acciones legales que correspondan contra el administrador.[BR]
+buttons:
+  - Continuar: continue
+section: boards_director
+progress: 58
+---
+objects: 
+  - legal_rep_name: Individual
+---
+mandatory: True
+question: |
+  ¿Quién será nombrado representante legal?
+fields:
+  - no label: legal_rep_type
+    input type: radio
+    code: get_list('type_j')
+  - Nombre: legal_rep_name_company
+    hint: Representantes S.A.S.
+    show if:
+        variable: legal_rep_type
+        is: "Persona Jurídica"
+  - Nombre(s): legal_rep_name.name.first
+    hint: Juan
+    show if:
+        variable: legal_rep_type
+        is: "Persona Natural"
+  - Apellido(s): legal_rep_name.name.last
+    hint: Perez Gómez
+    show if:
+        variable: legal_rep_type
+        is: "Persona Natural"
+  - Tipo de iIdentificación: legal_rep_id_type
+    datatype: dropdown
+    code: get_list_dni('N')
+    show if:
+        variable: legal_rep_type
+        is: "Persona Natural"
+  - Número de identificación: legal_rep_id_number
+    hint: dni
+    show if:
+        variable: legal_rep_type
+        is: "Persona Natural"
+  - Nit: legal_rep_id_number_company
+    hint: nit
+    show if:
+        variable: legal_rep_type
+        is: "Persona Jurídica"
+section: legal_representation
+progress: 60
+---
+mandatory: True
+question: |
+  ¿El representante legal tendrá limitaciones?
+subquestion: |
+  Los estatutos son el lugar en donde se puede decidir que puede y que no puede hacer el representante legal. Es posible limitarle ciertas actuaciones, las cuales solo podrá realizar si es autorizado previamente. Una limitación habitual que puede incluirse es, por ejemplo, que no pueda firmar contratos con un valor superior a 50 millones de pesos sin estar autorizado por la asamblea. 
+fields:
+  - Cuantía o valor: legal_rep_limits
+    datatype: yesnoradio
+  - ¿A partir de qué monto debería pedir autorización?: legal_rep_quant_limits
+    hint: money
+    show if:
+      variable: legal_rep_limits
+      is: True
+  - Podra realizar préstamos, avales, fianzas: legal_rep_loan_limits
+    datatype: yesnoradio
+section: legal_representation
+progress: 62
+---
+objects:
+  - suplents: DAList.using(object_type=Individual, complete_attribute='complete')
+---
+mandatory: |
+  suplents.there_are_any == True
+code: |
+ suplents.gather()
+ suplents.reviewed
+---
+code: |
+  suplents[i].alternate_type
+  suplents[i].name
+  if suplents[i].alternate_type == "Persona Natural":
+    suplents[i].alternate_id_type
+    suplents[i].alternate_id_number
+  else:  
+    suplents[i].alternate_company_nit
+  suplents[i].complete = True
+---
+table: suplents.table
+rows: suplents
+columns:
+  - Suplentes: |
+      row_item.alternate_name
+edit:
+  - alternate_name
+allow reordering: True
+---
+question: |
+  ¿El representante legal tendrá suplentes?
+subquestion: |
+  El suplente reemplaza al representante legal cuando esté ausente o no pueda cumplir sus funciones.
+yesno: suplents.there_are_any
+section: legal_representation
+progress: 64
+---
+question: |
+  Identifica al ${get_ordinal("male",i)} representante legal suplente
+fields:
+  - no label: suplents[i].alternate_type
+    input type: radio
+    code: get_list('type_j')
+  - Nombre(s): suplents[i].name.first
+    hint: Nombre(s)
+    show if:
+      variable: suplents[i].alternate_type
+      is: "Persona Natural"
+  - Apellido(s): suplents[i].name.last
+    hint: Apellido(s)
+    show if:
+      variable: suplents[i].alternate_type
+      is: "Persona Natural"
+  - Nombre: suplents[i].name
+    hint: Nombre de la compañía S.A.S
+    show if:
+      variable: suplents[i].alternate_type
+      is: "Persona Jurídica"
+  - Tipo de iIdentificación: suplents[i].alternate_id_type
+    datatype: dropdown
+    code: get_list_dni('N')
+    show if:
+      variable: suplents[i].alternate_type
+      is: "Persona Natural"
+  - Número de identificación: suplents[i].alternate_id_number
+    hint: dni
+    show if:
+      variable: suplents[i].alternate_type
+      is: "Persona Natural"
+  - Nit: suplents[i].alternate_company_nit
+    hint: nit
+    show if:
+      variable: suplents[i].alternate_type
+      is: "Persona Jurídica"
+section: legal_representation
+progress: 64
+---
+question: |
+  ¿Se nombrará otro suplente?
+yesno: suplents.there_is_another
+section: legal_representation
+progress: 64
+---
+question: |
+  Estos son los suplentes que indicaste
+subquestion: |
+  
+  Nombre(s)     |
+  --------------|
+  % for item in suplents:
+  ${item.name}  |
+  % endfor
+continue button field: suplents.reviewed
+section: legal_representation
+progress: 66
+---
+mandatory: |
+  suplents.there_are_any == True
+code: 
+  alternate_number = len(suplents)
+---
+mandatory: |
+  suplents.there_are_any == True
+question: |
+  Limitaciones del Representante Legal Suplente.
+fields:
+  - no label: equal_functions
+    input type: radio
+    choices:
+      - Mismas que el Representante Legal Principal
+      - Con un límite diferente
+  - ¿Cuál será el monto límite?: alternate_limits
+    hint: money
+    show if:
+      variable: equal_functions
+      is: Con un límite diferente
+section: legal_representation
+progress: 68
+---
+mandatory: True
+question: |
+  ¿Quieres que la sociedad tenga una reserva de utilidades (igual a la legal en los otros tipos de sociedades)?
+subquestion: |
+  La reserva obligatoria en otros tipos de sociedades es un 10% de las utilidades anuales hasta completar un 50% del valor del capital suscrito. Cuando se completa el monto del 50%, ya no existirá la obligación de reservar parte de las utilidades.
+yesno: reserve
+section: special
+progress: 70
+---
+mandatory: True
+question: |
+  ¿Qué mayoría se necesita para que los accionistas puedan decidir terminar la Sociedad?
+subquestion: |
+  Los accionistas, en asamblea, pueden decidir terminar y liquidar la sociedad. Esta decisión puede ser tomada por la mitad más uno de las acciones presentes en la reunión de asamblea, sin embargo, esta mayoría puede ser superior. 
+fields:
+  - no label: disolution_majority
+    input type: radio
+    choices:
+      - Mayoría simple(+1)
+      - Un porcentaje superior
+  - ¿Cuál?: other_disolution
+    datatype: integer
+    min: |
+      ${ plus_one }
+    show if:
+      variable: disolution_majority
+      is: Un porcentaje superior
+section: special
+progress: 72
+---
+mandatory: True
+question: |
+  ¿Deseas que las controversias sean solucionadas por un juez ordinario o por un tribunal de arbitramento? 
+subquestion: |
+  El tribunal de arbitramento es una forma de acudir a la justicia sin tener que ir ante un juez ordinario. El tribunal de arbitramento imparte una justicia privada, normalmente más especializada y rápida, pero también más costosa que la justicia tradicional.
+fields:
+  - no label: controversy
+    input type: radio
+    choices:
+      - Juez ordinario 
+      - Tribunal de arbitramento
+section: special
+progress: 74
+---
+mandatory: |
+  controversy == "Tribunal de arbitramento"
+question: |
+  Información del tribunal de arbitramento
+subquestion: |
+  Siempre debe ser un numero impar. Las partes pueden escoger cuantos árbitros resolverán el caso. Si las partes no indican un número, la ley establece que nombrará un árbitro si el conflicto es por menos de $131.640.450, si es por más, serán 3 árbitros.
+fields:    
+  - ¿Qué tribunal de arbitramento desea?: arbitration_court
+    input type: radio
+    choices:
+      - Cámara de comercio
+      - Superintendencia de sociedades
+  - ¿Número de árbitros en el tribunal?: arbitrator_number
+    input type: radio
+    choices:
+      - 1
+      - 3
+section: special
+progress: 76
+---
+mandatory: True
+question: |
+  ¿Durante cuánto tiempo los accionistas pueden ejercer el derecho de inspección?
+subquestion: |
+  El mínimo legal es de 5 días hábiles antes de la reunión de asamblea ordinaria.
+fields:
+  - no label: right_inspection
+    input type: radio
+    default: "El mínimo legal de 5 días hábiles"
+    choices:
+      - El mínimo legal de 5 días hábiles
+      - Otro
+  - Número días: inspection_term
+    datatype: integer
+    min: 5
+    show if:
+      variable: right_inspection
+      is: Otro
+section: special
+progress: 78
+---
+mandatory: True
+question: |
+  ¿Se nombrará un revisor fiscal?
+subquestion: |
+  En la SAS no es obligatorio tener revisor fiscal, solo si la sociedad el año anterior tuvo activos iguales o superiores a 5.000 salarios mínimos debe nombrar un revisor fiscal
+yesno: statutory_auditor
+section: special
+progress: 80
+---
+objects:
+  - auditor_name: Individual
+---
+mandatory: |
+  statutory_auditor == True
+question: |
+  ¿Quién sera revisor físcal?
+subquestion: |
+  Recuerda que el revisor fiscal debe entregar una carta aceptando la designación al cargo.
+fields:
+  - no label: statutory_auditor_type
+    input type: radio
+    code: get_list('type_j')
+  - Nombre(s): auditor_name.name.first
+    hint: Nombre(s)
+    show if:
+      variable: statutory_auditor_type
+      is: "Persona Natural"
+  - Apellido(s): auditor_name.name.last
+    hint: Apellido(s)
+    show if:
+      variable: statutory_auditor_type
+      is: "Persona Natural"
+  - Nombre: auditor_name.name
+    hint: Nombre de la compañía S.A.S
+    show if:
+      variable: statutory_auditor_type
+      is: "Persona Jurídica"
+  - Tipo de identificación: auditor_id_type
+    datatype: dropdown
+    code: get_list_dni('N')
+    show if:
+      variable: statutory_auditor_type
+      is: "Persona Natural"
+  - Número de identificación: auditor_id_number
+    hint: dni
+    show if:
+      variable: statutory_auditor_type
+      is: "Persona Natural"
+  - Número de tarjeta profesional: auditor_proffessional_id
+    datatype: integer
+    minlength: 6
+    maxlength: 8
+    show if:
+      variable: statutory_auditor_type
+      is: "Persona Natural"
+  - Nit: auditor_nit
+    hint: nit
+    show if:
+      variable: statutory_auditor_type
+      is: "Persona Jurídica"
+section: special
+progress: 82
+---
+objects:
+  - suplent_auditor: Individual
+---
+mandatory: |
+  statutory_auditor == True and statutory_auditor_type == "Persona Jurídica"
+question: |
+  ¿${ auditor_name } a quién designará para el cargo?
+fields:
+  - Nombre(s): suplent_auditor.name.first
+    hint: Nombre(s)
+  - Apellido(s): suplent_auditor.name.last
+    hint: Apellido(s)
+  - Tipo de documento: suplent_auditor_representative_id_type
+    datatype: dropdown
+    code: get_list_dni('N')
+  - Número de documento: suplent_auditor_representative_id_number
+    hint: dni
+  - Tarjeta profesional: suplent_auditor_representative_professional_number
+    datatype: integer
+    minlength: 6
+    maxlength: 8
+section: special
+progress: 84
+---
+mandatory: |
+  statutory_auditor == True
+question: |
+  ¿Tendrá suplentes el revisor físcal?
+yesno: alternate_statutory_auditor
+section: special
+progress: 86
+---
+code: |
+  if statutory_auditor == False:
+    alternate_statutory_auditor = False
+---
+objects:
+  - auditor_alternate_name: Individual
+---
+mandatory: |
+  statutory_auditor == True and alternate_statutory_auditor == True
+question: |
+  ¿Cuáles son los datos del suplente?
+fields:
+  - Nombre(s): auditor_alternate_name.name.first
+    hint: Nombre(s)
+  - Apellido(s): auditor_alternate_name.name.last
+    hint: Apellido(s)
+  - Tipo de documento: auditor_alternate_id_type
+    datatype: dropdown
+    code: get_list_dni('N')
+  - Número de documento: auditor_alternate_number
+  - Tarjeta profesional: auditor_alternate_professional_number
+    datatype: integer
+    minlength: 6
+    maxlength: 8
+section: special
+progress: 88
+---
+mandatory: |
+  statutory_auditor == True
+question: |
+  % if alternate_statutory_auditor == True:
+    Datos del revisor físcal y suplente.
+  %else:
+    Datos del revisor físcal.
+  % endif
+subquestion: |
+  % if alternate_statutory_auditor == True:
+  Nombres          |Suplentes                        |
+  -----------------|---------------------------------|
+  ${ auditor_name }|${ auditor_alternate_name.name } |
+  % else:
+  Nombres          |
+  -----------------|
+  ${ auditor_name }|
+  % endif
+buttons:
+  - Continuar: continue
+section: special
+progress: 90
+---
+mandatory: true
+code: |
+  if 'price' in url_args:
+    price = currency(url_args['price'], decimals= False)
+  else:
+    price = '$0'
+  files_saved = save_files(the_document, 'Estatutos SAS', True, user_info().session)
+  juzto_callback = get_callback_final_screen(price, files_saved, 'Estatutos SAS', True)  
+---
+attachment:
+  variable name: the_document
+  docx template file: IT_JC_200724_v1_estatutosSAS.docx
+---
+event: final_screen
+mandatory: true
+progress: 100
+question: |
+  ${ z_text_final_screen }
+subquestion: |
+  ${ juzto_callback }
+id: juzto_da_final    
+allow emailing: False
+back button: False

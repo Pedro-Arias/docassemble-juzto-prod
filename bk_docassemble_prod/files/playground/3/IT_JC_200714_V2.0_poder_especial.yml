@@ -1,0 +1,600 @@
+metadata:
+  title: |
+   Poder especial
+  short title: |
+   Poder especial
+  description: |
+   Poder especial
+  authors:
+    - name: Julian Cogua
+      organization: DocumentosLegales.co
+    - name: Juan David Castilla
+      organization: DocumentosLegales.co
+  create_date: 2020-07-15
+---
+features:
+  navigation: True
+  progress bar: True
+  show progress bar percentage: True
+  hide standard menu: False
+  hide navbar: True
+  question back button: True
+---
+default screen parts:
+  under: |
+    % if show_save_resume_message:
+    [Guardar y terminar después](${ url_action('save_and_resume') })
+    % endif
+    [Volver a comenzar](${ url_action('restart_interview') })    
+---
+event: restart_interview
+code: |
+  force_ask('wants_to_restart', {'recompute': ['restart_done']})
+---
+question: |
+  ¿Estás seguro de querer reiniciar tu ${ all_variables(special='titles')['full'] }?
+subquestion: |
+  La información que ya hallas ingresado se perdera, tendras que volver a ingresar todas las respuestas.
+field: wants_to_restart
+buttons:
+  - Si, eliminar datos ingresados: True
+back button label: No gracias, continuar mi documento
+under: ""
+---
+code: |
+  if wants_to_restart:
+    command('restart')
+  restart_done = True
+---
+include:
+  - docassemble.playground3:autoterms.yml
+---
+modules:
+  - docassemble.playground3.juztoModules
+  - docassemble.playground3.juztoListChoices
+---
+initial: True
+code: |
+  multi_user = True
+  show_save_resume_message = True
+  the_sections = [{'intro':'Introducción'}]
+  the_sections.append({'surrender':'Datos de quien da el poder'})
+  the_sections.append({'receive':'Datos de quien recibe el poder'})
+  the_sections.append({'entity':'Empresa o entidad que te pide el poder'})
+  the_sections.append({'information':'Información del trámite'})
+  the_sections.append({'restrictions':'Restricciones'})
+  the_sections.append({'confirmation':'Confirmación de los datos'})
+  nav.set_sections(the_sections)
+---
+mandatory: True
+scan for variables: False
+code: |
+  if target == 'save_and_resume':
+    if wants_email:      
+      show_save_resume_message = False
+    undefine('wants_email')
+    undefine('email_sent')
+    target = 'normal'
+  start_question
+  agrees_to_terms
+  client_type
+  if client_type == "Persona Jurídica":
+    company_name
+    nit
+    legal.name
+    legal_grantor_id_number
+  else:
+    grantor_type_id
+  agent_type
+  if agent_type == "Persona Jurídica":
+    agent_company
+    agent_legal.name
+    legal_agent_id_number
+  else:
+    lawyer
+    if lawyer == True:
+      profesional_id_number
+  date_presentation
+  entity_name
+  procedure
+  activity
+  if restrictio.there_are_any == True:
+    restrictio.gather()
+    restrictio.reviewed
+  if defeated == True:
+    duration
+  answers_reviewed
+  final_screen
+---
+event: surrender
+section: surrender
+question: |
+  Datos de quien da el poder
+review:
+  - Editar: client_type
+    button: |
+      **Tipo: ** ${client_type}[BR]
+      % if client_type == "Persona Jurídica":
+      **Nombre de la persona jurídica: **${ company_name }[BR]
+      **NIT:** ${ generateNit(grantor_id_number) }[BR]
+      **Nombre del representante legal: **${ title_case(str(legal.name).lower()) }[BR]
+      **Número de identificación:** ${ grantor_type_id }. ${ legal_grantor_id_number.upper() }
+      % else:
+      **Nombre de la persona natural: **${ title_case(str(grantor.name).lower()) }[BR]
+      **Número de identifiación:** ${ grantor_type_id }. ${ grantor_id_number.upper() }
+      % endif
+---
+event: receive
+section: receive
+question: |
+  Datos de a quién le das poder
+review:
+  - Editar: agent_type
+    button: |
+      %if agent_type == "Persona Jurídica":
+      **${ agent_type }**[BR]
+      **Nombre de la persona jurídica: **${ agent_company }[BR]
+      **NIT:** ${ generateNit(agent_id_number) }[BR]
+      **Nombre del representante legal: **${ title_case(str(agent_legal.name).lower()) }[BR]
+      **Número de identificación:** ${ agent_type_id }. ${ legal_agent_id_number.upper() }[BR]
+      %else:
+      **${ agent_type }**[BR]
+      **Nombre de la persona natural: **${ title_case(str(agent.name).lower()) }[BR]
+      **Número de identifiación:** ${ agent_type_id }. ${ agent_id_number.upper() }[BR]
+      %endif
+---
+event: entity
+section: entity
+question: |
+  Empresa o entidad que te pide el poder y fecha de firma del poder
+review:
+  - Editar: entity_name
+    button: |
+      **Nombre de la empresa o entidad:** ${ entity_name.capitalize() }
+  - Editar: date_presentation
+    button: |
+      **Ciudad: ** ${ city }[BR]
+      **Fecha de firma:** ${ date_presentation }
+---
+event: information
+section: information
+question: |
+  Información del trámite
+review:
+  - Editar: procedure
+    button: |
+      **Este es el trámite que le estás encargando a ${ title_case(str(agent.name).lower()) if agent_type == "Persona Natural" else agent_company.upper() }:[BR]** ${procedure}
+  - Editar: activity
+    button: |
+      ** Esta es la descripción detallada del trámite que le asignaste a ${ title_case(str(agent.name).lower()) if agent_type == "Persona Natural" else agent_company.upper() } **: ${ activity }
+---
+event: restrictions
+section: restrictions
+question: |
+  Estas son las restricciones que indicaste y la fecha de vencimiento
+review:
+  - Editar: restrictio.reviewed
+    button: |
+      **Restricciones**
+      
+      %for item in restrictio:
+      * ${ item.name }
+      % endfor
+  - Editar: defeated
+    button: |
+      % if defeated == True:
+      **Está es la fecha de vencimiento que indicaste: ** ${ duration }
+      % else:
+      **No agregaste una fecha de vencimiento, puedes editar para agregar una**
+      % endif
+---
+question: |
+  Ahora empezaremos a crear tu poder especial
+subquestion: |
+  El poder especial es una autorización dada a otra persona para que te represente y realice ciertos negocios o actividades específicas a tu nombre. Quien recibe el poder únicamente podrá hacer lo que esté expresamente autorizado en el poder especial. Sin embargo, tu poder especial puede incluir autorización para hacer varias actividades o negocios al mismo tiempo.[BR][BR]
+  Este documento ha sido preparado y revisado por un grupo de abogados expertos. Este es un documento de alta calidad que sólo te tomará diez minutos diligenciar y descargar.[BR][BR]
+  Para tu  tranquilidad, este es un documento de gran calidad, preparado por abogados expertos. Pasos por seguir: [BR][BR]
+  1.	Responde todas las preguntas que te haremos. Estas preguntas han sido preparadas por abogados con mucha experiencia en este tipo de documentos. [BR]
+      Cada respuesta cambia el contenido del documento y lo ajusta a tu caso concreto.[BR][BR]
+  2.	Queremos que lo entiendas todo. En cada pregunta encontrarás explicaciones hechas por nuestros abogados.[BR]
+      Las palabras complicadas estarán subrayadas en azul y en un color diferente, también podrán llevar      un signo de interrogación. Haz clic sobre la palabra o el signo de interrogación para leer la explicación.[BR][BR]
+  3.	Al terminar      tendrás un documento hecho especialmente para ti, construido con base en tus respuestas. Además podrás comprender todos los conceptos del documento con claridad. Entenderás lo que vas a firmar.[BR][BR]
+  Si tienes alguna duda adicional puedes <a href="https://juzto.co/asesoria-legal/consulta-abogado/" target="_blank" class="linkjzda">programar una cita con uno de nuestros abogados</a>.[BR][BR]
+  Gracias por elegir Juzto, empecemos.
+continue button field: start_question
+section: intro
+prevent going back: True
+under: ""
+progress: 1
+---
+question: |
+  Para tu poder especial debes tener lista la siguiente información:
+subquestion: |
+  -	Nombre completo e identificación de quien entrega el poder.
+  -	Nombre completo e identificación de quien recibe el poder.
+  -	Actividades o negocios específicos que se autorizan
+fields:
+  - no label: agrees_to_terms
+    datatype: checkboxes
+    default: "Acepto <a href='https://juzto.co/politica-tratamiento-datos/' target='_blank' class='linkjzdadark'>el tratamiento de los datos personales</a>."
+    minlength: 1
+    choices:
+      - "Acepto <a href='https://juzto.co/politica-tratamiento-datos/' target='_blank' class='linkjzdadark'>el tratamiento de los datos personales</a>."
+    validation messages:
+      minlength: |
+        Debes aceptar el tratamiento de los datos personales para pode continuar.
+section: intro
+prevent going back: True
+under: ""
+progress: 10
+---
+objects:
+   - grantor: Individual
+   - legal: Individual
+---
+question: |
+  ¿Quién va a dar el poder?
+subquestion: |
+  Por favor elige si es persona natural o persona jurídica
+fields:
+  - no label: client_type
+    input type: radio
+    code: get_list('type_j')
+  - Nombre(s): grantor.name.first
+    hint: Camila
+    show if:
+      variable: client_type
+      is: "Persona Natural"
+  - Apellido(s): grantor.name.last
+    hint: Gómez Pérez
+    show if:
+      variable: client_type
+      is: "Persona Natural"
+  - Nombre de la persona jurídica: company_name
+    hint: Soluciones Legales a la Medida S.A.S.
+    show if:
+      variable: client_type
+      is: "Persona Jurídica"
+  - Tipo de identificación: grantor_type_id
+    datatype: dropdown
+    code: get_list_dni('N')
+    show if:
+      variable: client_type
+      is: "Persona Natural"
+  - Número de identificación: grantor_id_number
+    hint: dni
+    show if:
+      variable: client_type
+      is: "Persona Natural"
+  - NIT: nit
+    hint: nit
+    show if:
+      variable: client_type
+      is: "Persona Jurídica"
+  - Nombre(s) del representante legal: legal.name.first
+    hint: Luisa
+    show if:
+      variable: client_type
+      is: "Persona Jurídica"    
+  - Apellido(s) del representante legal: legal.name.last
+    hint: López Rodriguez
+    show if:
+      variable: client_type
+      is: "Persona Jurídica"
+  - Tipo de identificación: grantor_type_id
+    input type: dropdown
+    code:  get_list_dni('N')
+    show if:
+      variable: client_type
+      is: "Persona Jurídica"
+  - Número de identificación: legal_grantor_id_number
+    hint: dni
+    show if:
+      variable: client_type
+      is: "Persona Jurídica" 
+section: surrender
+progress: 20
+---
+objects:
+   - agent: Individual
+   - agent_legal: Individual
+---
+question: |
+  ¿A quién le das poder?
+subquestion: |
+  Por favor elige si es persona natural o persona jurídica
+fields:
+  - no label: agent_type
+    input type: radio
+    code: get_list('type_j')
+  - Nombre(s): agent.name.first
+    hint: Luis
+    show if:
+      variable: agent_type
+      is: "Persona Natural"
+  - Apellido(s): agent.name.last
+    hint: Murcia Cortes
+    show if:
+      variable: agent_type
+      is: "Persona Natural" 
+  - Nombre de la persona jurídica: agent_company
+    hint: Soluciones Legales a la Medida S.A.S.
+    show if:
+      variable: agent_type
+      is: "Persona Jurídica" 
+  - Tipo de identificación: agent_type_id
+    input type: dropdown
+    code:  get_list_dni('N')
+    show if:
+      variable: agent_type
+      is: "Persona Natural"
+  - Número de identificación: agent_id_number
+    hint: dni
+    show if:
+      variable: agent_type
+      is: "Persona Natural"
+  - NIT: agent_id_number
+    hint: nit
+    show if:
+      variable: agent_type
+      is: "Persona Jurídica"  
+  - Nombre(s) del representante legal: agent_legal.name.first
+    hint: John
+    show if:
+      variable: agent_type
+      is: "Persona Jurídica"
+  - Apellido(s) del representante legal: agent_legal.name.last
+    hint: Morales
+    show if:
+      variable: agent_type
+      is: "Persona Jurídica"
+  - Tipo de identificación: agent_type_id
+    input type: dropdown
+    code: get_list_dni('N')
+    show if:
+      variable: agent_type
+      is: "Persona Jurídica"
+  - Número de identificación: legal_agent_id_number
+    hint: dni
+    show if:
+      variable: agent_type
+      is: "Persona Jurídica"
+  - ¿Es abogado?: lawyer
+    datatype: yesnoradio
+    show if:
+      variable: agent_type
+      is: "Persona Natural"
+  - ¿Cuál es el número de la tarjeta profesional?: profesional_id_number
+    datatype: integer
+    minlength: 4
+    maxlength: 8
+    show if:
+      variable: lawyer
+      is: True
+section: receive
+progress: 30
+---
+question: |
+  ¿En qué fecha y ciudad se elabora el poder?
+fields:
+  - no label: date_presentation
+    datatype: date
+  - Ciudad: city
+    input type: dropdown
+    code: get_cities()
+section: entity
+progress: 40
+---
+question: |
+  ¿A quién le presentas el poder?
+subquestion: |
+  Aquí debes escribir el nombre de la persona o entidad a la que le presentas el poder. También puedes escribir "A quien interese" para que lo puedas presentar a cualquier persona o entidad.
+fields:
+  - no label: entity_name
+    hint: Superintendencia de Sociedades.
+section: entity
+progress: 50
+---
+question: |
+  ¿Qué trámite o gestión le estás encargando a ${ title_case(str(agent.name).lower()) if agent_type == "Persona Natural" else agent_company.upper() }?
+fields:
+  - no label: procedure
+    hint: Compraventa de inmueble
+  - Describe detalladamente el trámite: activity
+    datatype: area
+    help: |
+      Danos los detalles de la actividad o gestión encomendada a ${ title_case(str(agent.name).lower()) if agent_type == "Persona Natural" else agent_company.upper() }. Por ejemplo, si es la compra de un inmueble debes detallar el número de matrícula inmobiliaria y la cédula catastral, entre otros.
+    hint: "La firma de la escritura pública No. 12345 para la compraventa del inmueble, con matrícula inmobiliaria 50N-1111111 y cédula catastral 123456787989."
+section: information
+progress: 60
+---
+objects:
+  -  restrictio: DAList.using(object_type=DAObject, complete_attribute='complete')
+---
+code: |
+ restrictio[i].name
+ restrictio[i].complete = True
+---
+table: restrictio.table
+rows: restrictio
+columns:
+  - Titulo: row_item.name
+#  - Exhibit: alpha(row_index)
+edit:
+  - name
+---
+code: |
+  restrictio.there_is_another = False
+---
+question: |
+  ¿${ agent.name if agent_type == "Persona Natural" else agent_company.upper()} tendrá alguna prohibición o límite?
+yesno: restrictio.there_are_any
+section: restrictions
+progress: 70
+---
+field: restrictio.revisit
+question: |
+  Describe cuáles son las restricciones
+fields:
+  - no label: restrictio[i].name
+    datatype: area
+    hint: Ingresa una restricción a la vez
+list collect: 
+  label: |
+    ${ res } ${ i+1 }
+section: restrictions
+progress: 80
+---
+code: |
+  res = "Restriccion"
+---
+question: |
+  Estas son las restricciones que indicaste
+subquestion: |
+  ${ restrictio.table }
+  ${ restrictio.add_action() }
+section: restrictions
+continue button field: restrictio.reviewed
+progress: 85
+---
+question: |
+  ¿Tendrá fecha de vencimieto el poder?
+subquestion: |
+  Es usual que por seguridad el poder tenga una fecha en la que ya no es válido.
+fields:
+  - no label: defeated
+    datatype: yesnoradio
+  - ¿Cuándo?: duration
+    datatype: date
+    show if:
+      variable: defeated
+      is: True
+section: restrictions
+progress: 90
+---
+question: |
+  En esta pantalla puedes revisar tus respuestas
+review:
+  - note: |
+      ### Datos de quien da el poder
+  - Editar: client_type
+    button: |
+      **Tipo: ** ${client_type}[BR]
+      % if client_type == "Persona Jurídica":
+      **Nombre de la persona jurídica: **${ company_name }[BR]
+      **NIT:** ${ generateNit(grantor_id_number) }[BR]
+      **Nombre del representante legal: **${ title_case(str(legal.name).lower()) }[BR]
+      **Número de identificación:** ${ grantor_type_id }. ${ legal_grantor_id_number.upper() }
+      % else:
+      **Nombre de la persona natural: **${ title_case(str(grantor.name).lower()) }[BR]
+      **Número de identifiación:** ${ grantor_type_id }. ${ grantor_id_number.upper() }
+      % endif
+  - note: |
+      ***********
+      ### Datos de a quién le das poder
+  - Editar: agent_type
+    button: |
+      **Tipo: ** ${agent_type}[BR]
+      % if agent_type == "Persona Jurídica":     
+      **Nombre de la persona jurídica: **${ agent_company }[BR]
+      **NIT:** ${ generateNit(agent_id_number) }[BR]
+      **Nombre del representante legal: **${ title_case(str(agent_legal.name).lower()) }[BR]
+      **Número de identificación:** ${ agent_type_id }. ${ legal_agent_id_number.upper() }[BR]
+      % else:
+      **${ agent_type }**[BR]
+      **Nombre de la persona natural: **${ title_case(str(agent.name).lower()) }[BR]
+      **Número de identifiación:** ${ agent_type_id }. ${ agent_id_number.upper() }[BR]
+      % endif
+  - note: |
+      ***********
+      ### Empresa o entidad que te pide el poder y fecha de firma del poder
+  - Editar: entity_name
+    button: |
+      **Nombre de la empresa o entidad:** ${ entity_name.capitalize() }
+  - Editar: date_presentation
+    button: |
+      **Ciudad: ** ${ city }[BR]
+      **Fecha de firma:** ${ date_presentation }
+  - note: |
+      ***********
+      ### Información del trámite
+  - Editar: procedure
+    button: |
+      **Este es el trámite que le estás encargando a ${ title_case(str(agent.name).lower()) if agent_type == "Persona Natural" else agent_company.upper() }:[BR]** ${procedure}
+  - Editar: activity
+    button: |
+      ** Esta es la descripción detallada del trámite que le asignaste a ${ title_case(str(agent.name).lower()) if agent_type == "Persona Natural" else agent_company.upper() } **: ${ activity }
+  - note: |
+      ***********
+      ### Estas son las restricciones que indicaste y la fecha de vencimiento
+  - Editar: restrictio.reviewed
+    button: |
+      **Restricciones**
+      
+      %for item in restrictio:
+      * ${ item.name }
+      % endfor
+  - Editar: defeated
+    button: |
+      % if defeated == True:
+      **Está es la fecha de vencimiento que indicaste: ** ${ duration }
+      % else:
+        **No agregaste una fecha de vencimiento, puedes editar para agregar una**
+      % endif
+  - note: |
+      ***********
+continue button field: answers_reviewed
+section: confirmation
+progress: 99
+---
+code: |
+  if 'price' in url_args:
+    priceDoc = currency(url_args['price'], decimals= False)
+  else:
+    priceDoc = '$0'
+  files_saved = save_files(the_document, 'poder especial', True, user_info().session)
+  juzto_callback = get_callback_final_screen(priceDoc, files_saved, 'poder especial', True)
+---
+reconsider: the_document 
+mandatory: True
+progress: 100
+event: final_screen
+question: |
+  ${ z_text_final_screen }
+subquestion: |
+  ${ juzto_callback }
+allow emailing: False
+back button: False
+---
+attachment:
+  variable name: the_document
+  docx template file: IT_JC_200803_V2.0._poder_especial.docx
+---
+event: save_and_resume
+code: |
+  target = 'save_and_resume'
+  wants_email = True
+---
+code: |  
+  if 'url' in url_args:
+    _url = url_args['url']+'?i='+encode_name(user_info().filename)+'&session='+encode_name(user_info().session)
+  else:
+    _url = interview_url()
+  data = {'interview': all_variables(special='titles')['full'], 'url':_url}
+  send_email_juzto(data, user_email_address, 'leave')
+  email_sent = True
+---
+question: |
+  Podrás terminar luego tu ${ all_variables(special='titles')['full'] }
+subquestion: |
+  Si deseas reanudar tu documento más tarde, podemos enviarte por correo electrónico un enlace en el que puedes hacer clic para reanudar tu documento en un momento posterior.
+fields:
+  - Correo electrónico: user_email_address
+    datatype: email
+continue button label: Enviar correo
+back button label: No gracias, continuar mi documento
+under: ""
+---
+code: |
+  target = 'normal'  
+---

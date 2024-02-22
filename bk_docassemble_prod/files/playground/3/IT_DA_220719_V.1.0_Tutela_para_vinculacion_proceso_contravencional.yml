@@ -1,0 +1,152 @@
+metadata:
+  title: |
+   IT_DA_220406_V.1.0_Derecho_de_peticion_especial
+  short title: |
+    Petición especial
+  description: |
+    Documento para solicitar el fallo de la audiencia cuando ilegalmente no lo notifican en estrados.
+  authors:
+    - name: Laura Pardo
+      organization: Juzto.co
+    - name: Dario Agaton
+      organization: Juzto.co
+---
+features:
+  navigation: True
+  progress bar: True
+  show progress bar percentage: True
+  hide standard menu: False
+  hide navbar: True
+  question back button: True
+---
+include:
+  - docassemble.playground3:autoterms.yml
+---
+modules:
+  - docassemble.playground3.juztoModules
+  - docassemble.playground3.juztoListChoices
+---
+initial: True
+code: |
+  client_type
+  if client_type == "Persona Natural":
+    natural.name
+    complaining_type_id
+    complaining_id_number
+    complaining_id_number = get_dni_formated(complaining_id_number)
+  else:
+    legal.name
+    complaining_id_number
+    legal_representative_name
+    legal_representative_type_id
+    legal_representative_id_number
+    legal_representative_id_number = get_dni_formated(legal_representative_id_number)
+    complaining_id_number = generateNit(complaining_id_number)
+  fotomulta_number
+  date_presentation
+  court_name
+  tutela_number
+  second_presentation_date
+  company_or_entity_name
+  ouremail = 'entidades+'+case_number+'@juzto.co'
+  filing_city
+  final_screen
+---
+objects:
+  - natural: Individual
+  - legal: Individual
+---
+question: |
+  ¿El cliente es persona o empresa?
+fields:
+  - no label: client_type
+    input type: radio
+    code: get_list('type_j')
+---
+question: |
+  ¿Cuáles son los datos de la persona?
+fields:
+  - Nombres: natural.name.first
+    hint: Nombres
+  - Apellidos: natural.name.last
+    hint: Apellidos
+  - Tipo de identificación: complaining_type_id
+    input type: dropdown
+    code:  get_list_dni('N')
+  - Número de identificación: complaining_id_number
+    hint: dni
+id: blockglobal
+---
+question: |
+  ¿Cuáles son los datos de la compañía?
+fields:
+  - Nombre de la compañia: legal.name.first
+  - NIT: complaining_id_number
+    #hint: nit
+  - Nombre del representate legal: legal_representative_name
+  - Tipo de identificación: legal_representative_type_id
+    input type: dropdown
+    code:  get_list_dni('N')
+  - Número de identificación: legal_representative_id_number
+    #hint: dni
+id: blockglobal
+---
+question: |
+  ¿Cuál es el número de la fotomulta? 
+fields:
+  - Numero: fotomulta_number
+---
+question: |
+  ¿Cuándo solicitaste la audiencia?
+fields:
+  - no label: date_presentation
+    datatype: date
+---
+question: |
+  ¿información de la tutela presentada por no haberse permitido agendar la audiencia?
+fields:
+  - ¿Qué juzgado conoció la tutela en primera instancia?: court_name
+  - ¿Cuál fue el número de la tutela?: tutela_number
+---
+question: |
+  ¿Cuando se envió el correo solicitando la vinculación?
+fields:
+  - no label: second_presentation_date
+    datatype: date
+---
+question: |
+  ¿Cuáles son los datos de la entidad?
+fields:
+  - nombre: company_or_entity_name
+  - email: email
+    datatype: email
+  - email: email2
+    datatype: email
+  - email: email3
+    datatype: email
+  - email: email4
+    datatype: email
+  - ciudad: filing_city
+    input type: dropdown
+    code: get_cities()
+---
+question: |
+  ¿Cuál es la línea de defensa a la que corresponde este documento? Ejemplo: LD-780
+fields:
+  - no label: case_number
+---
+attachment:
+  variable name: the_document
+  docx template file: IT_DA_220719_V.1.0_Tutela_para_vinculacion_proceso_contravencional.docx
+---
+code: |
+  files_saved = save_files(the_document, 'Tutela_para_vinculacion_proceso_contravencional', True, user_info().session)
+  juzto_callback = get_callback_final_screen('0', files_saved, 'Tutela_para_vinculacion_proceso_contravencional', True)
+---
+event: final_screen
+question: |
+  ${ z_text_final_screen } - COD: ${user_info().session}
+subquestion: |
+  ${ juzto_callback }
+id: juzto_da_final
+---

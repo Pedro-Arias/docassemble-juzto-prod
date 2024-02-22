@@ -1,0 +1,176 @@
+metadata:
+  title: |
+   Caducidad de comparendo
+  short title: |
+    Caducidad comparendo
+  description: |
+   Documento que se presenta para poner una tutela cuando hay vencimiento del comparendo 
+  authors:
+    - name: Laura Pardo
+      organization: Juzto.co
+    - name: Juan David Castilla
+      organization: Juzto.co
+---
+features:
+  navigation: True
+  progress bar: True
+  show progress bar percentage: True
+  hide standard menu: False
+  hide navbar: True
+  question back button: True
+---
+include:
+  - docassemble.playground3:autoterms.yml
+---
+modules:
+  - docassemble.playground3.juztoModules
+  - docassemble.playground3.juztoListChoices
+---
+initial: True
+code: |
+  client_type
+  if client_type == "Persona Natural":
+    natural.name
+    complaining_type_id
+    complaining_id_number
+    complaining_id_number = get_dni_formated(complaining_id_number)
+  else:
+    legal.name
+    complaining_id_number
+    legal_representative_name
+    legal_representative_type_id
+    legal_representative_id_number
+    legal_representative_id_number = get_dni_formated(legal_representative_id_number)
+    complaining_id_number = generate_nit(complaining_id_number)
+  company_or_entity_name
+  fotomulta_number
+  infraction_date
+  sancionatory_resolution
+  fecha = as_datetime('7/13/2017')
+  if infraction_date <= fecha:
+    dates = True
+  else:
+    dates = False  
+  if sancionatory_resolution == True:
+    first_caducidad = False
+    second_caducidad = False
+    date6mo = infraction_date+ date_interval(months=6)
+    res6mo = sancionatory_resolution_date>=date6mo
+    date12mo = infraction_date+ date_interval(months=12)
+    res12mo = sancionatory_resolution_date>=date12mo
+    if dates == True:
+      if res6mo:
+        first_caducidad = True
+    else:
+      if res12mo:
+        second_caducidad = True
+  c038 = as_datetime('2/8/2020') 
+  if infraction_date >= c038:
+    sentenciac038 = True
+  else:
+    sentenciac038 = False  
+  runt
+  simit
+  ouremail = 'entidades+'+case_number+'@juzto.co, con copia al correo '+cliente_email
+  Signature ="{{signature:0}}"
+  final_screen
+---
+objects:
+  - natural: Individual
+  - legal: Individual
+---
+question: |
+  ¿Cuál es la línea de defensa a la que corresponde este documento? Ejemplo: LD-780
+fields:
+  - no label: case_number
+---
+question: |
+  ¿El cliente es persona o empresa?
+fields:
+  - no label: client_type
+    input type: radio
+    code: get_list('type_j')
+---
+question: |
+  ¿Cuáles son los datos de la persona?
+fields:
+  - Nombres: natural.name.first
+    hint: Nombres
+  - Apellidos: natural.name.last
+    hint: Apellidos
+  - Tipo de identificación: complaining_type_id
+    input type: dropdown
+    code:  get_list_dni('N')
+  - Número de identificación: id_person
+  - Email: cliente_email
+    #hint: dni
+id: blockglobal
+---
+question: |
+  ¿Cuáles son los datos de la compañía?
+fields:
+  - Nombre de la compañia: legal.name.first
+  - NIT: id_person
+    hint: nit
+  - Nombre del representate legal: legal_representative_name
+  - Tipo de identificación: legal_representative_type_id
+    input type: dropdown
+    code:  get_list_dni('N')
+  - Número de identificación: legal_representative_id_number
+  - Email: cliente_email
+    #hint: dni
+id: blockglobal
+---
+question: |
+  ¿Cuáles son los datos de la entidad?
+fields:
+  - nombre: company_or_entity_name
+    datatype: dropdown
+    code: get_list('entidades')
+---
+question: |
+  ¿Cuál es el número y fecha del comparendo? 
+fields:
+  - no label: fotomulta_number
+  - no label: infraction_date
+    datatype: date
+---
+question: |
+  ¿Tiene resolución sancionatoria?
+fields:
+  - no label: sancionatory_resolution
+    datatype: yesnoradio
+  - Número de la resolución: sancionatory_resolution_number
+    show if:
+      variable: sancionatory_resolution
+      is: True   
+  - Fecha de la resolución: sancionatory_resolution_date
+    datatype: date
+    show if:
+      variable: sancionatory_resolution
+      is: True    
+---
+question: |
+  Publicidad de la resolución
+fields:
+  - El infractor tiene multa en el RUNT: runt
+    datatype: yesnoradio
+  - La resolución se encuentra en el SIMIT: simit
+    datatype: yesnoradio    
+---
+attachment:
+  variable name: the_document
+  docx template file: JD_Caducidad_comparendo_V_2.0.docx
+---
+code: |
+  files_saved = save_files(the_document, 'Caducidad_comparendo', True, user_info().session)
+  juzto_callback = get_callback_final_screen('0', files_saved, 'Caducidad_comparendo', True)
+---
+event: final_screen
+question: |
+  ${ z_text_final_screen } - COD: ${user_info().session}
+subquestion: |
+  ${ juzto_callback }
+id: juzto_da_final
+---
+

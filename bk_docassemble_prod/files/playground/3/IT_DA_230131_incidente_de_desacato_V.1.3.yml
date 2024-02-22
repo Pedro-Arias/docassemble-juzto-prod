@@ -1,0 +1,182 @@
+metadata:
+  title: |
+   IT_DA_220803_V.1.1_Incidente_Desacato_Masivo
+  short title: |
+    Incidente de desacato
+  description: |
+    Documento para solicitar a una de las partes que cumpla con lo ordenado por un juez de tutela.
+  authors:
+    - name: Laura Pardo
+      organization: Juzto.co
+    - name: Dario Agaton
+      organization: Juzto.co
+---
+features:
+  navigation: True
+  progress bar: True
+  show progress bar percentage: True
+  hide standard menu: False
+  hide navbar: True
+  question back button: True
+---
+include:
+  - docassemble.playground3:autoterms.yml
+---
+modules:
+  - docassemble.playground3.juztoModules
+  - docassemble.playground3.juztoListChoices
+---
+initial: True
+code: |
+  case_number
+  client_type
+  if client_type == "Persona Natural":
+    natural.name
+    complaining_type_id
+    complaining_id_number
+    complaining_id_number = get_dni_formated(complaining_id_number)
+  else:
+    legal.name
+    complaining_id_number = generateNit(complaining_id_number)
+    legal_representative_type_id
+    legal_representative_name
+    legal_representative_id_number = get_dni_formated(legal_representative_id_number)
+  ouremail = 'entidades+'+case_number+'@juzto.co'
+  company_or_entity_name
+  tutela_type
+  if tutela_type == "peticion":
+    peticion_date
+  judge_name
+  tutela_number
+  instance
+  if instance == "second":
+    second_judge_name
+  decision_date
+  Signature ="{{Signature:Recipient1*}}"
+  final_screen
+---
+objects:
+  - natural: Individual
+  - legal: Individual
+#ACÁ COMIENZAN LAS PREGUNTAS DE JUAN----------------------------------------------------------------------------------------
+---
+question: |
+  ¿Cuál es la línea de defensa a la que corresponde este documento? Ejemplo: LD-780
+fields:
+  - no label: case_number
+---
+question: |
+  ¿El cliente es persona o empresa?
+fields:
+  - no label: client_type
+    input type: radio
+    code: get_list('type_j')
+progress: 1
+---
+question: |
+  ¿Cuáles son los datos de la persona?
+fields:
+  - Nombres: natural.name.first
+    hint: Nombres
+  - Apellidos: natural.name.last
+    hint: Apellidos
+  - Tipo de identificación: complaining_type_id
+    input type: dropdown
+    code:  get_list_dni('N')
+  - Número de identificación: complaining_id_number
+    hint: dni
+id: blockglobal
+---
+question: |
+  ¿Cuáles son los datos de la compañía?
+fields:
+  - Nombre de la compañia: legal.name.first
+  - NIT: complaining_id_number
+    #hint: nit
+  - Nombre del representate legal: legal_representative_name
+  - Tipo de identificación: legal_representative_type_id
+    input type: dropdown
+    code:  get_list_dni('N')
+  - Número de identificación: legal_representative_id_number
+    #hint: dni
+---
+question: |
+  ¿Cuál es la entidad que se entuteló?
+subquesrion: |
+  Por ejemplo: Claro Colombia S.A., Banco Pichincha S.A, Secretaría de Movilidad de Bogotá etc
+fields:
+  - no label: company_or_entity_name
+---
+question: |
+  ¿Cuál fue la tutela que se presentó?
+fields:
+  - no label: tutela_type
+    input type: radio
+    choices:
+      - Tutela derecho petición: peticion
+      - Tutela: tutela
+      - Tutela C038: c_038
+      - Tutela para revocar sanción: revocar_sancion
+      - Tutela por audiencia presencial: audiencia_presencial
+      - Tutela por no enviar fallo de audiencia: fallo_audiencia
+      - Tutela por no inicio audiencia: no_inicio
+      - Tutela por no vinculación: no_vinculacion
+      - Tutela reporte: reporte
+---
+question: |
+  ¿Cuándo se presentó la petición?
+fields:
+  - no label: peticion_date
+    datatype: date
+---
+question: |
+  Nombre completo del primer juzgado
+subquestion: |
+  Por ejemplo: Juzgado 60 Civil Municipal de Bogota. 
+  
+  Hay casos donde conocen 2 jueces. Este documento se debe dirigir al primer juez que conoció.
+fields:
+  - no label: judge_name    
+---
+question: |
+  ¿Cuál es el número del proceso?
+subquestion: |
+  Este número se encuentra en el fallo de tutela que se quiere impugnar. Por ejemplo: 702154089002-2021-00076-00 o 2021-034
+fields:
+  - no label: tutela_number
+---
+question: |
+  ¿El fallo favorable fue del primer juez o del segundo juez?
+fields:
+  - no label: instance
+    input type: radio
+    choices:
+      - Primer juez: first
+      - Segundo juez: second
+---
+question: |
+  Nombre completo del segundo juzgado
+fields:
+  - no label: second_judge_name
+---
+question: |
+  Fecha de la tutela que nos dio la razón 
+fields:
+  - no label: decision_date
+    datatype: date
+---
+attachment:
+  variable name: the_document
+  docx template file: IT_DA_230131_incidente_de_desacato_V.1.3.docx
+---
+code: |
+  files_saved = save_files(the_document, 'Incidente_Desacato_Masivo', True, user_info().session)
+  juzto_callback = get_callback_final_screen('0', files_saved, 'Incidente_Desacato_Masivo', True)
+---
+event: final_screen
+question: |
+  ${ z_text_final_screen } - COD: ${user_info().session}
+subquestion: |
+  ${ juzto_callback }
+id: juzto_da_final
+---

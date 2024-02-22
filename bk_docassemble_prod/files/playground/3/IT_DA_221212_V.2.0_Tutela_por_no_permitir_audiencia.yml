@@ -1,0 +1,179 @@
+metadata:
+  title: |
+   Tutela por no audiencia
+  short title: |
+    Tutela no audiencia
+  description: |
+   Documento que se presenta para poner una tutela por no agendamiento
+  authors:
+    - name: Laura Pardo
+      organization: Juzto.co
+    - name: Juan David Castilla
+      organization: Juzto.co
+---
+features:
+  navigation: True
+  progress bar: True
+  show progress bar percentage: True
+  hide standard menu: False
+  hide navbar: True
+  question back button: True
+---
+include:
+  - docassemble.playground3:autoterms.yml
+---
+modules:
+  - docassemble.playground3.juztoModules
+  - docassemble.playground3.juztoListChoices
+---
+initial: True
+code: |
+  case_number
+  client_type
+  if client_type == "Persona Natural":
+    natural.name
+    complaining_type_id
+    complaining_id_number = get_dni_formated(id_person)
+  else:
+    legal.name
+    complaining_id_number = generateNit(id_person)
+    legal_representative_type_id
+    legal_representative_name
+    legal_representative_id_number = get_dni_formated(legal_representative_id_number)
+  fotomulta_number
+  request
+  date_presentation
+  respond
+  company_or_entity_name
+  if company_or_entity_name in ["Sede de Tránsito Departamental Bugalagrande", "Secretaria de Movilidad y Transporte de Sabaneta - SETSA", "Secretaria de Transporte y Movilidad de Cundinamarca - Chocontá"]:
+    user_location
+  email
+  email2
+  email3
+  email4
+  ouremail  = 'juzgados+'+case_number+'@juzto.co'
+  filing_city
+  Signature ="{{signature:0}}"
+  final_screen
+---
+objects:
+  - natural: Individual
+  - legal: Individual
+---
+question: |
+  ¿Cuál es la línea de defensa a la que corresponde este documento? Ejemplo: LD-780
+subquestion: | 
+    Mira el recuadro rojo de la siguiente imagen para saber donde se ubica el número de la **línea de defensa (LD)**
+    ${ static_image('lineadedefensa.png',width='7in') }
+fields:
+  - no label: case_number
+---
+question: |
+  ¿Eres persona o empresa?
+fields:
+  - no label: client_type
+    input type: radio
+    code: get_list('type_j')
+progress: 1
+---
+question: |
+  ¿Cuáles son los datos de la persona?
+fields:
+  - Nombres: natural.name.first
+    hint: Nombres
+  - Apellidos: natural.name.last
+    hint: Apellidos
+  - Tipo de identificación: complaining_type_id
+    input type: dropdown
+    code:  get_list_dni('N')
+  - Número de identificación: id_person
+    hint: dni
+id: blockglobal
+---
+question: |
+  ¿Cuáles son los datos de la compañía?
+fields:
+  - Nombre de la compañia: legal.name.first
+  - NIT: id_person
+    #hint: nit
+  - Nombre del representate legal: legal_representative_name
+  - Tipo de identificación: legal_representative_type_id
+    input type: dropdown
+    code:  get_list_dni('N')
+  - Número de identificación: legal_representative_id_number
+    #hint: dni
+---
+question: |
+  ¿Cuál es el número de la fotomulta? 
+fields:
+  - no label: fotomulta_number
+---
+question: |
+  ¿Cómo trataste o solicitaste la audiencia?
+fields:
+  - no label: request
+    datatype: radio
+    choices:
+      - Llamada telefónica
+      - Correo electrónico
+      - Plataforma de la entidad
+      - Derecho de petición
+---
+question: |
+  ¿Cuándo solicitaste la audiencia?
+fields:
+  - no label: date_presentation
+    datatype: date
+---
+question: |
+  ¿Qué pasó con el agendamiento?
+fields:
+  - no label: respond
+    datatype: radio
+    choices:
+      - Solicitó poder autenticado
+      - Solicitó que el correo sea con el nombre completo de la persona
+      - Informó que ya venció el plazo para agendar
+      - Exige que sea a través de la plataforma de la entidad pero no se ha podido efectuar el agendamiento
+      - Se agendó exitosamente pero nunca se recibió el correo con la información
+      - No se ha tenido ninguna respuesta de la entidad
+      - Aparece que no ha sido notificado
+      - El sistema de la entidad señala que los datos de la persona no corresponden a los registrados
+      - La plataforma de la entidad solo permite agendar presencialmente
+---
+question: |
+  ¿Cuál son los datos de la entidad?
+fields:
+  - no label: company_or_entity_name
+  - email: email
+    datatype: email
+  - email: email2
+    datatype: email
+  - email: email3
+    datatype: email
+  - email: email4
+    datatype: email
+  - ciudad: filing_city
+    input type: dropdown
+    code: get_cities()
+---
+question: |
+  ¿Cuál es la dirección del usuario?
+fields:
+  - Dirección del usuario: user_location
+---
+attachment:
+  variable name: the_document
+  docx template file: IT_DA_221212_V.1.5_Tutela_por_no_permitir_audiencia.docx
+---
+code: |
+  files_saved = save_files(the_document, 'Tutela_no_audiencia', True, user_info().session)
+  juzto_callback = get_callback_final_screen('0', files_saved, 'Tutela_no_audiencia', True)
+---
+event: final_screen
+question: |
+  ${ z_text_final_screen } - COD: ${user_info().session}
+subquestion: |
+  ${ juzto_callback }
+id: juzto_da_final
+---

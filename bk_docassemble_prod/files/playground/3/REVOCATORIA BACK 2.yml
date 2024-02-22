@@ -1,0 +1,608 @@
+metadata:
+  title: |
+    IT_DA_220809_V.1.1_Nueva_Revocatoria
+  short title: |
+   Nueva Revocatoria directa
+  description: |
+   Nueva Revocatoria directa
+  authors:
+    - name: Dario Agaton
+      organization: DocumentosLegales.co
+    - name: Laura Pardo
+      organization: DocumentosLegales.co
+---
+features:
+  navigation: True
+  progress bar: True
+  show progress bar percentage: True
+  hide standard menu: False
+  hide navbar: True
+  question back button: True
+---
+include:
+  - docassemble.playground7Sources:autoterms.yml
+---
+modules:
+  - docassemble.playground7Sources.juztoModules
+  - docassemble.playground7Sources.juztoListChoices
+  - .holidays
+  - .juztoModules
+---
+initial: True
+code: |
+  case_number
+  client_type
+  if client_type == "Persona Natural":
+    natural.name
+    complaining_type_id
+    complaining_id_number
+    complaining_id_number = get_dni_formated(complaining_id_number)
+  else:
+    legal.name
+    complaining_id_number = generateNit(complaining_id_number)
+    legal_representative_name
+    legal_representative_type_id
+    legal_representative_id_number = get_dni_formated(legal_representative_id_number)
+  company_or_entity_name
+  # DEL NO ENVÍO A LA DIRECCIÓN ACTUALIZADA
+  fotomulta_notification
+  if fotomulta_notification == False:
+    actualization
+    if actualization == True:
+      runt_address
+      if runt_address == True:
+        runt_address_image
+    wrong_send_address
+    if wrong_send_address == True:
+      correct_address
+      correct_address_date
+      mistaken_address
+      mistaken_address_prove
+      if mistaken_address_prove == True:
+        mistaken_address_prove_doc
+        mistaken_address_prove_image
+    sim  
+  #
+  resolution_number
+  resolution_date
+  fotomulta_number
+  infraction_date
+  # DE LA C-038
+  fecha = str(date(2020, 2, 6))
+  datess = str(format_date(resolution_date,format='yyyy-MM-dd'))
+  dates = None;
+  if datess >= fecha:
+    dates = True
+  else:
+    dates = False
+  # DE LA INDEBIDA VALIDACIÓN
+  validation_date
+  send_date
+  validation_working_date = compute_date(infraction_date,10)
+  if validation_date.date() > validation_working_date:
+    wrong_validation = True
+    wrong_validation_date = difference_bussiness_days(infraction_date, validation_date)
+  else: 
+    wrong_validation = False
+  # DEL INDEBIDO TÉRMINO DE ENVÍO
+  send_working_date = compute_date(validation_date,3)
+  if send_date.date() > send_working_date:
+    wrong_send = True
+    wrong_send_date = difference_bussiness_days(validation_date, send_date)
+  else: 
+    wrong_send = False
+  # DEL ENVÍO A UNA DIRECCIÓN INEXISTENTE
+  wrong_direction
+  if wrong_direction == True:
+    wrong_direction_reason
+    if wrong_direction_reason == "unreal_adress":
+      nonexistent_adress_image
+      location_city
+      location
+      returned_guide
+      if returned_guide == True:
+        returned_guide_reason
+        if returned_guide_reason == "address":
+          google_address
+          mistaken_address
+          correct_address
+    else:
+      mistaken_address
+      correct_address
+      runt_address
+      if runt_address == True:
+        runt_address_image
+  # DE LA NO LICENCIA DEL ACUSADO
+  license
+  if license == False:
+    runt_picture
+  # DE LA CADUCIDAD
+  expiration_date = infraction_date + timedelta(days = 365)
+  date.today()
+  if expiration_date <= today():
+    expiration_argument = True
+  else:
+    expiration_argument = False
+  # DE LA “ERRADA” O “INEXISTENTE” DIRECCIÓN
+  notification_guide
+  returned_guide
+  if returned_guide == True:
+    wrong_nonexistent_address
+    if wrong_nonexistent_address == True:
+      google_maps_picture
+      bogota_address
+      if bogota_address == True:
+        sinupot_image
+      else:
+        location
+        location_city 
+  # LA ERRONEA CAUSAL DE DEVOLUCIÓN
+  if returned_guide == True:
+    diferent_guides
+    if diferent_guides == True:
+      same_direction
+      if same_direction == True:
+        other_notification
+        if other_notification == False:
+          other_devolution
+          if other_devolution == False:
+            location
+            location_city
+            personal_notification_image
+        else: 
+          location
+          location_city
+  # DE LOS INTENTOS DE NOTIFICACIÓN
+  if returned_guide == True:
+    closed
+    if closed == True:
+      more_one_try
+      if more_one_try == True:
+        second_notification_guide
+        first_send_date_try
+        second_send_date_try
+        difference_send_date_try = difference_date(first_send_date_try, second_send_date_try)
+        if (difference_send_date_try) > 1:
+          date_try_arguments = True
+  # DE LOS ERRORES EN LA CORRESPONDENCIA Y EN LA GUÍA
+  natural_receiver
+  if natural_receiver == True:
+    readable_name
+  valid_id 
+  dest_phone_number
+  dest_country
+  date_date
+  hour_date
+  if returned_guide == True:
+    return_reason
+  # DEL ENVÍO A UNA DIRECCIÓN DESACTUALIZADA
+  # FIN DE CASUÍSTICAS
+  ouremail = 'juzgados+'+case_number+'@juzto.co'
+  Signature ='{{Signature:Recipient1*}}'
+  final_screen  
+---
+objects:
+  - natural: Individual
+  - legal: Individual
+---
+question: |
+  ¿Cuál es la línea de defensa a la que corresponde este documento? Ejemplo: LD-780
+fields:
+  - no label: case_number
+---
+question: |
+  ¿El cliente es persona o empresa?
+fields:
+  - no label: client_type
+    input type: radio
+    code: get_list('type_j')
+progress: 1
+---
+question: |
+  ¿Cuáles son los datos de la persona?
+fields:
+  - Nombres: natural.name.first
+    hint: Nombres
+  - Apellidos: natural.name.last
+    hint: Apellidos
+  - Tipo de identificación: complaining_type_id
+    input type: dropdown
+    code:  get_list_dni('N')
+  - Número de identificación: complaining_id_number
+    hint: dni
+id: blockglobal
+---
+question: |
+  ¿Cuáles son los datos de la compañía?
+fields:
+  - Nombre de la compañia: legal.name.first
+  - NIT: complaining_id_number
+    #hint: nit
+  - Nombre del representate legal: legal_representative_name
+  - Tipo de identificación: legal_representative_type_id
+    input type: dropdown
+    code:  get_list_dni('N')
+  - Número de identificación: legal_representative_id_number
+    #hint: dni
+---
+question: |
+  ¿Cuál es el número y fecha de la resolución?
+fields:
+  - Número: resolution_number
+  - Fecha: resolution_date
+    datatype: date
+---
+question: |
+  ¿Cuáles son los datos de la entidad frente a la cual se va a presentar la revocatoria?
+fields:
+  - nombre: company_or_entity_name
+    datatype: dropdown
+    code: get_list('entidades')
+---
+question: |
+  ¿Cuál es el número del comparendo y fecha de la comisión de la infracción? 
+fields:
+  - no label: fotomulta_number
+    datatype: integer
+  - no label: infraction_date
+    datatype: date
+validation code: |
+  if is_bussiness_days(infraction_date) == False:
+    validation_error("Por favor elija un día habil o día laboral")
+# ------------------------------------------ DEL NO ENVÍO A LA DIRECCIÓN ACTUALIZADA
+---
+question: |
+  ¿Se recibió el comparendo y la respectiva guía de notificación?
+fields:
+  - no label: fotomulta_notification
+    datatype: yesnoradio
+---
+question: |
+  ¿La dirección de la usuaria se actualizó antes de la imposición del comparendo?
+fields:
+  - no label: actualization
+    datatype: yesnoradio
+---
+question: |
+  ¿Tiene la la respuesta otorgada por el Registro Único Nacional de Tránsito RUNT respecto de la actualización de dirección?
+fields:
+  - no label: runt_address
+    datatype: yesnoradio
+---
+question: |
+  Por favor suba la respuesta o prueba otorgada por el Registro Único Nacional de Tránsito RUNT respecto de la actualización de dirección
+subquestion: |
+  Aquí debes subir la imagen de la respuesta o prueba otorgada por el Registro Único Nacional de Tránsito RUNT respecto de la actualización de dirección.
+fields:
+  - Archivo: runt_address_image
+    datatype: file
+    accept: |
+      "application/pdf, image/jpeg, image/png"
+---
+question: |
+  ¿El motivo por el cual NO se recibió el comparendo fue porque la entidad tiene una dirección equivocada o desactualizada?
+fields:
+  - no label: wrong_send_address
+    datatype: yesnoradio
+---
+question: |
+  ¿Cuál es la dirección correcta?
+fields:
+  - no label: correct_address
+---
+question: |
+  ¿Cuál es la dirección errada?
+fields:
+  - no label: mistaken_address
+---
+question: |
+  ¿En qué fecha se diligenció la dirección correcta en el RUNT?
+fields:
+  - no label: correct_address_date
+    datatype: date
+---
+question: |
+  ¿Tiene alguna prueba documental de que la entidad suministró mal la dirección posteriormente de que esta fuera actualizada?, por ejemplo el “Formulario Único Nacional FUN con una dirección errada”.
+fields:
+  - no label: mistaken_address_prove
+    datatype: yesnoradio
+---
+question: |
+  ¿Cuál es el nombre del documento dónde se ve que se suministró mal la dirección?
+fields:
+  - no label: mistaken_address_prove_doc
+---
+question: |
+  Por favor suba la imagen del “Formulario Único Nacional FUN con la dirección errada” 
+subquestion: |
+  Aquí debes subir la imagen del “Formulario Único Nacional FUN con la dirección errada”.
+fields:
+  - Archivo: mistaken_address_prove_image
+    datatype: file
+    accept: |
+      "application/pdf, image/jpeg, image/png"
+---
+question: |
+  ¿La entidad encargada de actualizar los datos que suministró el usuario en el RUNT era el SIM de Bogotá?.
+fields:
+  - no label: sim
+    datatype: yesnoradio
+---
+# ------------------------------------------ DEL ENVÍO A UNA DIRECCIÓN DESACTUALIZADA O INEXISTENTE
+question: |
+  ¿El error de la guía de notificación es una dirección incorrecta?
+fields:
+  - no label: wrong_direction
+    datatype: yesnoradio
+---
+question: |
+ La dirección es incorrecta porque: 1. ¿Es ERRADA/INEXISTENTE? o 2. ¿Se mandó a una dirección que si bien pertenecía al usuario no era la que estaba en el RUNT al momento de la comisión del comparendo?
+fields:
+  - no label: wrong_direction_reason
+    choices:
+      - Dirección ERRADA O INEXISTENTE: unreal_adress
+      - Dirección del usuario, pero erronea en el RUNT en el momento del comparendo: wrong_runt_adress
+---
+question: |
+  ¿La dirección de la guía de notificación es errada o inexistente?
+fields:
+  - no label: unreal_adress
+    datatype: yesnoradio
+---
+question: |
+  Sube la imagen de la plataforma correspondiente en donde se muestre que la dirección erronea a la cuál mandaron el comparendo.
+subquestion: |
+  Aquí debes subir la imagen de la plataforma correspondiente "depende de cada ciudad" en donde se muestre que la dirección erronea a la cuál mandaron el comparendo. IMAGEN DE UNA PLATAFORMA QUE NO SEA GOOGLE MAPS
+  Si es Bogotá usa SINUPOT http://sinupotp.sdp.gov.co/sinupot/index.jsf
+fields:
+  - Archivo: nonexistent_adress_image
+    datatype: file
+    accept: |
+      "application/pdf, image/jpeg, image/png"
+---
+#---------------------------------------------- DE LA INDEBIDA VALIDACIÓN ------------------------------------------------
+question: |
+  ¿Cuál es la fecha de validación del comparendo?
+fields:
+  - no label: validation_date
+    datatype: date
+---
+#---------------------------------------------- DEL INDEBIDO TÉRMINO DE ENVÍO -----------------------------------------------
+---
+question: |
+  ¿Cuál es la fecha de envío del comparendo?
+fields:
+  - no label: send_date
+    datatype: date
+---
+#---------------------------------------------- DE LA NO LICENCIA DEL ACUSADO -----------------------------------------------
+question: |
+  ¿El usuario a quien le impusieron el comparendo, tiene licencia de conducción?
+fields:
+  - no label: license
+    datatype: yesnoradio
+---
+question: |
+  Sube la imagen del RUNT.
+subquestion: |
+  Aquí debes subir la imagen del RUNT en dónde se muestra que no se tiene licencia.
+fields:
+  - Archivo: runt_picture
+    datatype: file
+    accept: |
+      "application/pdf, image/jpeg, image/png"
+---
+#---------------------------------------------- DE LA FECHA DE EXPIRACIÓN -----------------------------------------------
+#---------------------------------------------- DE LA “ERRADA” O “INEXISTENTE” DIRECCIÓN -----------------------------------------------
+question: |
+  ¿La guía de notificación del comparendo fue devuelta?
+fields:
+  - no label: returned_guide
+    datatype: yesnoradio
+---
+question: |
+ ¿Cuál fue la causal de devolución de la guía de notificación?
+fields:
+  - no label: returned_guide_reason
+    choices:
+      - Rehusada: address
+      - Dirección errada o no existe: wrong_nonexistent_address
+---
+question: |
+  ¿La causal de devolución fue: “dirección errada” o “no existe”, a pesar de que la dirección si existe?
+fields:
+  - no label: wrong_nonexistent_address
+    datatype: yesnoradio
+---
+question: |
+  Sube la imagen de Google Maps.
+subquestion: |
+  Aquí debes subir la imagen de donde se localiza la dirección en Google Maps.
+fields:
+  - Archivo: google_maps_picture
+    datatype: file
+    accept: |
+      "application/pdf, image/jpeg, image/png"   
+---
+question: |
+  Sube la imagen de la guía de notificación del comparendo.
+subquestion: |
+  Aquí debes subir la guía de notificación de la orden de comparendo.
+fields:
+  - Archivo: notification_guide
+    datatype: file
+    accept: |
+      "application/pdf, image/jpeg, image/png"   
+---
+question: |
+  ¿La dirección a la que mandaron el comparendo es de Bogotá?
+fields:
+  - no label: bogota_address
+    datatype: yesnoradio
+---
+question: |
+  Sube la imagen del SINUPOT.
+subquestion: |
+  Por medio de este link http://sinupotp.sdp.gov.co/sinupot/index.jsf debes encontrar y subir a esta entrevista la imagen de donde se localiza la dirección en SINUPOT.
+fields:
+  - Archivo: sinupot_image
+    datatype: file
+    accept: |
+      "application/pdf, image/jpeg, image/png"   
+---
+question: |
+  ¿Cuáles son los datos de la dirección de notificación del comparendo?
+fields:
+  - Dirección completa en donde se recibe notificación: location
+  - Ciudad en donde se recibe notificación: location_city
+    input type: dropdown
+    code: get_cities()
+---
+question: |
+  Sube la imagen del la dirección existente en google.
+fields:
+  - Archivo: google_address
+    datatype: file
+    accept: |
+      "application/pdf, image/jpeg, image/png"   
+---
+# ------------------------------------------ DE LOS ERRORES EN LA CORRESPONDENCIA Y EN LA GUÍA
+question: |
+  ¿Quién recibió la notificación de la guía de notificación es una persona natural?
+fields:
+  - no label: natural_receiver
+    datatype: yesnoradio
+---
+question: |
+  ¿El nombre de la persona natural es legible en la guía de notificación?
+fields:
+  - no label: readable_name
+    datatype: yesnoradio
+---
+question: |
+  ¿La guía tiene un número de identificación válido? (T.I, C.C, C.E, P.A)?
+fields:
+  - no label: valid_id
+    datatype: yesnoradio
+---
+question: |
+  ¿La guía contiene el número telefónico del destinatario?
+fields:
+  - no label: dest_phone_number
+    datatype: yesnoradio
+---
+question: |
+  ¿La guía contiene el país del destinatario?
+fields:
+  - no label: dest_country
+    datatype: yesnoradio
+---
+question: |
+  ¿En la guía fue diligenciada la fecha en la que presuntamente fue entregada la orden de comparendo?
+fields:
+  - no label: date_date
+    datatype: yesnoradio
+---
+question: |
+  ¿En la guía fue diligenciada la hora en la que presuntamente fue entregada la orden de comparendo?
+fields:
+  - no label: hour_date
+    datatype: yesnoradio
+---
+question: |
+  ¿En la guía fue diligenciada la causal de devolución del comparendo?
+fields:
+  - no label: return_reason
+    datatype: yesnoradio
+---
+# ------------------------------------------ DE LA ERRONEA CAUSAL DE DEVOLUCIÓN
+question: |
+  Respecto de la devolución, ¿En algún momento del caso se envió más de 1 guía de notificación? sin importar que esa guía enviada previamente sea diferente a la del comparendo.
+subquestion: |
+  Hay Secretarías de Movilidad que envían 1 guía con el comparendo, 1 con la notificación personal y 1 con la notificación por aviso. Adelante véase el ejemplo de cada una de estas:
+fields:
+  - no label: diferent_guides
+    datatype: yesnoradio
+---
+question: |
+  Esas guía de notificación diferentes a la del comparendo, ¿se enviaron a la misma dirección a la que se envió el comparendo?
+fields:
+  - no label: same_direction
+    datatype: yesnoradio
+# argumento pendiente. Si la respuesta de esto es NO: se ha encontrado que la de comparendo se ha entregado a una direcicón y la de aviso a otra, Hay una posibilidad de hacer un nuevo argumento.
+---
+question: |
+ ¿La guía de notificación distinta a la de comparendo, fue entregada?
+fields:
+  - no label: other_notification
+    datatype: yesnoradio
+--- 
+question: |
+ ¿La causal de devolución de la otra notificación es la misma a la causal de devolución de la guía de notificación del comparendo?
+fields:
+  - no label: other_devolution
+    datatype: yesnoradio
+---
+question: |
+  Sube la imagen de la citación de notificación personal "diferente a la guía de notificación del fotocomparendo, el cual es un doc. entregado antes de la Notificación de Comparendo".
+subquestion: |
+  Aquí debes subir la imagen de la citación de notificación personal, "documento diferente a la guía de notificación del fotocomparendo, el cual es un doc. entregado antes de la Notificación de Comparendo".
+fields:
+  - Archivo: personal_notification_image
+    datatype: file
+    accept: |
+      "application/pdf, image/jpeg, image/png"
+---
+# ------------------------------------------ DE LOS INTENTOS DE NOTIFICACIÓN
+question: |
+  ¿La causal de devolución de la guía de notificación del COMPARENDO es: "cerrado"?
+fields:
+  - no label: closed
+    datatype: yesnoradio
+---
+question: |
+  ¿Hicieron más de 1 intento de notificación?
+fields:
+  - no label: more_one_try
+    datatype: yesnoradio
+---
+question: |
+  ¿Cuál es la fecha del primer intento de envío del comparendo?
+fields:
+  - no label: first_send_date_try
+    datatype: date
+---
+question: |
+  ¿Cuál es la fecha del segundo intento de envío del comparendo?
+fields:
+  - no label: second_send_date_try
+    datatype: date
+---
+question: |
+  Sube la imagen de la guía de notificación del comparendo del SEGUNDO intento.
+subquestion: |
+  Aquí debes subir la segunda guía de notificación del comparendo, dónde se vea claro la fecha y todos los datos en ella.
+fields:
+  - Archivo: second_notification_guide
+    datatype: file
+    accept: |
+      "application/pdf, image/jpeg, image/png"
+---
+#---------------------------------------------- PARTE DONDE SE DEBE TRABAJAR ------------------------------------------------
+---
+event: final_screen
+mandatory: true
+progress: 100
+question: |
+  Revocatoria directa
+attachment:
+  name: Nueva revocatoria directa ${ case_number }
+  filename: Nueva revocatoria directa ${ case_number } 
+  docx template file: IT_DA_220809_V.1.1_Nueva_Revocatoria.docx
+  valid formats:
+    - pdf
+    - docx
+allow emailing: False    
+buttons:
+  - Restart: restart
+---

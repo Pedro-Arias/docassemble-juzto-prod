@@ -1,0 +1,122 @@
+metadata:
+  title: |
+    IT_DA_230515_V.1.0_DP_solicitud_AU_publica_de_fallo
+  short title: |
+    Derecho de petición solicitando acceso a la audiencia pública de fallo.
+  description: |
+    Documento para solicitar acceso a la audiencia pública de fallo.
+  authors:
+    - name: Juan David Castilla
+      organization: juzto.co
+---
+features:
+  navigation: True
+  progress bar: True
+  show progress bar percentage: True
+  hide standard menu: False
+  hide navbar: True
+  question back button: True
+---
+include:
+  - docassemble.playground3:autoterms.yml
+---
+modules:
+  - docassemble.playground3.juztoModules
+  - docassemble.playground3.juztoListChoices
+---
+initial: True
+code: |
+  client_type
+  if client_type == "Persona Natural":
+    natural.name
+    complaining_type_id
+    complaining_id_number = get_dni_formated(id_person)
+  else:
+    legal.name
+    complaining_id_number = generateNit(id_person)
+    legal_representative_type_id
+    legal_representative_name
+    legal_representative_id_number = get_dni_formated(legal_rep_id_person)
+  company_or_entity_name
+  fotomulta_number
+  ouremail = 'entidades+'+case_number+'@juzto.co, con copia al correo '+cliente_email
+  Signature ="{{signature:0}}"
+  final_screen
+---
+objects:
+  - natural: Individual
+  - legal: Individual
+---
+question: |
+  ¿El cliente es persona o empresa?
+fields:
+  - no label: client_type
+    input type: radio
+    code: get_list('type_j')
+progress: 1
+---
+question: |
+  ¿Cuáles son los datos de la persona?
+fields:
+  - Nombres: natural.name.first
+    hint: Nombres
+  - Apellidos: natural.name.last
+    hint: Apellidos
+  - Tipo de identificación: complaining_type_id
+    input type: dropdown
+    code:  get_list_dni('N')
+  - Número de identificación: id_person
+    hint: dni
+  - Email: cliente_email
+id: blockglobal
+---
+question: |
+  ¿Cuáles son los datos de la compañía?
+fields:
+  - Nombre de la compañia: legal.name.first
+  - NIT: id_person
+    #hint: nit
+  - Nombre del representate legal: legal_representative_name
+  - Tipo de identificación: legal_representative_type_id
+    input type: dropdown
+    code:  get_list_dni('N')
+  - Número de identificación: legal_rep_id_person
+    #hint: dni
+  - Email: cliente_email
+---
+question: |
+  ¿Cuál es la línea de defensa a la que corresponde este documento? Ejemplo: LD-780
+fields:
+  - no label: case_number
+    hint: LD-1305
+---
+question: |
+  ¿Cuál es la entidad de movilidad que puso el comparendo?
+fields:
+  - no label: company_or_entity_name
+    datatype: dropdown
+    code: get_list('entidades')
+---
+question: |
+  Datos del comparendo 
+fields:
+  - Número del comparendo: fotomulta_number
+    datatype: integer
+  - fecha del comparendo: infraction_date
+    datatype: date 
+---
+attachment:
+  variable name: the_document
+  docx template file: IT_DA_230515_V.1.0_DP_solicitud_AU_publica_de_fallo.docx
+---
+code: |
+  files_saved = save_files(the_document, 'dp_solicitud_au_publica_de_fallo', True, user_info().session)
+  juzto_callback = get_callback_final_screen('0', files_saved, 'dp_solicitud_au_publica_de_fallo', True)
+---
+event: final_screen
+question: |
+  ${ z_text_final_screen } - COD: ${user_info().session}
+subquestion: |
+  ${ juzto_callback }
+id: juzto_da_final
+---

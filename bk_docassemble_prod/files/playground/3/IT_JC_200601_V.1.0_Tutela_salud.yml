@@ -1,0 +1,453 @@
+metadata:
+  title: |
+   Tutela por derecho a la salud
+  short title: |
+    Tutela por derecho a la salud
+  description: |
+   Tutela por derecho a la salud
+  authors:
+    - name: Julian Cogua
+      organization: Juzto
+    - name: Juan David Castilla
+      organization: Juzto
+  create_date: 2020-06-01
+---
+sections:
+  - Información personal del accionante
+  - Tercero autorizado del accionante
+  - Información EPS
+  - Información Centro médico (IPS)
+  - Diagnóstico
+  - Estado de salud
+  - Ciudad presentación tutela
+  - Juramento
+---
+features:
+  navigation: True
+  progress bar: True
+  show progress bar percentage: True
+  hide standard menu: False
+  hide navbar: True
+  question back button: True
+---
+modules:
+  - docassemble.playground3.juztoModules
+  - docassemble.playground3.juztoListChoices
+---
+mandatory: True
+code: |
+  multi_user = True  
+#---
+#mandatory: True
+#question: |
+#  Ahora empezaremos a crear tu tutela por derecho a la salud.
+#subquestion: |
+#  Este documento sirve para proteger tu derecho a la salud. Puedes presentar este
+#  documento ante un juez cuando una entidad pública o privada amenaza o afecta tu
+#  derecho a la salud, poniendo en riesgo el derecho a la vida o a una vida digna.[BR][BR]
+#  Como resultado, el juez puede ordenar el cumplimiento de las peticiones para que la
+#  entidad preste los servicios, entregue medicamentos o tome exámenes, entre otros. La
+#  tutela tiene un trámite prioritario ante los jueces, quienes deben responderla en
+#  aproximadamente 10 días.[BR][BR]
+#  Puedes estar tranquilo, este va a ser un documento de gran calidad, ha sido preparado
+#  por un equipo de abogados expertos.[BR][BR]
+#  1. Por favor responde todas las preguntas que te haremos. Estas preguntas han sido
+#  preparadas por abogados con mucha experiencia en este tipo de documentos.[BR]
+#  Danos respuestas claras y concretas, así podemos crear el documento a la medida de tus
+#  necesidades. Cada respuesta cambia el contenido del documento y lo ajusta a tu caso
+#  concreto.[BR][BR]
+#  2. Queremos que lo entiendas todo. En cada pregunta encontrarás explicaciones hechas por
+#  nuestros abogados.[BR]
+#  Las palabras complicadas estarán subrayadas y en un color diferente, también podrán
+#  tener un signo de interrogación. Haz clic sobre la palabra o el signo de interrogación para
+#  leer la explicación.[BR][BR]
+#  3. Al final tendrás un documento hecho especialmente para ti, construido con base en tus
+#  respuestas. Además podrás comprender todos los conceptos del documento con claridad.
+#  Entenderás lo que vas a firmar.[BR][BR]
+#  Si tienes alguna duda adicional puedes programar una cita con uno de nuestros
+#  abogados.[BR][BR]
+#  Gracias por elegir Juzto, empecemos.
+#buttons:
+#  - Continuar: continue
+#prevent going back: True  
+---
+objects:
+  - pacient_name: Individual
+---
+mandatory: True
+question: |
+  Información del paciente
+subquestion: |
+  Aquí debes diligenciar la información de la persona que padece la enfermedad y requiere la atención médica.
+fields:
+  - Nombre(s): pacient_name.name.first
+    hint: "Juan"
+  - Apellido(s): pacient_name.name.last
+    hint: "Gómez"
+  - Tipo de identificación: pacient_id_type
+    input type: dropdown
+    code:  get_list_dni('N')
+  - Número de identificación: pacient_id_number
+    hint: dni
+  - Ciudad de resiencia: pacient_city
+    input type: dropdown
+    code: get_cities()
+  - Dirección de recidencia: pacient_adress
+    hint: Calle Falsa 123
+  - Correo electrónico: pacient_email
+    hint: ejemoplo@mail.co
+  - Número de contacto: pacient_cellphone
+    hint: 3123456789
+    datatype: integer
+validation code: |
+  dni_validation = len(pacient_id_number)
+  if dni_validation < 6 and pacient_id_type == "CC":
+    validation_error("Debes ingresar un número de cédula valido")
+progress: 1
+section: Información personal del accionante
+---
+mandatory: True
+question: |
+  ¿Alguien diferente a ${ title_case(str(pacient_name.name).lower()) } va a presentar la tutela?
+subquestion: |
+  La tutela puede ser presentada por un familiar o conocido de ${ title_case(str(pacient_name.name).lower()) } siempre y cuando él/ella presente un impedimento físico o mental, condición que deberá ser probada. De no ser así y Edna Avendaño puede presentar la tutela recomendamos que así lo haga.
+yesno: third
+progress: 5
+section: Tercero autorizado del accionante
+---
+mandatory: |
+  third == True
+question: |
+  ¿Esa persona está actuando como abogado de ${ title_case(str(pacient_name.name).lower()) }?
+subquestion: |
+  Para acreditar la calidad de abogado de ${ title_case(str(pacient_name.name).lower()) } se debe haber otorga un poder autenticado en notaría.
+yesno: lawyer
+section: Tercero autorizado del accionante
+progress: 10
+---
+code: |
+  if third == False:
+    lawyer = None
+    third = False
+---
+objects:
+  - lawyer_name: Individual
+---
+mandatory: |
+  lawyer == True and third == True
+question: |
+  ¿Cúales son los datos del abogado?
+fields:
+  - Nombre(s): lawyer_name.name.first
+    hint: "Juan David"
+  - Apellido(s): lawyer_name.name.last
+    hint: "López"
+  - Tipo de identificación: lawyer_id_type
+    input type: dropdown
+    code:  get_list_dni('N')
+  - Número de identificación: lawyer_id_number
+    hint: dni
+  - Ciudad de residencia: lawyer_city
+    input type: dropdown
+    code: get_cities()
+  - Dirección de residencia: lawyer_adress
+    hint: Calle Falsa 123
+  - Correo electrónico: lawyer_email
+    hint: ejemplo@mail.co
+  - Número de contacto: lawyer_cellphone
+    hint: 3123456789
+    datatype: integer
+  - Número tarjeta profesional: lawyer_proffesional_id
+section: Tercero autorizado del accionante
+progress: 15
+---
+objects:
+  - third_name: Individual
+---
+mandatory: |
+  lawyer == False and third == True
+question: |
+  ¿Esa persona que relación tiene con ${ title_case(str(pacient_name.name).lower()) }? 
+fields: 
+  - Tipo de relación: third_calification
+    datatype: dropdown
+    code: |
+      calification
+  - Nombre(s): third_name.name.first
+    hint: "Andrés"
+  - Apellido(s): third_name.name.last
+    hint: "Gutierrez"
+  - Tipo de identificación: third_id_type
+    input type: dropdown
+    code:  get_list_dni('N')
+  - Número de identificación: third_id_number
+    hint: dni
+  - Ciudad de residencia: third_city
+    input type: dropdown
+    code: get_cities()
+  - Dirección de residencia: third_adress
+    hint: Calle Falsa 123
+  - Correo electrónico: third_email
+    hint: ejemplo@mail.co
+  - Número de contacto: third_cellphone
+    hint: 3123456789
+    datatype: integer
+section: Tercero autorizado del accionante
+progress: 20
+---
+code: |
+    calification = ['Esposo(a)', 'Hermano(a)', 'Hijo(a)', 'Primo(a)', 'Sobrino(a)', 'Padre', 'Madre', 'Abuelo(a)', 'Nieto(a)', 'Vecino(a)', 'Amigo(a)', 'Conocido(a)']
+---
+code: |
+  disability = False
+  if lawyer == False or (pacient_id_type != 'NIIUP' or pacient_id_type != 'TI'):
+    disability = True
+---
+mandatory: |
+  disability == True and lawyer == False
+question: |
+  ¿Qué tipo de impedimento tiene ${ title_case(str(pacient_name.name).lower()) } para presentar la tutela?
+subquestion: |
+  Como seleccionaste que ${ title_case(str(third_name.name).lower()) } va a presentar la tutela a nombre de ${ title_case(str(pacient_name.name).lower()) }, eso quiere decir que ${ title_case(str(pacient_name.name).lower()) } tiene un impedimento actual que no le permite presentar la tutela personalmente.
+fields:
+  - no label: impediment
+    input type: radio
+    choices:
+      - Físico
+      - Mental
+section: Tercero autorizado del accionante
+progress: 25
+---
+mandatory: True
+question: |
+  ¿En qué EPS se encuentra afiliado ${ title_case(str(pacient_name.name).lower()) }?
+fields:
+  - no label: eps_name
+    datatype: combobox
+    code: get_list("eps")
+  - ¿Conoces la dirección?: eps_know_adress
+    datatype: yesnoradio
+  - ¿Cuál es la dirección?: eps_adress
+    hint: "Calle 122 # 17 - 29 Oficina 302"
+    show if: 
+      variable: eps_know_adress
+      is: True
+section: Información EPS
+progress: 30
+---
+mandatory: True
+question: |
+  ¿La tutela también se presentará en contra del centro o institución médica(IPS)?
+subquestion: |
+  Selecciona “Sí” en caso de que  ${ title_case(str(pacient_name.name).lower()) } ya tenga la autorización para el tratamiento o medicamento, pero este no haya sido iniciado o entregado por culpa del centro médico (IPS).
+fields:
+  - no label: medical_institution
+    datatype: yesnoradio
+  - Nombre de la entidad: ips_name
+    hint: "Nombre completo de la IPS"
+    show if:
+      variable: medical_institution
+      is: True
+  - ¿Conoces la dirección?: ips_know_adress_center
+    datatype: yesnoradio
+    show if:
+      variable: medical_institution
+      is: True
+  - Dirección del centro médico: ips_adress
+    hint: "Calle 122 # 17 - 29 Oficina 302"
+    show if:
+      variable: ips_know_adress_center
+      is: True
+section: Información Centro médico (IPS)
+progress: 40
+---
+objects:
+  - info: DAList.using(object_type=DAObject, complete_attribute='complete')
+  - info[i].otros: DAList.using(object_type=DAObject, complete_attribute='complete')
+---
+code: |
+ info.gather()
+ info.reviewed
+---
+code: |
+  info[i].disease
+  info[i].disease_date
+  info[i].authorization
+  info[i].authorization_date
+  info[i].doctor_vinculation
+  info[i].treatment
+  info[i].otros.gather()
+  info[i].complete = True
+---
+code: |
+  info[i].otros[j].other_treatment
+  info[i].otros[j].complete = True
+---
+table: info.table
+rows: info
+columns:
+  - Enfermedad: |
+      row_item.disease
+edit:
+  - disease
+allow reordering: True
+---
+code: |
+  info.there_are_any = True
+---
+question: |
+  Describe el ${ get_ordinal("male",i) } diagnóstico (enfermedad, afección o condición) de ${ title_case(str(pacient_name.name).lower()) }
+subquestion: |
+  Es necesario describir solamente la enfermedad, afección o condición que tiene ${ title_case(str(pacient_name.name).lower()) } y por la cual presenta la acción de tutela. No es necesario que describas los demás padecimientos que no afectan la vida de ${ title_case(str(pacient_name.name).lower()) }.
+fields:
+  - ¿Cuál es la ${ get_ordinal("female",i) } enfermedad, afección o condición?: info[i].disease
+  - ¿En qué fecha fue diagnosticado ${ title_case(str(pacient_name.name).lower()) }?: info[i].disease_date
+    datatype: date
+  - ¿Ya cuentas con la autorización de la EPS para iniciar lo ordenado por el médico tratante?: info[i].authorization
+    datatype: yesnoradio
+  - ¿Cuál es la fecha de la autorización?: info[i].authorization_date
+    datatype: date
+    show if:
+      variable: info[i].authorization
+      is: True
+validation code: |
+  if info[i].disease_date > today() or info[i].authorization == True and info[i].authorization_date > today() or info[i].authorization == True and info[i].authorization_date < info[i].disease_date:
+    validation_error("La fecha del diagnóstico no puede ser mayor que hoy. La fecha de autorización no puede ser mayor a la fecha de diagnóstico")
+section: Diagnóstico
+progress: 50
+---
+code: |
+  if info[i].authorization == False:
+    info[i].authorization_date = None
+---
+question: |
+  ¿El médico que realizó el diagnóstico hace parte de la EPS a la que se encuentra afiliado(a) ${ title_case(str(pacient_name.name).lower()) }?
+subquestion: |
+  Si es un médico particular, debes tener en cuenta que según el tratamiento prescrito, la EPS puede no estar obligada a autorizar el mismo.
+  El tratamiento debe ser indispensable para que la persona pueda vivir, tenga una vida digna, mejore significativamente en su estado de salud.
+fields: 
+  - no label: info[i].doctor_vinculation
+    input type: radio
+    choices:
+      - Si: True
+      - No sé: None
+      - No: False
+section: Diagnóstico
+progress: 55
+---
+question: |
+  ¿Cuál fue la orden del médico tratante que no ha sido atendida y que te hace presentar esta tutela?
+subquestion: |
+  Debes señalar que se necesita para atender la enfermedad de ${ title_case(str(pacient_name.name).lower()) }.
+fields:
+  - no label: info[i].treatment
+    none of the above: False
+    datatype: checkboxes
+    code: |
+      treatments
+section: Diagnóstico
+progress: 60
+---
+code: |
+  treatments = ["Medicamento","Procedimiento médico","Prestación de servicio de enfermería", "Transporte", "Alimento nutricional", "Examen médico", "Dispositivo", "Otros"]
+---
+code: |
+  if info[i].treatment['Otros']:
+    info[i].otros.there_are_any = True
+  else:
+    info[i].otros.there_are_any = False
+---
+code: |
+  info[i].otros.there_is_another = False
+---
+question: |
+  Identifica los tratamientos adicionales
+fields:
+  - nombre del tratamiento: info[i].otros[j].other_treatment
+    hint: Ingrese uno a la vez
+list collect:
+  label: |
+    ${tratamiento} ${j+1} 
+section: Diagnóstico
+progress: 65
+---
+code: |
+  tratamiento = "Tratamiento"
+---
+question: |
+  ¿ ${ title_case(str(pacient_name.name).lower()) } tiene otra enfermedad que deba ser atendida?
+subquestion: |
+  El nuevo diagnóstico que incluyas debe representar un riesgo grave para la salud de ${ title_case(str(pacient_name.name).lower()) }
+yesno: info.there_is_another
+section: Diagnóstico
+progress: 75
+---
+question: |
+  Estas son las enfermedades, afección o condición que indicaste
+subquestion: |
+  ${ info.table }
+  ${ info.add_action() }
+continue button field: info.reviewed
+mandatory: true
+section: Diagnóstico
+progress: 80
+---
+mandatory: True
+question: |
+  ¿La vida de ${ title_case(str(pacient_name.name).lower()) } corre peligro?
+subquestion: |
+    No todas las enfermedades ponen en riesgo la vida del paciente. Debes responder "Sí" en caso de que el paciente pueda fallecer al no recibir lo ordenado por el médico tratante.
+yesno: sickness
+section: Estado de salud
+progress: 85
+---
+mandatory: True
+question: |
+  ¿En qué ciudad se presentará la acción de tutela?
+fields: 
+  - no label: presentation_city
+    input type: dropdown
+    code: get_cities()
+section: Ciudad presentación tutela
+progress: 90
+---
+mandatory: True
+question: |
+  Manifiestas bajo juramento que no se ha presentado otra tutela por la misma situación detallada en juzto.co.
+yesno: oath
+section: Juramento
+progress: 95
+---
+mandatory: |
+  oath == False
+question: |
+  Ten en cuenta que la ley en Colombia solo permite presentar una tutela por una misma situación, por lo que existe una posibilidad que el juez no te conceda los derechos por volver a presentar la misma tutela.
+buttons:
+  - Continuar: continue
+section: Juramento
+progress: 95
+---
+mandatory: true
+code: |
+  if 'price' in url_args:
+    price = currency(url_args['price'], decimals= False)
+  else:
+    price = '$0'
+  files_saved = save_files(the_document, 'Tutela por derecho a la salud', True, user_info().session)
+  juzto_callback = get_callback_final_screen(price, files_saved, 'Tutela por derecho a la salud', True)
+---
+attachment:
+  variable name: the_document
+  docx template file: IT_JC_200829_V.1.0_Tutela_salud.docx
+---
+event: final_screen
+mandatory: true
+progress: 100
+question: |
+  ${ z_text_final_screen }
+subquestion: |
+  ${ juzto_callback }
+id: juzto_da_final    
+allow emailing: False
+back button: False
+---

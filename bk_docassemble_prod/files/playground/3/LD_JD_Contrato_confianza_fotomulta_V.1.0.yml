@@ -1,0 +1,123 @@
+metadata:
+  title: |
+   Contrato confianza
+  short title: |
+    Contrato confianza
+  description: |
+   Contrato confianza para adquirir el servicio de apelación de fotomultas
+  authors:
+    - name: Laura Pardo
+      organization: Juzto.co
+    - name: Juan David Castilla
+      organization: Juzto.co
+---
+features:
+  navigation: True
+  progress bar: False
+  show progress bar percentage: True
+  hide standard menu: False
+  hide navbar: True
+  question back button: True
+---
+include:
+  - docassemble.playground3:autoterms.yml
+---
+modules:
+  - docassemble.playground3.juztoModules
+  - docassemble.playground3.juztoListChoices
+---
+mandatory: True
+question: |
+  ¿Quieres conocer el modelo del contrato o firmarlo?
+fields:
+  - no label: choice
+    input type: radio
+    choices:
+      - Quiero ver el modelo de contrato: modelo_contrato
+      - Quiero firmar el contrato: firma
+---
+if: choice == 'modelo_contrato'
+mandatory: |
+  choice == 'modelo_contrato'
+question: |
+  Aquí puedes descargar el **CONTRATO MODELO**
+attachment:
+  docx template file: LD_JD_Contrato_confianza_fotomulta_vista_previa_V.1.1.docx
+  valid formats:
+    - pdf
+allow emailing: False    
+buttons:
+  - Firmar mi contrato: continue   
+---
+code: |
+  if continuar == True:
+    firma = True
+---
+mandatory: |
+  choice == 'firma'
+question: |
+  ¿Eres persona o empresa?
+fields:
+  - no label: client_type
+    input type: radio
+    code: get_list('type_j')
+progress: 1
+---
+mandatory: |
+  client_type == "Persona Natural"
+question: |
+  ¿Cuáles son los datos de la persona?
+fields:
+  - Nombres y apellidos: complaining_name
+    hint: Nombre y apellido
+  - Tipo de identificación: complaining_type_id
+    input type: dropdown
+    code:  get_list_dni('N')
+  - Número de identificación: complaining_id_number
+    hint: dni
+  - Correo electrónico de contacto: email
+    hint: prueba@gmail.com
+  - Número de celular de contacto: cellphone
+    hint: 3123456789
+id: blockglobal
+---
+mandatory: |
+  client_type == "Persona Jurídica"
+question: |
+  ¿Cuáles son los datos de la compañía?
+fields:
+  - Nombre de la compañia: complaining_name
+  - NIT: complaining_id_number
+    hint: nit
+  - Correo electrónico de contacto: email
+    hint: prueba@gmail.com
+  - Número de celular de contacto: cellphone
+    hint: 3123456789
+  - Nombre del representate legal: legal_representative_name
+  - Tipo de identificación: legal_representative_type_id
+    input type: dropdown
+    code:  get_list_dni('N')
+  - Número de identificación: legal_representative_id_numbre
+    hint: dni
+id: blockglobal
+---
+mandatory: true
+code: |
+  if client_type == "Persona Jurídica":
+    complaining_id_number = generateNit(complaining_id_number)
+---
+mandatory: true
+question: |
+  Por favor firma en el rectángulo.
+signature: signature
+---
+event: final_screen
+mandatory: true
+question: |
+  Aquí puedes descargar tu contrato. Recuerda que sin el pago el documento **NO ES VALIDO**. Da clic [AQUI](https://juzto.co/tramites/fotomulta-transito/) para adquirir los servicios.
+attachment:
+  docx template file: LD_JD_Contrato_confianza_fotomulta_DA_V.1.1.docx
+  valid formats:
+    - pdf
+allow emailing: False 
+---

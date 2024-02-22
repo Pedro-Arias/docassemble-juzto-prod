@@ -1,0 +1,354 @@
+metadata:
+  title: |
+   Derecho de petición habeas data
+  short title: |
+    DP Habeasdata
+  description: |
+   Documento gratuito para reclamar dbs.
+  authors:
+    - name: Laura Pardo
+      organization: Juzto.co
+    - name: Juan David Castilla
+      organization: Juzto.co
+---
+features:
+  navigation: True
+  debug: False
+  progress bar: False
+  show progress bar percentage: True
+  hide standard menu: True
+  hide navbar: True
+  question back button: True
+  css:
+  - lauraStyles.css
+---
+include:
+  - docassemble.playground3:autoterms.yml
+---
+modules:
+  - docassemble.playground3.juztoModules
+  - docassemble.playground3.juztoListChoices
+---
+images:
+  happy: Habeas_Data-Fin_Entrevista.png
+---
+initial: True
+code: |
+  url ='https://flow.zoho.com/724171086/flow/webhook/incoming?zapikey=1001.cd8ce410c57e7704a4c8163b20fc0bf9.d073de3bc0f9fa4ccd2d61e57e8566d6&isdebug=false'
+  interview=user_info().session
+  client_type=persona_empresa[client_type_l]
+  myobj={}
+  if client_type == 'Persona Natural':
+    complaining_name = first_names+" "+last_names
+    myobj = {"first": first_names, "last":last_names}
+  else:
+    complaining_name
+    complaining_type_id = "NIT"
+    legal_representative_name = legal_representative_fname+" "+legal_representative_lname
+    myobj = {"company": complaining_name, "legalrepfname": legal_representative_fname,"legalreplname": legal_representative_lname, "legalrepno": legal_representative_id_numbre,"legalreptypeid": legal_representative_type_id}  
+  company_or_entity_name_l
+  if company_or_entity_name_l == 'Otro':
+    company_or_entity_name = manualname
+    email = {manualmail}
+    juztomails = {'info@juzto.co', 'it@juzto.co'}
+    send_email(to=list(juztomails), template=internal_alert)
+  else:
+    company_or_entity_name = company_or_entity_name_l
+    email = entidades_habeasdata[company_or_entity_name]
+  contact_date
+  if channels_d['Otro'] or channels_d.all_false():
+    other
+    channels_d[other] = True
+  channels = channels_d.true_values()
+  answers_reviewed
+  base = {"id_type": complaining_type_id, "idnum": complaining_id_number,"email": email_address,"channels": list(channels),"client_type": client_type, "phone": phone,"contact_date":format_date(contact_date, format='MM/dd/yyyy'), "entity":company_or_entity_name, "interview":interview, "entity_mails":list(email)}
+  myobj = {**myobj, **base}
+  #email={'laura.pardo@juzto.co'}
+  to_email = list(email)
+  to_email.append(email_address)
+  to_email.append('habeasdata@juzto.co')
+  signature
+  user_continue
+  if not defined('email_sent_ok'):
+    email_sent_ok = send_email(to=to_email, template=notification, attachments=thedoc)
+  if channels_d['Mensaje de texto (SMS)']:
+    if remove_number:
+      if number_consent:
+        carrier
+        myobj = {**myobj, **{"carrier":carrier}}
+        the_task
+        final_screen
+      else:
+        the_task
+        intermediate_screen
+  else:
+    the_task
+    intermediate_screen
+---
+question: |
+  La reclamación la va a iniciar una:
+fields:
+  - no label: client_type_l
+    input type: radio
+    code: get_list_unsort('type')
+progress: 1
+---
+question: |
+  ¿Cuáles son los datos de la ${client_type_l}?
+fields:
+  - Nombres: first_names
+    show if:
+      code: |
+        client_type_l== 'Persona'
+    hint: Nombres
+  - Apellidos: last_names
+    show if:
+      code: |
+        client_type_l== 'Persona'
+    hint: Apellidos
+  - Tipo de identificación: complaining_type_id
+    input type: dropdown
+    code:  get_list_dni('N')
+    show if:
+      code: |
+        client_type_l== 'Persona'
+  - Número de identificación: complaining_id_number
+    show if:
+      code: |
+        client_type_l== 'Persona'
+    hint: dni
+  - Nombre de la compañia: complaining_name
+    show if:
+      code: |
+        client_type_l== 'Empresa'
+  - NIT: complaining_id_number
+    hint: nit
+    show if:
+      code: |
+        client_type_l== 'Empresa'
+  - Correo electrónico: email_address
+    datatype: email
+    hint: laura@gmail.com
+  - Celular: phone
+    datatype: integer
+    hint: 3151234567
+  - Nombres del representate legal: legal_representative_fname
+    show if:
+      code: |
+        client_type_l== 'Empresa'
+    hint: Nombres del representante
+  - Apellidos del representate legal: legal_representative_lname
+    show if:
+      code: |
+        client_type_l== 'Empresa'
+    hint: Apellidos del representante
+  - Tipo de identificación del representante legal: legal_representative_type_id
+    input type: dropdown
+    code:  get_list_dni('N')
+    show if:
+      code: |
+        client_type_l== 'Empresa'
+  - Número de identificación: legal_representative_id_numbre
+    show if:
+      code: |
+        client_type_l== 'Empresa'
+    hint: dni
+---
+question: |
+  ¿Qué entidad se comunicó contigo?
+subquestion: |
+  Si no encuentras la entidad que buscas, selecciona 'Otro' al final de la lista.
+fields:
+  - no label: company_or_entity_name_l
+    input type: dropdown
+    code: get_entities_habeas()
+---
+question: |
+  No contamos con los datos de esa entidad por favor ingresa los siguientes datos
+subquestion: |
+  Recuerda escribir los datos correctos para obtener el resultado deseado. 
+fields:
+  - Nombre de la entidad: manualname
+  - Correo electrónico de la entidad: manualmail
+    datatype: email
+---
+question: |
+  ¿Cuándo fue la ultima vez que se comunicaron contigo?
+fields:
+  - no label: contact_date
+    datatype: date
+---
+question: |
+  ¿Por qué canales se ha comunicado contigo?
+fields:
+  - "Selecciona todos los canales que apliquen": channels_d
+    datatype: checkboxes
+    choices:
+      - Teléfono
+      - Mensaje de texto (SMS)
+      - WhatsApp
+      - Correo Electrónico
+      - Otro
+---
+question: |
+  ¿Cuál es el otro canal de contacto?
+fields:
+  - no label: other
+---
+question: |
+  % if email_sent_ok:
+   El e-mail fue enviado con éxito a la entidad ${company_or_entity_name} con copia al correo que nos suministraste.
+  % else:
+  Hubo un error al enviar el correo, por favor revisa en tu bandeja de entrada si recibiste un correo de Juzto con el asunto: Reclamación habeas data ${complaining_name}.
+  % endif
+subquestion: |
+  Adicionalmente, ¿quiéres bloquear los mensajes de texto de contenido comercial y/o publicitario que ingresan a tu celular?
+yesno: remove_number
+---
+question: |
+  Bloqueo de mensajes
+subquestion: |
+  Ten en cuenta que tu número de celular será ingresado en el Registro de Números Excluidos (RNE) de la Comisión de Regulación de Comunicaciones (CRC) cuyo efecto se verá reflejado en los siguientes 5 días hábiles. ¡Cuidado! existe la posibilidad de que dejes de recibir mensajes de interés como la confirmación de transacciones bancarias. 
+yesno: number_consent
+---
+question: |
+fields: 
+  - ¿Qué línea celular quieres excluir?: phone
+    datatype: integer
+  - ¿Qué operador tienes?: carrier
+    choices:
+      - Claro
+      - ETB
+      - Movistar
+      - Avantel
+      - Éxito Móvil
+      - Movistar
+      - Tigo
+      - Uffmovil
+      - Virgin Mobile
+---
+question: |
+  Por favor firma en el rectángulo.
+signature: signature
+---
+attachment:
+  name: Reclamación Habeas Data ${ complaining_name.title() }
+  filename: Reclamación Habeas Data ${ complaining_name.title() }
+  variable name: thedoc
+  docx template file: IT_LP_210701_Derecho_peticion_habeasdata_gratuito_V.1.0.docx
+  valid formats:
+    - pdf
+---
+question: |
+  Ya tenemos tu reclamación, ${ complaining_name }
+continue button field: user_continue
+under: |
+  ${thedoc}
+  [BR]
+  [BR]
+  Haz click en el documento para verlo completo
+---
+event: sendreq
+code: |
+  import requests
+  import json
+  json_data = json.dumps(myobj)
+  requests.post(url, data = json_data)
+---
+code: |
+  the_task = background_action('sendreq')
+---
+question: |
+  Estos son los datos que nos diste
+review:
+  - Editar: 
+    - client_type_l
+    - recompute:
+      - client_type
+    button: |
+      El reclamante es una
+      ${ client_type_l }.
+  - Editar: 
+    - email_address
+    - recompute:
+      - complaining_name
+      - myobj
+    button: |
+      Los datos del reclamante son
+      [BR]
+      Nombre: ${complaining_name}
+      [BR]
+      Email: ${email_address}
+      [BR]
+      Tipo de documento: ${complaining_type_id}
+      [BR]
+      Número de documento: ${complaining_id_number}
+      [BR]
+      %if client_type_l == 'Empresa':
+      Representante legal: ${legal_representative_name}
+      [BR]
+      Tipo de documento del representante legal: ${legal_representative_type_id}
+      [BR]
+      Número de documento del representante legal: ${legal_representative_id_numbre}
+      %endif
+     
+  - Editar: channels_d
+    button: |
+      Los canales por los que te contactaron son [BR] ${ channels_d.true_values() }.
+  - Editar: 
+      - company_or_entity_name_l
+      - recompute:
+        - company_or_entity_name
+        - email
+    button: |
+      La entidad es ${ company_or_entity_name }.
+continue button field: answers_reviewed
+---
+template: notification
+subject: |
+    Reclamación habeas data ${ complaining_name }
+content: |
+  Señores,
+  
+  ${company_or_entity_name}
+  
+  Por medio de la presente radico reclamación de habeas data como lo establece el artículo 15 de la Ley 1581 de 2012. Dado lo anterior, usted cuenta con máximo 15 días hábiles para responder el mismo.
+---
+template: internal_alert
+subject: |
+  Alerta docassemble reclamación habeas data gratuito
+content: |
+  La entidad ${company_or_entity_name} y email ${manualmail} no se encuentra dentro de nuestros registros.
+---
+event: intermediate_screen
+prevent going back: True
+question: |
+  ¡Hemos terminado!
+subquestion: |
+  % if email_sent_ok:
+  [FILE happy, 60%]
+  [BR]
+  [BR]
+  El e-mail de radicación fue enviado con éxito a la entidad ${company_or_entity_name} con copia al correo que nos suministraste.
+  % else:
+  Hubo un error al enviar el correo, por favor revisa en tu bandeja de entrada si recibiste un correo de Juzto con el asunto: Reclamación habeas data ${complaining_name}.
+  % endif
+buttons:
+  - Hacer otra reclamación: exit
+    url: https://juzto.co/tramites/reclamacion-eliminar-mensajes-publicitarios/
+---
+event: final_screen
+prevent going back: True
+question: |
+  ¡Está todo listo!
+subquestion: |
+  [FILE happy, 60%]
+  [BR]
+  [BR]
+  Hemos generado un documento automatizado con tu reclamación y además lo hemos enviado al correo de la entidad que nos indicaste.
+  [BR]
+  [BR]
+  La entidad tiene 15 días para resolver esta reclamación. Recuerda que si lo necesitas puedes agendar una llamada gratuita con uno de nuestros abogados.
+buttons:
+  - Hacer otra reclamación: exit
+    url: https://juzto.co/tramites/reclamacion-eliminar-mensajes-publicitarios/

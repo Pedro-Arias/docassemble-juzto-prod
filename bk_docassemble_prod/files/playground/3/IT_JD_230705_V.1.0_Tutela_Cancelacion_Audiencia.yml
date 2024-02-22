@@ -1,0 +1,151 @@
+metadata:
+  title: |
+   Tutela por cancelación de audiencia
+  short title: |
+    Tutela cancelación audiencia
+  description: |
+   Con este documento buscamos que reagenden la audiencia que la misma secretaría nos canceló.
+  authors:
+    - name: Dario Agaton
+      organization: Juzto.co
+    - name: Juan David Castilla
+      organization: Juzto.co
+---
+features:
+  navigation: True
+  progress bar: True
+  show progress bar percentage: True
+  hide standard menu: False
+  hide navbar: True
+  question back button: True
+---
+include:
+  - docassemble.playground3:autoterms.yml
+---
+modules:
+  - docassemble.playground3.juztoModules
+  - docassemble.playground3.juztoListChoices
+---
+initial: True
+code: |
+  case_number
+  client_type
+  if client_type == "Persona Natural":
+    natural.name
+    complaining_type_id
+    complaining_id_number = get_dni_formated(id_person)
+  else:
+    legal.name
+    complaining_id_number = generateNit(id_person)
+    legal_representative_type_id
+    legal_representative_name
+    legal_representative_id_number = get_dni_formated(legal_representative_id_number)
+  fotomulta_number
+  fecha_agendamiento
+  fecha_cancelacion
+  sancion
+  if sancion == True:
+    numero_sancion
+    fecha_sancion
+  ouremail  = 'juzgados+'+case_number+'@juzto.co'
+  Signature ="{{signature:0}}"
+  final_screen
+---
+objects:
+  - natural: Individual
+  - legal: Individual
+---
+question: |
+  ¿Cuál es la línea de defensa a la que corresponde este documento? Ejemplo: LD-780
+fields:
+  - no label: case_number
+---
+question: |
+  ¿El cliente es persona o empresa?
+fields:
+  - no label: client_type
+    input type: radio
+    code: get_list('type_j')
+---
+question: |
+  ¿Cuáles son los datos de la persona?
+fields:
+  - Nombres: natural.name.first
+    hint: Nombres
+  - Apellidos: natural.name.last
+    hint: Apellidos
+  - Tipo de identificación: complaining_type_id
+    input type: dropdown
+    code:  get_list_dni('N')
+  - Número de identificación: id_person
+    hint: dni
+id: blockglobal
+---
+question: |
+  ¿Cuáles son los datos de la compañía?
+fields:
+  - Nombre de la compañia: legal.name.first
+  - NIT: id_person
+    #hint: nit
+  - Nombre del representate legal: legal_representative_name
+  - Tipo de identificación: legal_representative_type_id
+    input type: dropdown
+    code:  get_list_dni('N')
+  - Número de identificación: legal_representative_id_number
+    #hint: dni
+id: blockglobal
+---
+question: |
+  ¿Cuál es el número de la fotomulta? 
+fields:
+  - Numero: fotomulta_number
+---
+question: |
+  ¿Cuál es la fecha en que se agendó la audiencia?
+fields:
+  - no label: fecha_agendamiento
+    datatype: date
+---
+question: |
+  ¿Cuál es la fecha en que se recibió el aviso que nos cancelaban la audiencia?
+fields:
+  - no label: fecha_cancelacion
+    datatype: date
+---
+question: |
+  ¿El caso ya tiene sanción?
+fields:
+  - no label: sancion
+    datatype: yesnoradio 
+---
+question: |
+ ¿Cuál es el número y fecha de la sanción?
+fields:
+  - número sanción: numero_sancion
+    datatype: integer 
+  - Fecha sanción: fecha_sancion
+    datatype: date 
+---
+question: |
+ ¿Cuál es el día y hora de la audiencia?
+fields:
+  - día de la audiencia: dia_audiencia
+    datatype: date 
+  - hora de la audiencia: hora_audiencia 
+    datatype: time
+---
+attachment:
+  variable name: the_document
+  docx template file: IT_JD_230705_V.1.0_Tutela_Cancelacion_Audiencia.docx
+---
+code: |
+  files_saved = save_files(the_document, 'Tutela_Cancelacion_Audiencia', True, user_info().session)
+  juzto_callback = get_callback_final_screen('0', files_saved, 'Tutela_Cancelacion_Audiencia', True)
+---
+event: final_screen
+question: |
+  ${ z_text_final_screen } - COD: ${user_info().session}
+subquestion: |
+  ${ juzto_callback }
+id: juzto_da_final
+---

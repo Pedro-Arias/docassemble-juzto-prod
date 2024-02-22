@@ -1,0 +1,357 @@
+---
+metadata:
+  title: |
+   Acta de descargos
+  short title: |
+    Acta de descargos
+  description: |
+    Documento que se diligencia cuando se cita a un empleado a descargos para responder sobre un hecho o situación presentada.
+  authors:
+    - name: Edna Avendaño
+      organization: Programador
+    - name: Juan David
+      organization: Proyectó
+    - name: Edna Avendaño
+      organization: Revisó
+  revision_date: 2020-05-07
+---
+sections:
+  - Información del empleador
+  - Información del trabajador
+  - Fechas
+  - Información sobre los descargos
+---
+features:
+  navigation: True
+  progress bar: True
+  show progress bar percentage: True
+  hide standard menu: False
+  hide navbar: True
+  question back button: True
+---
+include:
+  - docassemble.playground3:autoterms.yml
+---
+modules:
+  - docassemble.playground3.juztoModules
+  - docassemble.playground3.juztoListChoices
+---
+mandatory: True
+code: |
+  multi_user = True
+---
+#auto terms:
+#  NIT: |
+#    Número de Identificación Tributaria con el cual se identifica a las empresas.
+#  Empleador: |
+#    Empleador es la persona que contrata los servicios del trabajador.
+#---
+mandatory: True
+question: |
+  Indica los datos de la empresa
+fields: 
+  - Nombre: employer_name
+    hint: "Nombre de la empresa SAS"
+  - NIT: employer_id_number
+    hint: nit
+Section: Información del empleador
+Progress: 10
+prevent going back: True
+---
+mandatory: True
+question: |
+  ¿Qué funcionario de ${ employer_name.upper() } realiza la diligencia de descargos? 
+Subquestion: |
+  Por lo general la realiza el jefe inmediato o el jefe de recursos humanos
+fields: 
+  - Nombre: employee_responsable_interview
+    hint: "Nombre(s) y apellido(s)"
+  - Tipo de identificación: employee_responsable_interview_type_id
+    datatype: dropdown
+    code: get_list_dni('N')
+  - Número de identificación: employee_responsable_interview_id_number
+    hint: dni
+  - Cargo: employee_responsable_interview_position
+    hint: "Jefe RRHH"
+Section: Información del empleador
+Progress: 20
+---
+mandatory: True
+question: |
+  ¿Cuáles son los datos del trabajador citado a descargos?
+fields: 
+  - Nombre: employee_name
+    hint: Nombre(s) y apellido(s)
+  - Tipo de identificación: employee_type_id
+    datatype: dropdown
+    code: get_list_dni('N')
+  - Número de identificación: employee_id_number
+    hint: dni
+section: Información del trabajador
+progress: 30
+---
+mandatory: True
+question: |
+  ¿Cuándo se citó al trabajador para asistir a la diligencia de descargos?
+Subquestion: |
+  Es obligatorio citar al trabajador para que asista a la diligencia de descargos dentro de los plazos y se siga el procedimiento establecido en el Reglamento Interno de Trabajo. Esta no puede ser una diligencia sorpresa o sin previo aviso.
+fields: 
+  - no label: notification_date
+    datatype: date
+validation code: |
+    if notification_date > today():
+      validation_error("La fecha de la citación no puede ser superior a la fecha en que se crea esta acta")
+section: Fechas
+Progress: 40
+---
+mandatory: True
+question: |
+  ¿Qué día se hace la diligencia de descargos?
+Subquestion: |
+  Debe ser la misma fecha indicada en la carta con la que se citó al trabajador.
+fields: 
+  - no label: date_presentation
+    datatype: date
+validation code: |
+    if date_presentation < notification_date:
+      validation_error("La fecha de la diligencia no puede ser anterior a la fecha de la citación")
+section: Fechas
+Progress: 50
+---
+objects:
+  -  witness: DAList.using(object_type=Individual, complete_attribute='complete')
+---
+mandatory: |
+  witness.there_are_any == True
+code: |
+ witness.gather()
+ witness.reviewed
+---
+code: |
+ witness[i].name
+ witness[i].type_id
+ witness[i].id_number
+ witness[i].complete = True
+---
+table: witness.table
+rows: witness
+columns:
+  - Testigos: |
+      row_item.name
+edit:
+	- name
+	- type_id
+	- id_number
+allow reordering: True
+---
+question: |
+  ¿El trabajador lleva testigos?
+yesno: witness.there_are_any
+section: Información sobre los descargos
+---
+question: |
+  ¿Necesita agregar otro testigo ?
+yesno: witness.there_is_another
+section: Información sobre los descargos
+---
+question: |
+  ¿Cuáles son los datos del ${ get_ordinal("male", i) } testigo?
+fields:  
+  - Nombre completo: witness[i].name
+  - Tipo de identificación: witness[i].type_id
+    input type: dropdown
+    code:  get_list_dni('N')
+  - Número de identificación: witness[i].id_number
+    hint: dni
+section: Información sobre los descargos
+---
+question: |
+  Estos son los testigos indicados
+subquestion: |
+  ${ witness.table }
+  ${ witness.add_action() }
+section: Información sobre los descargos
+continue button field: witness.reviewed
+---
+objects:
+  - reason: DAList.using(object_type=DAObject, complete_attribute='complete')
+---
+mandatory: True
+code: |
+ reason.gather()
+ reason.reviewed
+ reason
+---
+code: |
+ reason[i].name
+ reason[i].complete = True
+---
+table: reason.table
+rows: reason
+columns:
+  - Motivo: |
+      row_item.name
+edit:
+  - name
+allow reordering: True
+---
+code: |
+  reason.there_are_any = True
+  reason.there_is_another = False
+---
+question: |
+   ¿Cuál fue la ${ get_ordinal("female", i) } falta por la que se citó a descargos al trabajador?
+Subquestion: |
+  Ten en cuenta que cada una de las razones para realizar esta diligencia de descargo debieron ser informadas en la citación al trabajador y si son varias se deben mencionar todas. Algunos ejemplos son: Hurto / Acoso laboral / Acoso sexual / Irrespeto a los compañeros de trabajo. 
+fields:
+  - no label: reason[i].name
+    hint: Llegada tarde
+section: Información sobre los descargos
+---
+question: |
+  Estos son los motivos por los que se citó a descargos al trabajador
+subquestion: |
+  ${ reason.table }
+  ${ reason.add_action() }
+section: Información de los descargos
+continue button field: reason.reviewed
+---
+mandatory: |
+ question.there_are_any == True
+code: |
+ question.gather()
+ question.reviewed
+---
+code: |
+ question[i].name
+ question[i].complete = True
+---
+table: question.table
+rows: question
+columns:
+  - Preguntas: |
+      row_item.name
+edit:
+  - name
+allow reordering: True
+---
+question: |
+  El acta de diligencia de descargos estándar de Juzto incluye estas preguntas. ¿Quiere agregar otras preguntas? 
+under: |
+  [FILE Preguntas_acta_de_descargos.png, 100%]
+yesno: question.there_are_any
+section: Información sobre los descargos
+---
+question: |
+  ¿Cuál es la ${ get_ordinal("female", i) } pregunta que agregará?
+fields:
+  - no label: question[i].name
+section: Información sobre los descargos
+---
+question: |
+  ¿Necesita agregar otra pregunta ?
+yesno: question.there_is_another
+---
+question: |
+  Estas son las preguntas que agregó
+subquestion: |
+  ${ question.table }
+  ${ question.add_action() }
+section: Información sobre los descargos
+continue button field: question.reviewed
+---
+mandatory: true
+question: |
+  La(s) conducta(s) del trabajador va(n) en contra de: 
+fields:
+  - no label: document
+    datatype: checkboxes
+    choices:
+      - Reglamento Interno de trabajo
+      - Contrato de trabajo
+      - Código Sustantivo del Trabajo
+      - Manual de funciones
+      - Código de ética y conducta
+      - Otros documentos
+---
+objects: 
+  - other_document: DAList.using(object_type=DAObject, complete_attribute='complete')
+---
+mandatory: |
+  other_document.there_are_any == True
+code: |
+  other_document.gather()
+  other_document.reviewed
+---
+code: |
+  other_document[i].name
+  other_document[i].complete = True
+---
+code: |
+  if document['Otros documentos']:
+    other_document.there_are_any = True
+  else:
+    other_document.there_are_any = False
+---
+question: |
+  ¿Cuál es el ${ ordinal(i) } documento? 
+fields: 
+  - no label: other_document[i].name
+    hint: Ingresar solo una actividad a la vez. 
+---
+question: |
+  ¿Necesitas agregar otro documento?
+yesno: other_document.there_is_another 
+---
+question: |
+  Estos son los documentos seleccionados:
+subquestion: |
+  % for item in [item for item in document.true_values() if item != 'Otros documentos']:
+  * ${ item }
+  % endfor
+  % for doc in other_document:
+  * ${ title_case(doc.name) }
+  % endfor
+continue button field: other_document.reviewed
+section: Información sobre los descargos
+---
+question: |
+  ¿Cuál es el ${ get_ordinal("male", i) } documento adicional? 
+fields: 
+  - no label: other_document[i].name
+    hint: Ingresar solo una actividad a la vez.
+section: Información sobre los descargos
+---
+question: |
+  ¿Necesita agregar otro documento adicional?
+yesno: other_document.there_is_another 
+section: Información sobre los descargos
+---
+objects:
+  -  question: DAList.using(object_type=DAObject, complete_attribute='complete')
+progress: 95
+---
+mandatory: true
+code: |
+  if 'price' in url_args:
+    price = currency(url_args['price'], decimals= False)
+  else:
+    price = '$0'
+  files_saved = save_files(the_document, 'acta de descargos', True, user_info().session)
+  juzto_callback = get_callback_final_screen(price, files_saved, 'acta de descargos', True)  
+---
+attachment:
+  variable name: the_document
+  docx template file: LT-JD-v.1.1-200507-Diligencia_descargos.docx
+---
+event: final_screen
+mandatory: true
+progress: 100
+question: |
+  ${ z_text_final_screen }
+subquestion: |
+  ${ juzto_callback }
+id: juzto_da_final    
+allow emailing: False
+back button: False
+---

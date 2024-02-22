@@ -1,0 +1,335 @@
+metadata:
+  title: |
+    IT_JD_22092023_V1.0_Revocatoria_directa_consolidada
+  short title: |
+    Nueva Revocatoria Directa Versión Lily y Juan.
+  description: |
+    Con este documento se busca cómo última opción solicitar que se revoque el AA que ejecuta el comparendo por errores de notificación, argumentos jurisprudenciales, inconsistencias de la resolución, y debido proceso.
+  authors:
+    - name: Dario Agaton
+      organization: DocumentosLegales.co
+    - name: Lily Vergara
+      organization: DocumentosLegales.co
+---
+features:
+  navigation: True
+  progress bar: True
+  show progress bar percentage: True
+  hide standard menu: False
+  hide navbar: True
+  question back button: True
+---
+include:
+  - docassemble.playground3:autoterms.yml
+---
+modules:
+  - docassemble.playground3.holidays
+  - docassemble.playground3.juztoModules
+  - docassemble.playground3.juztoListChoices
+---
+objects:
+  - audiencias: DAList.using(object_type=Thing)
+  - natural: Individual
+  - legal: Individual
+---
+initial: True
+code: |
+  resolution_menos_30 = 'false'
+  case_number
+  fotomulta_number
+  fotomulta_date
+  resolution_number
+  resolution_date
+  treinta_date = difference_bussiness_days(fotomulta_date, resolution_date)
+  if is_bussiness_days(resolution_date):
+    resolution_dia_no_habil = 'true'
+  else:
+    resolution_dia_no_habil = 'false'
+  if resolution_date < (fotomulta_date + timedelta(days = 30)):
+    resolution_menos_30 = 'true'
+  if resolution_date < fotomulta_date:
+    resolution_antes_fotomulta = 'true'
+  else:
+    resolution_antes_fotomulta = 'false'
+  client_type
+  company_or_entity_name = fix_secretaria(aux_company_or_entity_name)
+  if client_type == "Persona Natural":
+    natural.name
+    complaining_type_id
+    complaining_id_number = get_dni_formated(id_person)
+  else:
+    legal.name
+    complaining_id_number = generateNit(id_person)
+    legal_representative_type_id
+    legal_representative_name
+    legal_representative_id_number = get_dni_formated(legal_rep_id_person)
+  argumento_proceso_contravencional_date = date(2020, 6, 1)
+  argumento_c038_date_1 = date(2020, 2, 7)
+  argumento_c038_date_2 = date(2022, 9, 14)
+  argumento_tipo_comparendo_date = date(2022, 9, 15)
+  if argumento_c038_date_1 < fotomulta_date.date() < argumento_c038_date_2:
+    argumento_c038 = 'true'
+  else:
+    argumento_c038 = 'false' 
+  if resolution_date.date() < argumento_tipo_comparendo_date:
+    c321_en_resolution
+  else:
+    c321_en_resolution = 'false'
+  if resolution_date.date() > argumento_tipo_comparendo_date:
+    posesion = 'true'
+  else:
+    posesion = 'false'
+  comparendo_type
+  if comparendo_type not in ["D02","C35"]:
+    soat = 'false'
+    soat_pruve = 'false'
+    soat_pruve_image_1 = 'false'
+    technician = 'false'
+    technician_pruve = 'false'
+  if comparendo_type == "D02":
+    technician = 'false'
+    technician_pruve = 'false'
+    soat
+    if soat == 'true':
+      soat_pruve
+      if soat_pruve == 'true':
+        soat_pruve_image_1
+        if soat_pruve_image_1 == 'true':
+          soat_pruve_image
+  if comparendo_type == "C35":
+    soat = 'false'
+    soat_pruve = 'false'
+    soat_pruve_image_1 = 'false'
+    technician
+    if technician == 'true':
+      technician_pruve
+      if technician_pruve == 'true':
+        technician_pruve_image
+  resolucion_automatica
+  if resolucion_automatica == 'false':
+    convoca_audiencia
+  direccion_correcta
+  if direccion_correcta == 'false':
+    imagen_runt
+    imagen_guia
+  rechazo_guia
+  if rechazo_guia == 'true':
+    aviso_en_respuesta
+    if company_or_entity_name == "Secretaria Distrital de Movilidad de Bogotá" and  aviso_en_respuesta == 'true':
+      aviso_bogota
+      if aviso_bogota == 'false':
+        numero_aviso_bogota
+        fecha_aviso_bogota
+  if company_or_entity_name == "Secretaria de Movilidad de Medellín":
+    comparendo_extemporaneo     
+    fecha_comparendo_validacion
+    validacion_vencida
+    falta_firma
+  if comparendo_type == "C29":
+    varios_vehiculos
+  Signature ="{{signature:0}}"
+  ouremail = 'entidades+'+case_number+'@juzto.co'
+  final_screen
+---
+# INFORMACIÓN BÁSICA DEL CASO
+question: |
+  Datos del caso
+fields:
+  - Número de la LD (CRM): case_number
+  - Nombre de la entidad: aux_company_or_entity_name
+    datatype: dropdown
+    code: get_list_unsort('entidades')
+  - Número del comparendo: fotomulta_number
+  - Fecha del comparendo: fotomulta_date
+    datatype: date
+  - Número de la resolución sancionatoria: resolution_number
+  - Fecha de la resolución sancionatoria: resolution_date
+    datatype: date
+  - Tipo de cliente: client_type
+    input type: radio
+    code: get_list('type_j')
+  - Nombres: natural.name.first
+    show if:
+      variable: client_type
+      is: "Persona Natural"
+    hint: Nombres
+  - Apellidos: natural.name.last
+    show if:
+      variable: client_type
+      is: "Persona Natural"
+    hint: Apellidos
+  - Tipo de identificación: complaining_type_id
+    input type: dropdown
+    code: get_list_dni('N')
+    show if:
+      variable: client_type
+      is: "Persona Natural"
+  - Número de identificación: id_person
+    show if:
+      variable: client_type
+      is: "Persona Natural"
+    hint: dni
+  - Nombre de la compañia: legal.name.first
+    show if:
+      variable: client_type
+      is: "Persona Jurídica"
+  - NIT: id_person
+    show if:
+      variable: client_type
+      is: "Persona Jurídica"
+    #hint: nit
+  - Nombre del representate legal: legal_representative_name
+    show if:
+      variable: client_type
+      is: "Persona Jurídica"
+  - Tipo de identificación: legal_representative_type_id
+    input type: dropdown
+    code: get_list_dni('N')
+    show if:
+      variable: client_type
+      is: "Persona Jurídica"
+  - Número de identificación: legal_rep_id_person
+    show if:
+      variable: client_type
+      is: "Persona Jurídica"
+    #hint: dni
+id: blockglobal
+---
+question: |
+  Información de la C-321 en la resolución sancionatoria
+fields:
+  - ¿En la resolución santionatoria se cita la sentencia C-321? (pon ctrl + F en la Resolución Sancionatoria): c321_en_resolution
+---
+# 1 ARGUMENTOS JURISPRUDENCIALES
+question: |
+  Información del comparendo
+fields:
+  - ¿Tipo de infracción impuesto por la entidad?: comparendo_type
+    choices:
+      - C29: C29
+      - C14: C14
+      - C35: C35
+      - D02: D02
+      - D04: D04
+      - Otro: otro
+  - A pesar de que el comparendo haya sido por SOAT ¿El SOAT estaba vigente al momento que se tomó el comparendo?: soat
+    show if:
+      variable: comparendo_type
+      is: "D02"
+  - ¿Tiene la prueba de que el SOAT estaba vigente al momento que se tomó el comparendo?: soat_pruve
+    show if:
+      variable: soat
+      is: 'true'
+
+  - ¿Puedes subir la imagen de la plataforma donde se muestre que el SOAT estaba vigente al momento del comparendo?: soat_pruve_image_1
+    show if:
+      variable: soat_pruve
+      is: 'true'
+
+  - Sube la imagen de la plataforma correspondiente en donde se muestre que el SOAT estaba vigente al momento del comparendo: soat_pruve_image
+    datatype: file
+    accept: |
+      "application/pdf, image/jpeg, image/png"
+    show if:
+      variable: soat_pruve_image_1
+      is: 'true'
+  - A pesar de que el comparendo haya sido por Técnico Mecánica ¿La técnico mecánica estaba vigente al momento que se tomó el comparendo?: technician
+    show if:
+      variable: comparendo_type
+      is: "C35"
+
+  - ¿Puedes subir la prueba de que la técnico mecánica estaba vigente al momento que se tomó el comparendo?: technician_pruve
+    show if:
+      variable: technician
+      is: 'true'
+
+  - Sube la imagen de la plataforma correspondiente en donde se muestre que la técnico-mecánica estaba vigente al momento del comparendo: technician_pruve_image
+    datatype: file
+    accept: |
+      "application/pdf, image/jpeg, image/png"
+    show if:
+      variable: technician_pruve
+      is: 'true' 
+---
+# 3 DEBIDO PROCESO
+question: |
+  Datos del debido proceso
+fields:
+  - ¿Hay resolución sancionatoria automática?. (Vea la guía para determinarlo): resolucion_automatica   
+  - ¿La dirección del RUNT es la misma a la dirección de la guía?: direccion_correcta
+  - Sube la imagen del RUNT donde se vea la dirección: imagen_runt
+    datatype: file
+    accept: |
+      "application/pdf, image/jpeg, image/png"
+    show if:
+      variable: direccion_correcta
+      is: 'false'
+  - Sube la imagen de la guía donde se vea la dirección: imagen_guia
+    datatype: file
+    accept: |
+      "application/pdf, image/jpeg, image/png"
+    show if:
+      variable: direccion_correcta
+      is: 'false'
+  - ¿La guía tiene alguna causal de rechazo?: rechazo_guia            
+  - ¿En la respuesta se tiene información de la notificación por aviso?: aviso_en_respuesta
+    show if:
+      variable: rechazo_guia 
+      is: 'true'
+#Revisar lapregunta
+  - ¿La entidad ha entregado algún documento donde demuestre que citó a la audiencia pública?: convoca_audiencia
+---
+question: |
+  Como el caso es de bogotá 
+fields:
+  - ¿El comparendo se encuentra publicado en la página de avisos de movilidad de bogotá?: aviso_bogota
+  - ¿Cuál es el número de aviso?: numero_aviso_bogota
+    datatype: integer
+    show if:
+      variable: aviso_bogota 
+      is: 'false'
+  - ¿De qué fecha es el aviso?: fecha_aviso_bogota
+    datatype: date
+    show if:
+      variable: aviso_bogota 
+      is: 'false'
+  - sube la evidencia que no aparece el comparendo en el aviso de movilidad bogotá: evidencia_aviso_bogota
+    datatype: file
+    accept: |
+      "application/pdf, image/jpeg, image/png"    
+    show if:
+      variable: aviso_bogota 
+      is: 'false'
+---
+question: |
+  Como el caso es de medellín.
+subquestion: |
+  Recuerda que los días que se contabilizan son hábiles, es decir no cuentes sábado, domingo ni festivos.
+fields:
+  - ¿El comparendo fue enviado después de los 3 días de su validación?: comparendo_extemporaneo
+  - ¿La fecha del comparendo es antes a la fecha de validación?: fecha_comparendo_validacion
+#puede ser que validen y creen el comparendo en fechas diferentes pero dentro de los 10 días
+  - ¿La fecha de validación es posterior a 10 días hábiles de la fecha de la infracción?: validacion_vencida
+# cuando la validación o la creación del comparendo es después de los 10 días.
+  - ¿El comparendo está firmado por el agente de tránsito?: falta_firma
+---
+question: |
+  ¿En la imagen del comparendo se pueden ver varios vehículos?
+yesno: varios_vehiculos
+---
+attachment:
+  variable name: the_document
+  docx template file: IT_JD_22092023_V2.0_Revocatoria_directa_consolidada.docx
+---
+code: |
+  files_saved = save_files(the_document, 'rv_consolidada', True, user_info().session)
+  juzto_callback = get_callback_final_screen('0', files_saved, 'rv_consolidada', True)
+---
+progress: 100
+event: final_screen
+question: |
+  ${ z_text_final_screen } - COD: ${user_info().session}
+subquestion: |
+  ${ juzto_callback }
+id: juzto_da_final
+---

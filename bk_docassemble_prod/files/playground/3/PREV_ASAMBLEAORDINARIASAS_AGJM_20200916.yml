@@ -1,0 +1,2567 @@
+---
+metadata:
+  title: |
+   Acta de asamblea ordinaria
+  short title: |
+    Acta de asamblea ordinaria
+  description: |
+    Acta de asamblea ordinaria 
+  authors:
+    - name: Felipe Gómez
+      organization: Programador
+    - name: Juan David
+      organization: Reviso
+  revision_date: 2020-04-20
+#  error action: on_error
+---
+#event: on_error
+#question: |
+#  Sorry, we have encountered an error.
+#buttons:
+#  - Solicitar ayuda: exit
+#    url: https://docassemble.org
+#id: error_screen
+#prevent going back: True
+---    
+Sections:
+  - section0: Introducción
+  - section1: Información de la compañía
+  - section2: Información de la reunión
+  - section3: Información de los votos y los accionistas
+  - section4: Revisor fiscal de la compañía
+  - section5: Invitados de la reunión
+  - section6: Presidente y secretario
+  - section7: Orden del día
+    subsections:
+    - section8: Verificación convocatoria y derecho de inspección
+    - section9: Informe de gerencia
+    - section11: Revisión de estados financieros
+    - section12: Distribución de utilidades
+    - section13: Orden del dia adicional 
+  - section14: Lectura y aprobación del acta
+    subsections:
+    - section15: Finalización de la reunión
+---
+features:
+  navigation: True
+  progress bar: True
+  show progress bar percentage: True
+  hide standard menu: False
+  hide navbar: True
+  question back button: True
+---
+include:
+  - docassemble.playground3:autoterms.yml
+---
+modules:
+  - docassemble.playground3.juztoModules
+  - docassemble.playground3.juztoListChoices
+---
+mandatory: True
+code: |
+  multi_user = True
+---  
+auto terms:
+  acciones suscritas: |
+    Las acciones suscritas representan una parte del capital de la sociedad cuyo valor nominal ha sido pagado por los accionistas o estos se han obligado a pagar.
+  certificado de existencia y representación legal: |
+    Esto se conoce comúnmente como Cámara de Comercio
+  unanimidad: |
+    Si todas las personas que votan lo hacen en el mismo sentido se entiende que fue unánime. 
+  unánime: |
+    Si todas las personas que votan lo hacen en el mismo sentido se entiende que fue unánime.
+  convocatoria: |
+    La convocatoria es la citación a la reunión de la asamblea de accionistas. En la convocatoria se informan los temas que se discutirán por parte de los accionistas.
+  derecho de inspección: |
+    El derecho de inspección permite a los accionistas revisar los libros de actas y accionistas, los libros de contabilidad, y los documentos de la sociedad. Con esto los accionistas podrán conocer la situación administrativa y financiera de la sociedad antes de la reunión de la asamblea. Si no se permite el derecho de inspección, el representante legal podría ser retirado de su ejercicio.
+---
+#mandatory: true
+#code: |
+#  division_by_zero = 1 / 0
+---
+mandatory: True
+question: |
+  Ahora empezaremos a crear tu acta de asamblea de accionistas. 
+subquestion: |
+  Para tu  tranquilidad, este es un documento de gran calidad, preparado por abogados expertos. Pasos por seguir:[BR]
+  
+  1. Responde todas las preguntas que te haremos. Estas preguntas han sido preparadas por abogados con mucha experiencia en este tipo de documentos.[BR] 
+  Cada respuesta cambia el contenido del documento y lo ajusta a tu caso concreto.[BR] 
+  
+  2. Queremos que lo entiendas todo. En cada pregunta encontrarás explicaciones hechas por nuestros abogados.[BR] 
+  Las palabras complicadas estarán subrayadas en azul y en un color diferente, también podrán llevar un signo de interrogación. Haz clic sobre la palabra o el signo de interrogación para leer la explicación.[BR] 
+  
+  3. Al terminar tendrás un documento hecho especialmente para ti, construido con base en tus respuestas. Además podrás comprender todos los conceptos del documento con claridad. Entenderás lo que vas a firmar.[BR]
+  
+  Si tienes alguna duda adicional puedes [programar una cita con uno de nuestros abogados](https://juzto.co/asesoria-legal/consulta-abogado/).[BR]
+  
+  Gracias por elegir Juzto, empecemos.
+field: start_question
+section: section0
+---
+mandatory: True
+question: |
+  Para tu acta de asamblea debes tener lista la siguiente información: 
+subquestion: |
+  -	Lugar, fecha y hora de la reunión;
+  -	Número de acciones que tienen los accionistas;
+  - Forma y antelación con la que se convocó la reunión;
+  - Número de accionistas necesarios para poder tener una reunión (Ver estatutos de la sociedad).
+  - Lista de asistentes con el respectivo número de acciones que representan;
+  - Asuntos tratados en la reunión;
+  - Número de votos necesarios para que se pueda tomar una decisión (Ver estatutos de la sociedad).
+fields:
+  - no label: agrees_to_terms
+    datatype: checkboxes
+    default: "Acepto [el tratamiento de los datos personales](https://juzto.co/politica-tratamiento-datos/)."
+    minlength: 1
+    choices:
+      - Acepto [el tratamiento de los datos personales](https://juzto.co/politica-tratamiento-datos/).
+    validation messages:
+      minlength: |
+        Debes aceptar el tratamiento de los datos personales para pode continuar.
+secction: section0
+---
+mandatory: true
+question: |
+  Datos de la sociedad
+subquestion: |
+  En esta entrevista te pediremos información que encontrarás en los estatutos y en la cámara de comercio de la sociedad, te recomendamos tener a la mano los documentos al momento de iniciar.
+fields: 
+  - Nombre: company_name
+    hint: Nombre de la sociedad
+  - note: |
+      No es necesario que pongas el S.A.S.
+  - NIT: company_nit
+    hint: nit
+section: section1
+progress: 5
+---
+mandatory: True
+question: |
+  ¿Qué número de acta estás haciendo?
+subquestion: |
+  El número de acta debe ser consecutivo, esto quiere decir que si el acta anterior de la sociedad es la 5, el acta que estás haciendo es la 6.
+fields: 
+  - no label: act_number
+    datatype: integer
+    min: 1
+section: section2   
+---
+mandatory: True
+question: |
+  ¿Cuál es la fecha en que se realizó la Asamblea Ordinaria?
+fields:
+  - no label: date_shareholders_assembly
+    datatype: date
+    min: ${ today().minus(years=12).format_date('yyyy-MM-dd') }
+    max: ${(today()).format_date('yyyy-MM-dd')}
+section: Información de la reunión    
+---    
+mandatory: True
+question: |
+  ¿A qué hora inició la Asamblea Ordinaria?
+fields:
+  - no label: assembly_start_time
+    datatype: time
+  - note: |
+      9:00 a.m. o 2:30 p.m.
+section: section2    
+---
+mandatory: True
+question: |
+  ¿En qué fecha se envió la citación o convocatoria a la reunión de la Asamblea Ordinaria?
+subquestion: |
+  El artículo 20 de la ley 1258 de 2008, indica que la citación o convocatoria a la reunión de la Asamblea Ordinaria se debe enviar con una antelación de mínimo 5 días hábiles, sin embargo, se contabilizan 7 días hábiles porque no se puede tener en cuenta el día del envío de la convocatoria, ni el día de la reunión. Adicionalmente, debes revisar los estatutos de la sociedad pues estos pueden establecer un mayor número de días para la convocatoria.
+fields: 
+  - no label: announcement_date
+    datatype: date
+    min: ${ today().minus(years=12).format_date('yyyy-MM-dd') }
+    max: ${date_shareholders_assembly.format_date('yyyy-MM-dd')}
+section: section2 
+---
+mandatory: |
+  difference_date(announcement_date.format_date('yyyy-MM-dd'),date_shareholders_assembly.format_date('yyyy-MM-dd')) < 7
+subquestion: |
+  Entre la fecha de la reunión y la fecha de la citación o convocatoria hay un total de ${difference_date(announcement_date.format_date('yyyy-MM-dd'),date_shareholders_assembly.format_date('yyyy-MM-dd'))} día(s). La fecha de la reunión no puede ser inferior a 7 días hábiles de la fecha de la citación o convocatoria, por lo que las decisiones que se tomen pueden ser declaradas ineficaces. 
+question: |
+  ¿Deseas seguir con el documento?
+field: date_warning 
+action buttons: 
+  - label: Terminar
+    action: https://juzto.co
+    color: danger
+section: section2
+---
+mandatory: True
+question: |
+  ¿Quién realizó la convocatoria?
+subquestion: |
+  Debes revisar en los estatutos de la sociedad la(s) persona(s) que pueden realizar la convocatoria. Por lo general lo hace el representante legal.
+fields: 
+  - no label: announcement_person
+    input type: combobox
+    choices:
+      - Representante Legal
+      - Representante Legal Suplente
+      - Accionista(s)
+      - Junta Directiva
+      - Revisor Fiscal
+      - Contador
+      - Gerente General
+      - Gerente General Suplente
+---
+mandatory: True
+question: |
+  ¿Cómo se dio a conocer la convocatoria o citación?
+subquestion: |
+  Es importante que identifiques si la convocatoria o citación se envío por correo electrónico, a la dirección de residencia u oficina de los accionistas, publicación en un periódico o por cualquier otro medio. 
+fields:
+  - no label: announcement_method
+    input type: combobox
+    choices:
+      - Correo electrónico
+      - Comunicado escrito
+      - Publicación en un periódico
+    hint: Correo electrónico
+---
+mandatory: True
+question: |
+  ¿Cómo se llevó a cabo la Asamblea?
+subquestions: |
+  Cuando la reunión es presencial, debe hacerse en la dirección del domicilio de la sociedad, salvo que en los estatutos se permita llevar a cabo la reunión en otro lugar. La reunión también podrá ser virtual, en este caso, el artículo 19 de la Ley 222 de 1995 indica que es necesario que todos los accionistas (100%) estén presentes en la reunión. Sin embargo, debido al Covid-19, el Decreto 398 de 2020  permitió que la reunión se pudiera hacer de forma virtual con el mismo número de accionistas que las reuniones presenciales (51%).  La asamblea se debe llevar a cabo en la misma forma en la que se informó en la convocatoria.
+fields: 
+  - no label: meeting_place
+    input type: radio
+    choices:
+      - Presencialmente
+      - Virtualmente
+      - Ambos
+  - Nombre de la plataforma virtual: plataform_name
+    input type: combobox
+    choices:
+      - Zoom
+      - Google Meet
+      - Skype
+      - Whereby
+      - Blue Jeans
+      - Microsoft Teams
+    js show if: |
+      da_val("meeting_place") == 'Virtualmente' || da_val("meeting_place") == 'Ambos'
+  - Dirección: meeting_adress
+    hint: 'Calle 122 # 17 - 29'
+    js show if: |
+      da_val("meeting_place") == 'Presencialmente' || da_val("meeting_place") == 'Ambos'  
+  - Ciudad: meeting_city
+    input type: dropdown
+    code: get_cities()
+    js show if: |
+      da_val("meeting_place") == 'Presencialmente' || da_val("meeting_place") == 'Ambos'
+section: section2
+progress: 12
+---
+mandatory: True
+question: |
+  ¿Cuántas acciones suscritas en total tiene la Compañía?
+subquestion: |
+  Para saber cuántas acciones suscritas tiene la compañía revisa el certificado de existencia y representación legal de la cámara de comercio en la parte de capital suscrito, ahí verás el número de acciones.
+
+  [FILE acta_numero_acciones.jpg, 100%]
+fields:
+  - no label: total_shares
+    datatype: integer
+    min: 1
+section: section3    
+---
+mandatory: True
+question: |
+  ¿Conoces el porcentaje de acciones que deben estar presentes para que se pueda llevar a cabo la asamblea ordinaria? 
+subquestion: |
+  Consulta en los estatutos de la sociedad el artículo sobre “reuniones de la asamblea” o "quorum". 
+  
+  Si no conoces el porcentaje, se asumirá el establecido en el artículo 22 de la Ley 1258 de 2008, es decir, que el porcentaje de las acciones presentes deben ser superiores a la mitad de las acciones suscritas.
+fields:
+  - no label: quorum_knowledge
+    datatype: yesnoradio
+  - ¿Cuál es el porcentaje?: quorum_percentage
+    datatype: number
+    min: 50.0001
+    max: 100
+    hint: "55"
+    help: "Escribir unicamente el número"
+    show if:
+      variable: quorum_knowledge
+      is: True
+section: section3          
+---
+objects:
+  - shareholders_list: |
+      DAList.using(
+        object_type=DAObject,
+        minimum_number=1,
+        complete_attribute='complete')
+  - shareholders_list[i].agent: |
+      DAList.using(
+        object_type=DAObject,
+        complete_attribute='complete')
+---
+code: |
+  shareholders_list[i].name
+  shareholders_list[i].shares
+  shareholders_list[i].percentage
+  shareholders_list[i].with_agent
+  shareholders_list[i].agent.gather()
+  shareholders_list[i].complete = True
+---
+code: |
+  shareholders_list[i].agent[j].name
+  shareholders_list[i].agent[j].with_power
+  shareholders_list[i].agent[j].percentage
+  shareholders_list[i].agent[j].complete = True
+---
+question: |
+  Identifica al ${ get_ordinal("male", i)} accionista de la sociedad
+fields:   
+  - Nombre Compañía / Nombre(s) y Apellido(s): shareholders_list[i].name
+    hint: "Compañía S.A.S. / Juez Perez"
+  - Número de acciones con derecho a voto: shareholders_list[i].shares
+    hint: 10
+    datatype: integer
+    min: 1
+    max: |
+      ${ total_shares if (i) == 0 else (total_shares - (sum(shareholder.shares for shareholder in shareholders_list.complete_elements()))) }
+    help: "Ten en cuenta que existen clases de acciones que no tienen voto."
+section: section3    
+---
+code: |
+  shareholders_list[i].percentage = ((int(shareholders_list[i].shares)/int(total_shares))*100)
+  total_valid_shares = (sum(shareholder.shares for shareholder in shareholders_list.complete_elements() if shareholder.with_agent == 'personalmente') + sum(shareholder.shares for shareholder in shareholders_list for agent in shareholder.agent if shareholder.with_agent == 'tercero'and agent.with_power == True))  
+---
+question: |
+  ¿${ title_case(str(shareholders_list[i].name).lower()) } fue personalmente o dio poder a un tercero?
+subquestion: |
+  Revisa los estatutos para asegurarte de que no existe la prohibición que señala que los representantes legales o empleados de la compañía no pueden asistir a la reunión representando a un accionista salvo en los casos que actúen como representantes legales de esos accionistas.
+fields:
+  - no label: shareholders_list[i].with_agent
+    input type: radio
+    choices:
+      - Personalmente (Sólo para personas naturales): personalmente
+      - A través de un tercero (Apoderados o Representantes Legales de personas jurídicas): tercero
+section: section3    
+---
+code: |
+  if shareholders_list[i].with_agent == 'tercero':
+    shareholders_list[i].agent.there_are_any = True
+  else:
+    shareholders_list[i].agent.there_are_any = False
+---
+question: |
+  Datos del tercero que representó a ${ title_case(str(shareholders_list[i].name).lower()) }
+fields:
+  - Nombre: shareholders_list[i].agent[j].name
+    hint: "Nombres(s) y Apellido(s)"
+  - ¿Se presentó con un poder?:  shareholders_list[i].agent[j].with_power
+    help: "Si no presenta poder, es como si no hubiera asistido a la reunión. Si el accionista es persona natural solo se requiere el poder. Si el accionista es persona Jurídica, es el representante legal el que otorga el poder y se debe verificar con la cámara de comercio actualizada"
+    datatype: yesnoradio
+  - note: |
+      Seleccione "Sí" para el caso de los representantes legales de las personas jurídicas
+section: section3    
+---
+code: |
+  shareholders_list[i].agent.there_is_another = False
+  shareholders_list[i].agent[j].percentage = shareholders_list[i].percentage
+---
+mandatory : |
+  total_shares == sum(shareholder.shares for shareholder in shareholders_list.complete_elements())
+code: |
+  shareholders_list.there_is_another = False
+---
+question: |
+  ¿Asistieron más accionistas?
+subquestion: |
+  Hasta el momento has registrado la asistencia de ${ len([shareholder for shareholder in shareholders_list.complete_elements() if shareholder.with_agent == 'personalmente']) + len([shareholder for shareholder in shareholders_list.complete_elements() for agent in shareholder.agent.complete_elements() if shareholder.with_agent == 'tercero'and agent.with_power == True]) } accionista(s) que representa(n) un total de ${sum(shareholder.shares for shareholder in shareholders_list.complete_elements() if shareholder.with_agent == 'personalmente') + sum(shareholder.shares for shareholder in shareholders_list.complete_elements() for agent in shareholder.agent.complete_elements() if shareholder.with_agent == 'tercero'and agent.with_power == True) } acciones que son el ${round(sum(shareholder.percentage for shareholder in shareholders_list.complete_elements() if shareholder.with_agent == 'personalmente') + sum(shareholder.percentage for shareholder in shareholders_list.complete_elements() for agent in shareholder.agent.complete_elements() if shareholder.with_agent == 'tercero'and agent.with_power == True),3)}% de las acciones totales de la compañía.[BR]
+  % if len([shareholder for shareholder in shareholders_list.complete_elements() for agent in shareholder.agent.complete_elements() if shareholder.with_agent == 'tercero'and agent.with_power == False]) > 0:
+  Adicionalmente, se ha(n) registrado ${ len([shareholder for shareholder in shareholders_list.complete_elements() for agent in shareholder.agent.complete_elements() if shareholder.with_agent == 'tercero'and agent.with_power == False])} accionista(s) que representa(n) un total de ${sum(shareholder.shares for shareholder in shareholders_list.complete_elements() for agent in shareholder.agent.complete_elements() if shareholder.with_agent == 'tercero'and agent.with_power == False) } acciones que son el ${round(sum(shareholder.percentage for shareholder in shareholders_list.complete_elements() for agent in shareholder.agent.complete_elements() if shareholder.with_agent == 'tercero'and agent.with_power == False),3)}% de las acciones totales de la compañía, las cuales no se tendrán en cuenta pues fueron representadas por terceros sín un poder valido.
+  % endif
+yesno: shareholders_list.there_is_another
+section: section3    
+---
+mandatory: True
+question: |
+  Estos fueron los accionistas que se presentaron a la Asamblea Ordinaria
+subquestion: |
+
+  % for shareholder in shareholders_list:
+    % if shareholder.with_agent == 'personalmente':
+  * ${ title_case(str(shareholder.name).lower()) } con ${ round(shareholder.percentage,3) }% de participación, quien se presentó personalmente. 
+    % endif
+    % if shareholder.with_agent == 'tercero':
+      % for agent in shareholder.agent:
+        % if agent.with_power == True:
+  * ${ title_case(str(shareholder.name).lower()) } con ${ round(shareholder.percentage,3) }% de participación, quien fue representado por ${ title_case(str(agent.name).lower()) }.
+        % elif agent.with_power == False:
+  * ${ title_case(str(shareholder.name).lower()) } con ${ round(shareholder.percentage,3) }% de participación, quien no podrá ser tenido en cuenta pues su representante no presentó poder. 
+        % endif
+      % endfor
+    % endif
+  % endfor
+continue button field: shareholders_list.reviewed
+section: section3    
+---
+code: |
+  total_percentage = sum(shareholder.percentage for shareholder in shareholders_list.complete_elements() if shareholder.with_agent == 'personalmente') + sum(shareholder.percentage for shareholder in shareholders_list.complete_elements() for agent in shareholder.agent.complete_elements() if shareholder.with_agent == 'tercero'and agent.with_power == True)
+  total_present_shares = sum(shareholder.shares for shareholder in shareholders_list.complete_elements() if shareholder.with_agent == 'personalmente') + sum(shareholder.shares for shareholder in shareholders_list.complete_elements() for agent in shareholder.agent.complete_elements() if shareholder.with_agent == 'tercero'and agent.with_power == True)
+---
+code: |
+  not_valid_agents = len([shareholder for shareholder in shareholders_list.complete_elements() for agent in shareholder.agent.complete_elements() if shareholder.with_agent == 'tercero'and agent.with_power == False])
+---
+mandatory: |
+  quorum_knowledge == False and total_percentage < 51
+question: |
+  Veirificación de quorum.
+subquestion: |
+  Según la información que nos has dado tienes riesgo de que las decisiones que se tomen pueden ser declaradas ineficaces. Debes revisar los estatutos de la compañía para asegurarte de que la Asamblea se puede reunir con menos del 51% de las acciones. El artículo 22 de la Ley 1258 de 2008 exige para que pueda reunirse la Asamblea un mínimo del 51% de las acciones totales de la compañía. 
+field: quorum_warning 
+action buttons: 
+  - label: Terminar
+    action: https://juzto.co
+    color: danger
+section: section3    
+---
+mandatory: |
+  quorum_knowledge == True and total_percentage < quorum_percentage
+question: |
+  Veirificación de quorum.
+subquestion: |
+  Según la información registrada no cumples con el mínimo de acciones para poder hacer una reunión válida de asamblea, las decisiones que se tomen pueden ser declaradas ineficaces.
+field: quorum_warning 
+action buttons: 
+  - label: Terminar
+    action: https://juzto.co
+    color: danger
+section: section3
+progress: 19    
+---
+mandatory: True
+question: |
+  ¿La sociedad tiene revisoría fiscal?
+subquestion: |
+  No todas las sociedades están obligadas a tener revisor fiscal. Si la sociedad el año anterior tuvo activos iguales o superiores a 5.000 salarios mínimos debe nombrar una revisoría fiscal.
+fields: 
+  - no label: tax_auditor
+    datatype: yesnoradio
+  - ¿Estuvo presente en la reunión?: tax_auditor_presence
+    datatype: yesnoradio
+    show if:
+      variable: tax_auditor
+      is: True
+  - Nombre(s) y Apellido(s): tax_auditor_name
+    show if:
+      variable: tax_auditor_presence
+      is: True
+  - Tipo de identificación: tax_auditor_type_id
+    input type: dropdown
+    code:  get_list_dni('N')
+    show if:
+      variable: tax_auditor_presence
+      is: True
+  - Número de identificación: tax_auditor_id_number
+    hint: dni
+    show if:
+      variable: tax_auditor_presence
+      is: True    
+section: section4
+progress: 25    
+---
+code: |
+  if tax_auditor == False:
+    tax_auditor_presence = False
+---
+mandatory: |
+  tax_auditor == True 
+code: |
+  the_sections = nav.get_sections()
+  the_sections[7]['subsections'].insert(2,{'section10':'Informe de revisor fiscal'})
+  nav.set_sections(the_sections)
+---
+objects:
+  - guests_list: |
+      DAList.using(
+        object_type=DAObject,
+        complete_attribute='complete')
+---
+code: |
+  guests_list[i].name
+  guests_list[i].type_id
+  guests_list[i].id_number
+  guests_list[i].calification
+  guests_list[i].representation
+  guests_list[i].company
+  guests_list[i].complete = True
+---
+mandatory: |
+  guests_list.there_are_any == True
+code: |
+  guests_list.gather()
+  guests_list.reviewed
+---
+mandatory: true
+question: |
+  ¿Asistieron invitados a la reunión?
+yesno: guests_list.there_are_any
+section: section5
+---
+question: |
+  Identifica al ${ get_ordinal("male", i)} invitado
+fields:
+  - Nombre(s) y Apellido(s): guests_list[i].name
+  - ¿En qué calidad actúa?: guests_list[i].calification
+    hint: Auditor interno, contador, asesor jurídico, etc.
+  - Tipo de identificación: guests_list[i].type_id
+    input type: dropdown
+    code:  get_list_dni('N')
+  - Número de identificación: guests_list[i].id_number
+    hint: dni  
+  - ¿Representa a una compañía?: guests_list[i].representation
+    datatype: yesnoradio
+  - note: |
+      Elige "Sí" en caso que esta persona esté actuando a nombre de una sociedad que tenga relación con tu compañía (Por ejemplo, Revisor fiscal o auditor interno persona jurídica)
+  - Nombre de la compañía que representa: guests_list[i].company
+    hint: Compañía Contadores de Colombia SAS
+    show if:
+      variable: guests_list[i].representation
+      is: True
+section: section5
+---
+code: |
+  if guests_list[i].representation == False:
+    guests_list[i].company = ""
+---
+question: |
+  ¿Asistieron más invitados?
+yesno: guests_list.there_is_another
+section: section5
+---
+question: |
+  Estos son los invitados que asistieron a la reunión
+subquestion: |
+  % for i, guest in enumerate(guests_list):
+  ### ${ get_ordinal('male', i, 'c') } invitado[BR]
+    **Nombre(s) y Apellido(s):** ${ title_case(str(guest.name).lower()) }[BR]
+    **En calidad de:** ${ capitalize(str(guest.calification).lower()) }[BR]
+
+  % endfor
+continue button field: guests_list.reviewed
+section: section5
+progress: 30
+---
+code: |
+  if tax_auditor_presence == True:
+    can_comment = [title_case(str(shareholder.name).lower()) for shareholder in shareholders_list if shareholder.with_agent == 'personalmente']+[title_case(str(agent.name).lower()) for shareholder in shareholders_list for agent in shareholder.agent if (shareholder.with_agent == 'tercero' and agent.with_power == True)]+[title_case(str(tax_auditor_name).lower())]+[title_case(str(guest.name).lower()) for guest in guests_list]
+  else:
+    can_comment = [title_case(str(shareholder.name).lower()) for shareholder in shareholders_list if shareholder.with_agent == 'personalmente']+[title_case(str(agent.name).lower()) for shareholder in shareholders_list for agent in shareholder.agent if (shareholder.with_agent == 'tercero' and agent.with_power == True)]+[title_case(str(guest.name).lower()) for guest in guests_list]
+---
+code: |
+  voters = [shareholder for shareholder in shareholders_list if shareholder.with_agent == 'personalmente']+[agent for shareholder in shareholders_list for agent in shareholder.agent if (shareholder.with_agent == 'tercero' and agent.with_power == True)]
+---
+code: |
+  voters_length = len(voters)
+---
+mandatory: True
+question: |
+  ¿Quién fue elegido para llevar la presidencia de la Asamblea?
+subquestion: |
+  Aquí debes reflejar la decisión tomada en la asamblea sobre la designación de la presidencia de la reunión. Es necesario que la reunión haya tenido una presidencia debido a que esta persona debe firmar el acta de la reunión.
+fields: 
+  - no label: president_name
+    input type: radio
+    code: |
+      can_comment
+section: section6  
+---
+mandatory: True
+question: |
+  ¿La designación de ${ title_case(president_name) } para que ocupe la presidencia de la Asamblea fue por unanimidad?
+subquestion: |
+  Los accionistas que no registren su voto como a favor o en contra serán tomados en cuenta como voto en blanco por defecto.   
+fields: 
+  - no label: president_unanimity
+    datatype: yesnoradio  
+  - Identifica quien votó a favor: president_voted_favor
+    datatype: object_checkboxes
+    none of the above: False
+    choices: voters
+    show if: 
+      variable: president_unanimity
+      is: false  
+validation code: |
+  if president_unanimity == False and sum( shareholder.percentage for shareholder in president_voted_favor) <= (0.50 * sum(voter.percentage for voter in voters)):
+      validation_error("Los votantes no suman una mayoria")   
+section: section6
+---
+code: |
+  if president_unanimity == False:
+    president_voters_against = list(set(voters) - set(president_voted_favor))
+    president_shares_favor = sum( shareholder.percentage for shareholder in president_voted_favor)
+    president_quorum_percentage_favor = (president_shares_favor/sum(voter.percentage for voter in voters))*100
+    president_votes_favor = len(president_voted_favor)
+  if president_unanimity == True or president_votes_favor == len(voters):
+    president_voted_against = "Ninguno"
+    president_voted_favor = comma_and_list(voters)
+    president_votes_against = 0
+    president_voters_against = ""
+    president_quorum_percentage_favor = 100
+    president_shares_favor = sum( shareholder.percentage for shareholder in voters)
+    president_votes_favor = len(voters)
+    president_shares_against = 0
+    president_voted_blank = "Ninguno"
+    president_votes_blank = 0
+    president_shares_blank = 0
+    president_quorum_percentage_against = 0
+    president_quorum_percentage_blank = 0 
+---
+mandatory:
+  president_unanimity == False and president_votes_favor < len(voters)
+question: |
+  Identifica quien votó en contra de ${ title_case(president_name) } para la presidencia de la Asamblea.
+subquestion: |
+  Los accionistas que no registren su voto como a favor o en contra serán tomados en cuenta como voto en blanco por defecto. 
+fields: 
+  - no label: president_voted_against
+    datatype: object_checkboxes
+    none of the above: False
+    choices: president_voters_against
+    required: False
+  - note: |
+      Deja sin seleccionar al/los accionista(s) que votaron en blanco.
+section: section6
+---
+code: |
+  if president_unanimity == False and president_votes_favor < len(voters):
+    president_votes_against = len(president_voted_against)
+    president_shares_against = sum( shareholder.percentage for shareholder in president_voted_against)
+    president_quorum_percentage_against = (president_shares_against/sum(voter.percentage for voter in voters))*100
+  if len(president_voted_against) == 0:
+    president_voted_against = "Ninguno" 
+---
+code: |
+  if president_unanimity == False and president_votes_favor < len(voters):
+    president_voted_blank = list(set(voters) - set(president_voted_favor) - set(president_voted_against))
+    president_votes_blank = len(president_voted_blank)
+    president_shares_blank = sum( shareholder.percentage for shareholder in president_voted_blank)
+    president_quorum_percentage_blank = (president_shares_blank/sum(voter.percentage for voter in voters))*100
+  if len(president_voted_blank) == 0:
+    president_voted_blank = "Ninguno"
+---
+mandatory: True
+question: |
+  Así  quedaron los votos de la presidencia de la Asamblea
+subquestion: |
+  ### A favor:
+
+  * Votantes: ${president_voted_favor}
+  * Nùmero de votos: ${president_votes_favor}
+  * Acciones: ${round(president_shares_favor,3)} 
+  * Porcentaje de los asistentes: ${round(president_quorum_percentage_favor,3)}%
+  
+  ### En contra:
+  
+  * Votantes: ${president_voted_against}
+  * Nùmero de votos: ${president_votes_against}
+  * Acciones: ${round(president_shares_against,3)}
+  * Porcentaje de los asistentes: ${round(president_quorum_percentage_against,3)}%
+
+  ### En blanco:
+  
+  * Votantes: ${comma_and_list(president_voted_blank)}
+  * Nùmero de votos: ${president_votes_blank}
+  * Acciones: ${round(president_shares_blank,3)}
+  * Porcentaje de los asistentes: ${round(president_quorum_percentage_blank,3)}%
+field: president_votes
+section: section6 
+---
+mandatory: True
+code: |
+  if len(can_comment) > 1:
+    secretary_candidates = list(set(can_comment)-set([president_name]))
+  else: 
+    secretary_candidates = can_comment
+---
+mandatory: True
+question: |
+  ¿Quién fue elegido para llevar la secretaría de la Asamblea?
+subquestion: |
+  Ten en cuenta que es necesario que la reunión haya tenido una secretaría debido a que esta persona debe firmar el acta de la reunión.
+fields: 
+  - no label: secretary_name
+    input type: radio
+    code: |
+     secretary_candidates   
+section: section6
+---
+mandatory: True
+question: |
+  ¿La designación de ${ title_case(secretary_name) } para que ocupe la secretaría de la Asamblea fue por unanimidad?
+subquestion: |
+  Los accionistas que no registren su voto como a favor o en contra serán tomados en cuenta como voto en blanco por defecto.   
+fields: 
+  - no label: secretary_unanimity
+    datatype: yesnoradio  
+  - Identifica quien voto a favor: secretary_voted_favor
+    datatype: object_checkboxes
+    none of the above: False
+    choices: voters
+    show if: 
+      variable: secretary_unanimity
+      is: false  
+validation code: |
+  if secretary_unanimity == False and sum( shareholder.percentage for shareholder in secretary_voted_favor) <= (0.50 * sum(voter.percentage for voter in voters)):
+      validation_error("Los votantes no suman una mayoria")   
+section: section6
+---
+code: |
+  if secretary_unanimity == False:
+    secretary_voters_against = list(set(voters) - set(secretary_voted_favor))
+    secretary_shares_favor = sum( shareholder.percentage for shareholder in secretary_voted_favor)
+    secretary_quorum_percentage_favor = (secretary_shares_favor/sum(voter.percentage for voter in voters))*100
+    secretary_votes_favor = len(secretary_voted_favor)
+  if secretary_unanimity == True or secretary_votes_favor == len(voters):
+    secretary_voted_against = "Ninguno"
+    secretary_voted_favor = comma_and_list(voters)
+    secretary_votes_against = 0
+    secretary_voters_against = ""
+    secretary_quorum_percentage_favor = 100
+    secretary_shares_favor = sum( shareholder.percentage for shareholder in voters)
+    secretary_votes_favor = len(voters)
+    secretary_shares_against = 0
+    secretary_voted_blank = "Ninguno"
+    secretary_votes_blank = 0
+    secretary_shares_blank = 0
+    secretary_quorum_percentage_against = 0
+    secretary_quorum_percentage_blank = 0 
+---
+mandatory:
+  secretary_unanimity == False and secretary_votes_favor < len(voters)
+question: |
+  Identifica quien votó en contra de ${ title_case(secretary_name) } para llevar la secretaría de la Asamblea.
+subquestion: |
+  Los accionistas que no registren su voto como a favor o en contra serán tomados en cuenta como voto en blanco por defecto. 
+fields: 
+  - no label: secretary_voted_against
+    datatype: object_checkboxes
+    none of the above: False
+    choices: secretary_voters_against
+    required: False
+  - note: |
+      Deja sin seleccionar al/los accionista(s) que votaron en blanco.
+section: section6 
+---
+code: |
+  if secretary_unanimity == False and secretary_votes_favor < len(voters):
+    secretary_votes_against = len(secretary_voted_against)
+    secretary_shares_against = sum( shareholder.percentage for shareholder in secretary_voted_against)
+    secretary_quorum_percentage_against = (secretary_shares_against/sum(voter.percentage for voter in voters))*100
+  if len(secretary_voted_against) == 0:
+    secretary_voted_against = "Ninguno" 
+---
+code: |
+  if secretary_unanimity == False and secretary_votes_favor < len(voters):
+    secretary_voted_blank = list(set(voters) - set(secretary_voted_favor) - set(secretary_voted_against))
+    secretary_votes_blank = len(secretary_voted_blank)
+    secretary_shares_blank = sum( shareholder.percentage for shareholder in secretary_voted_blank)
+    secretary_quorum_percentage_blank = (secretary_shares_blank/sum(voter.percentage for voter in voters))*100
+  if len(secretary_voted_blank) == 0:
+    secretary_voted_blank = "Ninguno"   
+---
+mandatory: True
+question: |
+  Así  quedaron los votos de la secretaría de la asamblea.
+subquestion: |
+  ### A favor:
+
+  * Votantes: ${secretary_voted_favor}
+  * Nùmero de votos: ${secretary_votes_favor}
+  * Acciones: ${round(secretary_shares_favor,3)} 
+  * Porcentaje de los asistentes: ${round(secretary_quorum_percentage_favor,3)}%
+  
+  ### En contra:
+  
+  * Votantes: ${secretary_voted_against}
+  * Nùmero de votos: ${secretary_votes_against}
+  * Acciones: ${round(secretary_shares_against,3)}
+  * Porcentaje de los asistentes: ${round(secretary_quorum_percentage_against,3)}%
+
+  ### En blanco:
+  
+  * Votantes: ${comma_and_list(secretary_voted_blank)}
+  * Nùmero de votos: ${secretary_votes_blank}
+  * Acciones: ${round(secretary_shares_blank,3)}
+  * Porcentaje de los asistentes: ${round(secretary_quorum_percentage_blank,3)}%
+field: secretary_votes
+section: section6
+progress: 40 
+---
+code: |
+  financial_statements_year = year_of(date_shareholders_assembly - date_interval(years=1) )
+---
+mandatory: True
+question: |
+  Ahora deberás responder algunas preguntas sobre la votación y aprobación de los puntos de la Asamblea Ordinaria, una vez completes estos puntos podrás adicionar otros temas al orden del día. 
+field: day_order
+section: section7
+progress: 42
+---
+objects:
+  - comments_list: |
+      DAList.using(
+        object_type=DAObject,
+        complete_attribute='complete')
+---
+code: |
+  comments_list[i].shareholder
+  comments_list[i].observation
+  comments_list[i].complete = True
+---
+mandatory: |
+  comments_list.there_are_any == True
+code: |
+  comments_list.gather()
+  comments_list.reviewed
+---
+question: |
+  ¿Alguien tuvo alguna observación respecto al derecho de inspección y la convocatoria?
+yesno: comments_list.there_are_any
+section: section8
+---
+question: |
+  Observaciones hechas respecto al derecho de inspección y la convocatoria.
+fields:
+  - Hecha por: comments_list[i].shareholder
+    code: |
+      can_comment
+  - Comentario: comments_list[i].observation
+    input type: area
+list collect:  
+  label: |
+    ${comment_name} ${(i+1)}: 
+section: section8
+---
+question: |
+  ¿Hubos mas observaciones?
+yesno: comments_list.there_is_another
+section: section8
+---
+question: |
+  Estas son las observaciones respecto al derecho de inspección y la convocatoria:
+subquestion: |
+  % for item in comments_list:
+    * **Observación:** ${ capitalize(str(item.observation).lower()) }[BR]
+      **Hecha por:** ${ title_case(str(item.shareholder).lower()) }
+  % endfor
+continue button field: comments_list.reviewed
+section: section8
+progress: 50
+---
+code: |
+  comment_name = "Observación"
+---
+mandatory: True 
+question: |
+  ¿El representante legal presentó el informe de gerencia o informe de gestión?
+subquestion: |
+  De conformidad con el artículo 46 de la Ley 222 de 1995 esta es una obligación del representante legal.
+yesno: management_report 
+section: section9
+---
+mandatory: |
+  management_report == False
+code: |  
+  approval_management_report = ""
+  management_report_unanimity = ""
+  management_report_votes_favor = 0
+  management_report_votes_against = 0
+---
+objects:
+  - management_report_observations_list: |
+      DAList.using(
+        object_type=DAObject,
+        complete_attribute='complete')
+---
+code: |
+  management_report_observations_list[i].who
+  management_report_observations_list[i].observation
+  management_report_observations_list[i].complete = True
+---
+mandatory: |
+  management_report_observations_list.there_are_any == True
+code: |
+  management_report_observations_list.gather()
+  management_report_observations_list.reviewed
+---  
+mandatory: |
+  management_report == True
+question: |
+  Antes de proceder con la votación sobre el informe de gerencia: ¿Hubo comentarios sobre éste que quieras dejar en el acta?
+subquestion: |
+  Aquí puedes establecer cada uno los comentarios que haya realizado cualquier participante de la asamblea sobre el informe de gerencia.
+yesno: management_report_observations_list.there_are_any
+section: section9
+---
+code: |
+  if management_report == False:
+    management_report_observations_list.there_are_any = False
+---
+question: |
+  Registra las observaciónes sobre el informe de gerencia y quién las hizo
+fields: 
+  - ¿Quién la hizo?: management_report_observations_list[i].who
+    code: |
+      can_comment 
+  - Comentario: management_report_observations_list[i].observation
+    input type: area
+list collect:  
+  label: |
+    ${comment_name} ${(i+1)}:    
+section: section9
+---
+question: |
+  ¿Quieres adicionar otra observación al informe de gerencia?
+yesno: management_report_observations_list.there_is_another
+section: section9
+---
+question: |
+  Estas son las observaciones hechas al informe de gerencia
+subquestion: |
+  % for item in management_report_observations_list:
+    * **Observación:** ${ capitalize(str(item.observation).lower()) }[BR]
+      **Hecha por:** ${ title_case(str(item.who).lower()) }
+      
+  % endfor
+continue button field: management_report_observations_list.reviewed
+section: section9
+---
+mandatory: |
+  management_report == True
+question: |
+  ¿Se aprobó el informe de gerencia?
+fields: 
+  - no label: approval_management_report 
+    datatype: yesnoradio
+  - ¿La votación fue unánime?: management_report_unanimity
+    datatype: yesnoradio
+    js show if: |
+      da_val('approval_management_report') == true ||  da_val('approval_management_report') == false
+  - Identifica el/los accionista(s) que votaron a favor: management_report_voted_favor
+    datatype: object_checkboxes
+    none of the above: False
+    choices: voters
+    js show if: |
+      da_val('approval_management_report') == true &&  da_val('management_report_unanimity') == false
+  - Identifica el/los accionista(s) que votaron en contra: management_report_voted_against
+    datatype: object_checkboxes
+    none of the above: False
+    choices: voters
+    js show if: |
+      da_val('approval_management_report') == false &&  da_val('management_report_unanimity') == false
+validation code: |
+  if (approval_management_report == True and management_report_unanimity == False and sum(shareholder.percentage for shareholder in management_report_voted_favor)<=(0.50 * sum(voter.percentage for voter in voters))) or (approval_management_report == False and management_report_unanimity == False and sum(shareholder.percentage for shareholder in management_report_voted_against)<=(0.50 * sum(voter.percentage for voter in voters))):
+    validation_error("Los votantes no suman una mayoria")             
+section: section9
+---
+mandatory :
+  management_report == True
+code: |
+ if approval_management_report == True:
+  if management_report_unanimity == False:
+    management_report_voters_against = list(set(voters) - set(management_report_voted_favor))
+    management_report_shares_favor = sum(shareholder.percentage for shareholder in management_report_voted_favor)
+    management_report_quorum_percentage_favor = (management_report_shares_favor/sum(voter.percentage for voter in voters))*100
+    management_report_votes_favor = len(management_report_voted_favor)
+  if management_report_unanimity == True or management_report_votes_favor == len(voters):   
+    management_report_voted_favor = comma_and_list(voters)
+    management_report_votes_favor = len(voters)
+    management_report_quorum_percentage_favor = 100
+    management_report_shares_favor = sum(shareholder.percentage for shareholder in voters)
+    management_report_voted_against =  "Ninguno"
+    management_report_votes_against = 0
+    management_report_voters_against = ""
+    management_report_shares_against = 0
+    management_report_quorum_percentage_against = 0
+    management_report_voted_blank =  "Ninguno"
+    management_report_votes_blank = 0
+    management_report_shares_blank = 0
+    management_report_quorum_percentage_blank = 0 
+ if approval_management_report == False:
+  if management_report_unanimity == False:   
+    management_report_voters_favor = list(set(voters) - set(management_report_voted_against))
+    management_report_shares_against = sum(shareholder.percentage for shareholder in management_report_voted_against)
+    management_report_quorum_percentage_against = (management_report_shares_against/sum(voter.percentage for voter in voters))*100
+    management_report_votes_against = len(management_report_voted_against)
+    management_report_voted_against_clean = management_report_voted_against
+  if management_report_unanimity == True or management_report_votes_against == len(voters):
+    management_report_voted_favor = "Ninguno"
+    management_report_voters_favor = ""
+    management_report_votes_favor = 0
+    management_report_quorum_percentage_favor = 0
+    management_report_shares_favor = 0
+    management_report_voted_against =  comma_and_list(voters)
+    management_report_votes_against = len(voters)
+    management_report_shares_against = sum( shareholder.percentage for shareholder in voters)
+    management_report_quorum_percentage_against = 100
+    management_report_voted_blank =  "Ninguno"
+    management_report_votes_blank = 0
+    management_report_shares_blank = 0
+    management_report_quorum_percentage_blank = 0
+    management_report_voted_against_clean = voters
+--- 
+mandatory: |
+  management_report == True and approval_management_report == True and management_report_unanimity == False and management_report_votes_favor < len(voters)
+question: |
+  Identifica quien votó en contra del informe de gerencia.
+subquestion: |
+  Los accionistas que no registren su voto como a favor o en contra serán tomados en cuenta como voto en blanco por defecto. 
+fields: 
+  - no label: management_report_voted_against
+    datatype: object_checkboxes
+    none of the above: False
+    choices: management_report_voters_against
+    required: False
+  - note: |
+      Deja sin seleccionar al/los accionista(s) que votaron en blanco.
+section: section9   
+---
+mandatory: |
+  management_report == True
+code: |
+  if approval_management_report == True and  management_report_unanimity == False and management_report_votes_favor < len(voters):
+    management_report_votes_against = len(management_report_voted_against)
+    management_report_shares_against = sum(shareholder.percentage for shareholder in management_report_voted_against)
+    management_report_quorum_percentage_against = (management_report_shares_against/sum(voter.percentage for voter in voters))*100
+    management_report_voted_against_clean = management_report_voted_against
+  if len(management_report_voted_against) == 0:
+    management_report_voted_against = "Ninguno"
+--- 
+mandatory: |
+  management_report == True and approval_management_report == False and management_report_unanimity == False and management_report_votes_against < len(voters)
+question: |
+  Identifica quien votó a favor del informe de gerencia.
+subquestion: |
+  Los accionistas que no registren su voto como a favor o en contra serán tomados en cuenta como voto en blanco por defecto. 
+fields: 
+  - no label: management_report_voted_favor
+    datatype: object_checkboxes
+    none of the above: False
+    choices: management_report_voters_favor
+    required: False
+  - note: |
+      Deja sin seleccionar al/los accionista(s) que votaron en blanco.
+section: section9   
+---
+mandatory: |
+  management_report == True
+code: |
+  if approval_management_report == False and management_report_unanimity == False and management_report_votes_against < len(voters):
+    management_report_votes_favor = len(management_report_voted_favor)
+    management_report_shares_favor = sum(shareholder.percentage for shareholder in management_report_voted_favor)
+    management_report_quorum_percentage_favor = (management_report_shares_favor/sum(voter.percentage for voter in voters))*100
+  if len(management_report_voted_favor) == 0:
+    management_report_voted_favor = "Ninguno"
+---
+mandatory: |
+  management_report == True
+code: |
+  if (approval_management_report == True and management_report_unanimity == False and management_report_votes_favor < len(voters)) or (approval_management_report == False and management_report_unanimity == False and management_report_votes_against < len(voters)):
+    management_report_voted_blank = list(set(voters) - set(management_report_voted_favor) - set(management_report_voted_against))
+    management_report_votes_blank = len(management_report_voted_blank)
+    management_report_shares_blank = sum(shareholder.percentage for shareholder in management_report_voted_blank)
+    management_report_quorum_percentage_blank = (management_report_shares_blank/sum(voter.percentage for voter in voters))*100
+  if len(management_report_voted_blank) == 0:
+    management_report_voted_blank = "Ninguno" 
+---
+mandatory: |
+  management_report == True
+question: |
+  Así  quedaron los votos para el informe de gerencia
+subquestion: |
+  ### A favor
+
+  * Votantes: ${management_report_voted_favor}
+  * Nùmero de votos: ${management_report_votes_favor}
+  * Acciones: ${round(management_report_shares_favor,3)} 
+  * Porcentaje de los asistentes: ${round(management_report_quorum_percentage_favor,3)}%
+  
+  ### En contra:
+  
+  * Votantes: ${management_report_voted_against}
+  * Nùmero de votos: ${management_report_votes_against}
+  * Acciones: ${round(management_report_shares_against,3)}
+  * Porcentaje de los asistentes: ${round(management_report_quorum_percentage_against,3)}%
+
+  ### En blanco:
+  
+  * Votantes: ${comma_and_list(management_report_voted_blank)}
+  * Nùmero de votos: ${management_report_votes_blank}
+  * Acciones: ${round(management_report_shares_blank,3)}
+  * Porcentaje de los asistentes: ${round(management_report_quorum_percentage_blank,3)}%
+
+field: management_report_votes
+section: section9     
+---
+objects:
+  - management_report_against_list: |
+      DAList.using(
+        object_type=DAObject,
+        complete_attribute='complete')
+---
+code: |
+  management_report_against_list[i].shareholder
+  management_report_against_list[i].reason
+  management_report_against_list[i].complete = True
+---
+mandatory: |
+  management_report_against_list.there_are_any == True
+code: |
+  management_report_against_list.gather()
+  management_report_against_list.reviewed
+---  
+mandatory: |
+  management_report == True and management_report_votes_against > 0
+question: |
+  ¿Quieres dejar en el acta las razones de los votos en contra del informe de gerencia?
+yesno:  management_report_against_list.there_are_any
+section: section9
+---
+code: |
+  if management_report == False or management_report_votes_against == 0:
+    management_report_against_list.there_are_any = False
+---
+question: |
+  Registra las razones de los accionista que votaron en contra del informe de gerencia.
+fields:
+  - Accionista: management_report_against_list[i].shareholder
+    code: |
+      management_report_voted_against_clean
+  - ¿Cuál fue la razón para el voto negativo?:   management_report_against_list[i].reason
+    input type: area
+list collect:  
+  label: |
+    ${comment_name} ${(i+1)}:
+section: section9
+---
+question: |
+  ¿Quieres adicionar las razones de voto en contra de otro accionista?
+yesno: management_report_against_list.there_is_another
+section: section9
+---
+question: |
+  Estos son los accionistas que votaron en contra y sus razones
+subquestion: |
+  % for item in management_report_against_list:
+    * **Accionista:** ${ title_case(str(item.shareholder).lower()) }[BR] 
+      **Razón:** ${ capitalize(str(item.reason).lower()) }
+
+  % endfor
+continue button field: management_report_against_list.reviewed
+section: section9
+---
+mandatory: |
+  management_report == False
+question: |
+  Informe de gerencia
+subquestion: |
+  Ten en cuenta que si el representante legal no presentó el informe de gestión o informe de gerencia, esto es un incumplimiento de sus funciones y se puede proceder a solicitar la remoción del representante legal para nombrar su reemplazo. La remoción y reemplazo del representante legal se puede proponer en “Proposiciones y Varios”.
+field: warning_management_report
+section: section9
+progress: 60
+--- 
+mandatory: |
+  tax_auditor == True
+question: |
+  ¿La revisoría fiscal presentó informe?
+subquestion: |
+  Ten en cuenta que de conformidad con el artículo 46 de la Ley 222 de 1995 si la sociedad tiene revisoría fiscal es obligatorio presentar el informe.
+yesno: tax_report 
+section: section10
+---
+mandatory : |
+  tax_auditor == False
+code: |
+  tax_report = False    
+---
+mandatory: |
+  tax_report == False
+code: |  
+  approval_tax_report = ""
+  tax_report_unanimity = ""
+  tax_report_votes_favor = 0
+  tax_report_votes_against = 0
+---
+objects:
+  - tax_report_observations_list: |
+      DAList.using(
+        object_type=DAObject,
+        complete_attribute='complete')
+---
+code: |
+  tax_report_observations_list[i].who
+  tax_report_observations_list[i].observation
+  tax_report_observations_list[i].complete = True
+---
+mandatory: |
+  tax_report_observations_list.there_are_any == True
+code: |
+  tax_report_observations_list.gather()
+  tax_report_observations_list.reviewed
+---  
+mandatory: |
+  tax_report == True
+question: |
+  Antes de proceder con la votación sobre el informe de revisoría fiscal: ¿Hubo comentarios sobre éste que quieras dejar en el acta?
+subquestion: |
+  Aquí puedes establecer cada uno los comentarios de cualquier participante de la asamblea.
+yesno: tax_report_observations_list.there_are_any
+section: section10
+---
+code: |
+  if tax_report == False:
+    tax_report_observations_list.there_are_any = False
+---
+question: |
+  Registra las observaciónes sobre el informe de la revisoría fiscal y quién las hizo
+fields: 
+  - ¿Quién la hizo?: tax_report_observations_list[i].who
+    code: |
+      can_comment 
+  - Comentario: tax_report_observations_list[i].observation
+    input type: area
+list collect:  
+  label: |
+    ${comment_name} ${(i+1)}:    
+section: section10
+---
+question: |
+  ¿Quieres adicionar otra observación al informe de la revisoría fiscal?
+yesno: tax_report_observations_list.there_is_another
+section: section10
+---
+question: |
+  Estas son las observaciones hechas al informe de la revisoría fiscal
+subquestion: |
+  % for item in tax_report_observations_list:
+    * **Observación:** ${ capitalize(str(item.observation).lower()) }[BR]
+      **Hecha por:** ${ title_case(str(item.who).lower()) }
+      
+  % endfor
+continue button field: tax_report_observations_list.reviewed
+section: section10
+--- 
+mandatory: |
+  tax_report == True
+question: |
+  ¿Se aprobó el informe de la revisoría fiscal?
+fields: 
+  - no label: approval_tax_report 
+    datatype: yesnoradio
+  - ¿La votación fue unánime?: tax_report_unanimity
+    datatype: yesnoradio
+    js show if: |
+      da_val('approval_tax_report') == true ||  da_val('approval_tax_report') == false
+  - Identifica el/los accionista(s) que votaron a favor: tax_report_voted_favor
+    datatype: object_checkboxes
+    none of the above: False
+    choices: voters
+    js show if: |
+      da_val('approval_tax_report') == true &&  da_val('tax_report_unanimity') == false
+  - Identifica el/los accionista(s) que votaron en contra: tax_report_voted_against
+    datatype: object_checkboxes
+    none of the above: False
+    choices: voters
+    js show if: |
+      da_val('approval_tax_report') == false &&  da_val('tax_report_unanimity') == false
+validation code: |
+  if (approval_tax_report == True and tax_report_unanimity == False and sum(shareholder.percentage for shareholder in tax_report_voted_favor)<=(0.50 * sum(voter.percentage for voter in voters))) or (approval_tax_report == False and tax_report_unanimity == False and sum(shareholder.percentage for shareholder in tax_report_voted_against)<=(0.50 * sum(voter.percentage for voter in voters))):
+    validation_error("Los votantes no suman una mayoria")             
+section: section10
+---
+mandatory :
+  tax_report == True
+code: |
+ if approval_tax_report == True:
+  if tax_report_unanimity == False:
+    tax_report_voters_against = list(set(voters) - set(tax_report_voted_favor))
+    tax_report_shares_favor = sum(shareholder.percentage for shareholder in tax_report_voted_favor)
+    tax_report_quorum_percentage_favor = (tax_report_shares_favor/sum(voter.percentage for voter in voters))*100
+    tax_report_votes_favor = len(tax_report_voted_favor)
+  if tax_report_unanimity == True or tax_report_votes_favor == len(voters):   
+    tax_report_voted_favor = comma_and_list(voters)
+    tax_report_votes_favor = len(voters)
+    tax_report_quorum_percentage_favor = 100
+    tax_report_shares_favor = sum(shareholder.percentage for shareholder in voters)
+    tax_report_voted_against =  "Ninguno"
+    tax_report_votes_against = 0
+    tax_report_voters_against = ""
+    tax_report_shares_against = 0
+    tax_report_quorum_percentage_against = 0
+    tax_report_voted_blank =  "Ninguno"
+    tax_report_votes_blank = 0
+    tax_report_shares_blank = 0
+    tax_report_quorum_percentage_blank = 0 
+ if approval_tax_report == False:
+  if tax_report_unanimity == False:   
+    tax_report_voters_favor = list(set(voters) - set(tax_report_voted_against))
+    tax_report_shares_against = sum(shareholder.percentage for shareholder in tax_report_voted_against)
+    tax_report_quorum_percentage_against = (tax_report_shares_against/sum(voter.percentage for voter in voters))*100
+    tax_report_votes_against = len(tax_report_voted_against)
+    tax_report_voted_against_clean = tax_report_voted_against
+  if tax_report_unanimity == True or tax_report_votes_against == len(voters):
+    tax_report_voted_favor = "Ninguno"
+    tax_report_voters_favor = ""
+    tax_report_votes_favor = 0
+    tax_report_quorum_percentage_favor = 0
+    tax_report_shares_favor = 0
+    tax_report_voted_against =  comma_and_list(voters)
+    tax_report_votes_against = len(voters)
+    tax_report_shares_against = sum( shareholder.percentage for shareholder in voters)
+    tax_report_quorum_percentage_against = 100
+    tax_report_voted_blank =  "Ninguno"
+    tax_report_votes_blank = 0
+    tax_report_shares_blank = 0
+    tax_report_quorum_percentage_blank = 0
+    tax_report_voted_against_clean = voters
+--- 
+mandatory: |
+  tax_report == True and approval_tax_report == True and tax_report_unanimity == False and tax_report_votes_favor < len(voters)
+question: |
+  Identifica quien votó en contra del informe de la revisoría fiscal.
+subquestion: |
+  Los accionistas que no registren su voto como a favor o en contra serán tomados en cuenta como voto en blanco por defecto. 
+fields: 
+  - no label: tax_report_voted_against
+    datatype: object_checkboxes
+    none of the above: False
+    choices: tax_report_voters_against
+    required: False
+  - note: |
+      Deja sin seleccionar al/los accionista(s) que votaron en blanco.
+section: section10   
+---
+mandatory: |
+  tax_report == True
+code: |
+  if approval_tax_report == True and  tax_report_unanimity == False and tax_report_votes_favor < len(voters):
+    tax_report_votes_against = len(tax_report_voted_against)
+    tax_report_shares_against = sum(shareholder.percentage for shareholder in tax_report_voted_against)
+    tax_report_quorum_percentage_against = (tax_report_shares_against/sum(voter.percentage for voter in voters))*100
+    tax_report_voted_against_clean = tax_report_voted_against
+  if len(tax_report_voted_against) == 0:
+    tax_report_voted_against = "Ninguno"
+--- 
+mandatory: |
+  tax_report == True and approval_tax_report == False and tax_report_unanimity == False and tax_report_votes_against < len(voters)
+question: |
+  Identifica quien votó a favor del informe de la revisoría fiscal.
+subquestion: |
+  Los accionistas que no registren su voto como a favor o en contra serán tomados en cuenta como voto en blanco por defecto. 
+fields: 
+  - no label: tax_report_voted_favor
+    datatype: object_checkboxes
+    none of the above: False
+    choices: tax_report_voters_favor
+    required: False
+  - note: |
+      Deja sin seleccionar al/los accionista(s) que votaron en blanco.
+section: section10   
+---
+mandatory: |
+  tax_report == True
+code: |
+  if approval_tax_report == False and tax_report_unanimity == False and tax_report_votes_against < len(voters):
+    tax_report_votes_favor = len(tax_report_voted_favor)
+    tax_report_shares_favor = sum(shareholder.percentage for shareholder in tax_report_voted_favor)
+    tax_report_quorum_percentage_favor = (tax_report_shares_favor/sum(voter.percentage for voter in voters))*100
+  if len(tax_report_voted_favor) == 0:
+    tax_report_voted_favor = "Ninguno"
+---
+mandatory: |
+  tax_report == True
+code: |
+  if (approval_tax_report == True and tax_report_unanimity == False and tax_report_votes_favor < len(voters)) or (approval_tax_report == False and tax_report_unanimity == False and tax_report_votes_against < len(voters)):
+    tax_report_voted_blank = list(set(voters) - set(tax_report_voted_favor) - set(tax_report_voted_against))
+    tax_report_votes_blank = len(tax_report_voted_blank)
+    tax_report_shares_blank = sum(shareholder.percentage for shareholder in tax_report_voted_blank)
+    tax_report_quorum_percentage_blank = (tax_report_shares_blank/sum(voter.percentage for voter in voters))*100
+  if len(tax_report_voted_blank) == 0:
+    tax_report_voted_blank = "Ninguno"
+---
+mandatory: |
+  tax_report == True
+question: |
+  Así  quedaron los votos para del informe de la revisioría fiscal
+subquestion: |
+  ### A favor
+
+  * Votantes: ${tax_report_voted_favor}
+  * Nùmero de votos: ${tax_report_votes_favor}
+  * Acciones: ${round(tax_report_shares_favor,3)} 
+  * Porcentaje de los asistentes: ${round(tax_report_quorum_percentage_favor,3)}%
+  
+  ### En contra:
+  
+  * Votantes: ${tax_report_voted_against}
+  * Nùmero de votos: ${tax_report_votes_against}
+  * Acciones: ${round(tax_report_shares_against,3)}
+  * Porcentaje de los asistentes: ${round(tax_report_quorum_percentage_against,3)}%
+
+  ### En blanco:
+  
+  * Votantes: ${comma_and_list(tax_report_voted_blank)}
+  * Nùmero de votos: ${tax_report_votes_blank}
+  * Acciones: ${round(tax_report_shares_blank,3)}
+  * Porcentaje de los asistentes: ${round(tax_report_quorum_percentage_blank,3)}%
+
+field: tax_report_votes
+section: section10  
+---
+objects:
+  - tax_report_against_list: |
+      DAList.using(
+        object_type=DAObject,
+        complete_attribute='complete')
+---
+code: |
+  tax_report_against_list[i].shareholder
+  tax_report_against_list[i].reason
+  tax_report_against_list[i].complete = True
+---
+mandatory: |
+  tax_report_against_list.there_are_any == True
+code: |
+  tax_report_against_list.gather()
+  tax_report_against_list.reviewed
+---  
+mandatory: |
+  tax_report == True and tax_report_votes_against > 0
+question: |
+  ¿Quieres dejar en el acta las razones de los votos en contra del informe de la revisoría fiscal?
+yesno:  tax_report_against_list.there_are_any
+section: section10
+---
+code: |
+  if tax_report == False or tax_report_votes_against == 0:
+    tax_report_against_list.there_are_any = False
+---
+question: |
+  Registra las razones de los accionista que votaron en contra del informe de la revisoría fiscal.
+fields:
+  - Accionista: tax_report_against_list[i].shareholder
+    code: |
+      tax_report_voted_against_clean
+  - ¿Cuál fue la razón para el voto negativo?:   tax_report_against_list[i].reason
+    input type: area
+list collect:  
+  label: |
+    ${comment_name} ${(i+1)}:
+section: section10
+---
+question: |
+  ¿Quieres adicionar las razones de voto en contra de otro accionista?
+yesno: tax_report_against_list.there_is_another
+section: section10
+---
+question: |
+  Estos son los accionistas que votaron en contra y sus razones
+subquestion: |
+  % for item in tax_report_against_list:
+    * **Accionista:** ${ title_case(str(item.shareholder).lower()) }[BR] 
+      **Razón:** ${ capitalize(str(item.reason).lower()) }
+
+  % endfor
+continue button field: tax_report_against_list.reviewed
+section: section10
+--- 
+mandatory: |
+  tax_auditor == True and tax_report == False
+question: |
+  Informe de revisión fiscal
+subquestion: |
+  Ten en cuenta que si el revisor fiscal no presentó el informe, esto es un incumplimiento de sus funciones y se puede proceder a solicitar la remoción del mismo para nombrar su reemplazo. No presentar el informe puede llegar a ser un incumplimiento del contrato de prestación de servicios firmado con el revisor fiscal. La remoción y reemplazo del revisor fiscal se puede proponer en “Proposiciones y Varios”.
+field: warning_tax_report  
+section: section10
+progress: 65
+--- 
+mandatory: True
+question: |
+  ¿Se presentaron los estados financieros de fin de ejercicio?
+subquestion: |
+  Ten en cuenta que de conformidad con el artículo 46 de la Ley 222 de 1995 esta es una obligación del representante legal. 
+yesno: financial_statements 
+section: section11
+---
+mandatory: |
+  financial_statements == False
+code: |  
+  approval_financial_statements = ""
+  financial_statements_unanimity = ""
+  financial_statements_votes_favor = 0
+  financial_statements_votes_against = 0
+---
+---
+objects:
+  - financial_statements_observations_list: |
+      DAList.using(
+        object_type=DAObject,
+        complete_attribute='complete')
+---
+code: |
+  financial_statements_observations_list[i].who
+  financial_statements_observations_list[i].observation
+  financial_statements_observations_list[i].complete = True
+---
+mandatory: |
+  financial_statements_observations_list.there_are_any == True
+code: |
+  financial_statements_observations_list.gather()
+  financial_statements_observations_list.reviewed
+---  
+mandatory: |
+  financial_statements == True
+question: |
+  Antes de proceder con la votación de los estados financieros: ¿Hubo comentarios sobre éstos que quieras dejar en el acta?
+subquestion: |
+  Aquí puedes establecer cada uno los comentarios de cualquier participante de la asamblea.
+yesno: financial_statements_observations_list.there_are_any
+section: section11
+---
+code: |
+  if financial_statements == False:
+    financial_statements_observations_list.there_are_any = False
+---
+question: |
+  Registra las observaciónes sobre los estados financieros y quién las hizo
+fields: 
+  - ¿Quién la hizo?: financial_statements_observations_list[i].who
+    code: |
+      can_comment 
+  - Comentario: financial_statements_observations_list[i].observation
+    input type: area
+list collect:  
+  label: |
+    ${comment_name} ${(i+1)}:    
+section: section11
+---
+question: |
+  ¿Quieres adicionar otra observación sobre los estados financieros?
+yesno: financial_statements_observations_list.there_is_another
+section: section11
+---
+question: |
+  Estas son las observaciones hechas a los estados financieros
+subquestion: |
+  % for item in financial_statements_observations_list:
+    * **Observación:** ${ capitalize(str(item.observation).lower()) }[BR]
+      **Hecha por:** ${ title_case(str(item.who).lower()) }
+      
+  % endfor
+continue button field: financial_statements_observations_list.reviewed
+section: section11
+---
+mandatory: |
+  financial_statements == True
+question: |
+  ¿Se aprobaron los estados financieros?
+fields: 
+  - no label: approval_financial_statements 
+    datatype: yesnoradio
+  - ¿La votación fue unánime?: financial_statements_unanimity
+    datatype: yesnoradio
+    js show if: |
+      da_val('approval_financial_statements') == true ||  da_val('approval_financial_statements') == false
+  - Identifica el/los accionista(s) que votaron a favor: financial_statements_voted_favor
+    datatype: object_checkboxes
+    none of the above: False
+    choices: voters
+    js show if: |
+      da_val('approval_financial_statements') == true &&  da_val('financial_statements_unanimity') == false
+  - Identifica el/los accionista(s) que votaron en contra: financial_statements_voted_against
+    datatype: object_checkboxes
+    none of the above: False
+    choices: voters
+    js show if: |
+      da_val('approval_financial_statements') == false &&  da_val('financial_statements_unanimity') == false
+validation code: |
+  if (approval_financial_statements == True and financial_statements_unanimity == False and sum(shareholder.percentage for shareholder in financial_statements_voted_favor)<=(0.50 * sum(voter.percentage for voter in voters))) or (approval_financial_statements == False and financial_statements_unanimity == False and sum(shareholder.percentage for shareholder in financial_statements_voted_against)<=(0.50 * sum(voter.percentage for voter in voters))):
+    validation_error("Los votantes no suman una mayoria")             
+section: section11
+---
+mandatory :
+  financial_statements == True
+code: |
+ if approval_financial_statements == True:
+  if financial_statements_unanimity == False:
+    financial_statements_voters_against = list(set(voters) - set(financial_statements_voted_favor))
+    financial_statements_shares_favor = sum(shareholder.percentage for shareholder in financial_statements_voted_favor)
+    financial_statements_quorum_percentage_favor = (financial_statements_shares_favor/sum(voter.percentage for voter in voters))*100
+    financial_statements_votes_favor = len(financial_statements_voted_favor)
+  if financial_statements_unanimity == True or financial_statements_votes_favor == len(voters):   
+    financial_statements_voted_favor = comma_and_list(voters)
+    financial_statements_votes_favor = len(voters)
+    financial_statements_quorum_percentage_favor = 100
+    financial_statements_shares_favor = sum(shareholder.percentage for shareholder in voters)
+    financial_statements_voted_against =  "Ninguno"
+    financial_statements_votes_against = 0
+    financial_statements_voters_against = ""
+    financial_statements_shares_against = 0
+    financial_statements_quorum_percentage_against = 0
+    financial_statements_voted_blank =  "Ninguno"
+    financial_statements_votes_blank = 0
+    financial_statements_shares_blank = 0
+    financial_statements_quorum_percentage_blank = 0 
+ if approval_financial_statements == False:
+  if financial_statements_unanimity == False:   
+    financial_statements_voters_favor = list(set(voters) - set(financial_statements_voted_against))
+    financial_statements_shares_against = sum(shareholder.percentage for shareholder in financial_statements_voted_against)
+    financial_statements_quorum_percentage_against = (financial_statements_shares_against/sum(voter.percentage for voter in voters))*100
+    financial_statements_votes_against = len(financial_statements_voted_against)
+    financial_statements_voted_against_clean = financial_statements_voted_against
+  if financial_statements_unanimity == True or financial_statements_votes_against == len(voters):
+    financial_statements_voted_favor = "Ninguno"
+    financial_statements_voters_favor = ""
+    financial_statements_votes_favor = 0
+    financial_statements_quorum_percentage_favor = 0
+    financial_statements_shares_favor = 0
+    financial_statements_voted_against =  comma_and_list(voters)
+    financial_statements_votes_against = len(voters)
+    financial_statements_shares_against = sum( shareholder.percentage for shareholder in voters)
+    financial_statements_quorum_percentage_against = 100
+    financial_statements_voted_blank =  "Ninguno"
+    financial_statements_votes_blank = 0
+    financial_statements_shares_blank = 0
+    financial_statements_quorum_percentage_blank = 0
+    financial_statements_voted_against_clean = voters
+--- 
+mandatory: |
+  financial_statements == True and approval_financial_statements == True and financial_statements_unanimity == False and financial_statements_votes_favor < len(voters)
+question: |
+  Identifica quien votó en contra de los estados financieros.
+subquestion: |
+  Los accionistas que no registren su voto como a favor o en contra serán tomados en cuenta como voto en blanco por defecto. 
+fields: 
+  - no label: financial_statements_voted_against
+    datatype: object_checkboxes
+    none of the above: False
+    choices: financial_statements_voters_against
+    required: False
+  - note: |
+      Deja sin seleccionar al/los accionista(s) que votaron en blanco.
+section: section11   
+---
+mandatory: |
+  financial_statements == True
+code: |
+  if approval_financial_statements == True and  financial_statements_unanimity == False and financial_statements_votes_favor < len(voters):
+    financial_statements_votes_against = len(financial_statements_voted_against)
+    financial_statements_shares_against = sum(shareholder.percentage for shareholder in financial_statements_voted_against)
+    financial_statements_quorum_percentage_against = (financial_statements_shares_against/sum(voter.percentage for voter in voters))*100
+    financial_statements_voted_against_clean = financial_statements_voted_against
+  if len(financial_statements_voted_against) == 0:
+    financial_statements_voted_against = "Ninguno"
+--- 
+mandatory: |
+  financial_statements == True and approval_financial_statements == False and financial_statements_unanimity == False and financial_statements_votes_against < len(voters)
+question: |
+  Identifica quien votó a favor de los estados financieros.
+subquestion: |
+  Los accionistas que no registren su voto como a favor o en contra serán tomados en cuenta como voto en blanco por defecto. 
+fields: 
+  - no label: financial_statements_voted_favor
+    datatype: object_checkboxes
+    none of the above: False
+    choices: financial_statements_voters_favor
+    required: False
+  - note: |
+      Deja sin seleccionar al/los accionista(s) que votaron en blanco..
+section: section11   
+---
+mandatory: |
+  financial_statements == True
+code: |
+  if approval_financial_statements == False and financial_statements_unanimity == False and financial_statements_votes_against < len(voters):
+    financial_statements_votes_favor = len(financial_statements_voted_favor)
+    financial_statements_shares_favor = sum(shareholder.percentage for shareholder in financial_statements_voted_favor)
+    financial_statements_quorum_percentage_favor = (financial_statements_shares_favor/sum(voter.percentage for voter in voters))*100
+  if len(financial_statements_voted_favor) == 0:
+    financial_statements_voted_favor = "Ninguno"
+---
+mandatory: |
+  financial_statements == True
+code: |
+  if (approval_financial_statements == True and financial_statements_unanimity == False and financial_statements_votes_favor < len(voters)) or (approval_financial_statements == False and financial_statements_unanimity == False and financial_statements_votes_against < len(voters)):
+    financial_statements_voted_blank = list(set(voters) - set(financial_statements_voted_favor) - set(financial_statements_voted_against))
+    financial_statements_votes_blank = len(financial_statements_voted_blank)
+    financial_statements_shares_blank = sum(shareholder.percentage for shareholder in financial_statements_voted_blank)
+    financial_statements_quorum_percentage_blank = (financial_statements_shares_blank/sum(voter.percentage for voter in voters))*100
+  if len(financial_statements_voted_blank) == 0:
+    financial_statements_voted_blank = "Ninguno"
+---
+mandatory: |
+  financial_statements == True
+question: |
+  Así  quedaron los votos sobre los estados financieros
+subquestion: |
+  ### A favor
+
+  * Votantes: ${financial_statements_voted_favor}
+  * Nùmero de votos: ${financial_statements_votes_favor}
+  * Acciones: ${round(financial_statements_shares_favor,3)} 
+  * Porcentaje de los asistentes: ${round(financial_statements_quorum_percentage_favor,3)}%
+  
+  ### En contra:
+  
+  * Votantes: ${financial_statements_voted_against}
+  * Nùmero de votos: ${financial_statements_votes_against}
+  * Acciones: ${round(financial_statements_shares_against,3)}
+  * Porcentaje de los asistentes: ${round(financial_statements_quorum_percentage_against,3)}%
+
+  ### En blanco:
+  
+  * Votantes: ${comma_and_list(financial_statements_voted_blank)}
+  * Nùmero de votos: ${financial_statements_votes_blank}
+  * Acciones: ${round(financial_statements_shares_blank,3)}
+  * Porcentaje de los asistentes: ${round(financial_statements_quorum_percentage_blank,3)}%
+
+field: financial_statements_votes
+section: section11  
+---
+objects:
+  - financial_statements_against_list: |
+      DAList.using(
+        object_type=DAObject,
+        complete_attribute='complete')
+---
+code: |
+  financial_statements_against_list[i].shareholder
+  financial_statements_against_list[i].reason
+  financial_statements_against_list[i].complete = True
+---
+mandatory: |
+  financial_statements_against_list.there_are_any == True
+code: |
+  financial_statements_against_list.gather()
+  financial_statements_against_list.reviewed
+---  
+mandatory: |
+  financial_statements == True and financial_statements_votes_against > 0
+question: |
+  ¿Quieres dejar en el acta las razones de los votos en contra de los estados financieros?
+yesno:  financial_statements_against_list.there_are_any
+section: section11
+---
+code: |
+  if financial_statements == False or financial_statements_votes_against == 0:
+    financial_statements_against_list.there_are_any = False
+---
+question: |
+  Registra las razones de los accionista que votaron en contra de los estados financieros.
+fields:
+  - Accionista: financial_statements_against_list[i].shareholder
+    code: |
+      financial_statements_voted_against_clean
+  - ¿Cuál fue la razón para el voto negativo?:   financial_statements_against_list[i].reason
+    input type: area
+list collect:  
+  label: |
+    ${comment_name} ${(i+1)}:
+section: section11
+---
+question: |
+  ¿Quieres adicionar las razones de voto en contra de otro accionista?
+yesno: financial_statements_against_list.there_is_another
+section: section11
+---
+question: |
+  Estos son los accionistas que votaron en contra y sus razones
+subquestion: |
+  % for item in financial_statements_against_list:
+    * **Accionista:** ${ title_case(str(item.shareholder).lower()) }[BR] 
+      **Razón:** ${ capitalize(str(item.reason).lower()) }
+
+  % endfor
+continue button field: financial_statements_against_list.reviewed
+section: section11
+---
+mandatory: |
+  financial_statements  == False
+question: |
+  Estados financieros
+subquestion: |
+  Ten en cuenta que si el representante legal no presentó los estados financieros, esto es un incumplimiento de sus funciones y se puede proceder a solicitar la remoción del representante legal para nombrar su reemplazo. La remoción y reemplazo del representante legal se puede proponer en “Proposiciones y Varios”
+field: warning_financial_statements
+section: section11
+progress: 72
+---
+mandatory: True
+question: |
+  ¿La sociedad tuvo utilidades en el año ${financial_statements_year}?
+subquestion: |
+  Si la sociedad no tuvo utilidades, se deja constancia que no se puede distribuir.
+yesno: profit_sharing_existence
+---
+mandatory: True
+code: |
+  if profit_sharing_existence == False:
+    profit_sharing = False
+---
+mandatory: |
+  profit_sharing_existence == True
+question: |
+  ¿Se discutió sobre la Distribución de Utilidades?
+subquestion: |
+  Ten en cuenta que de conformidad con el artículo 46 de la Ley 222 de 1995 el representante legal está obligado a presentar una distribución de las utilidades.
+yesno: profit_sharing 
+section: section12
+---
+mandatory: |
+  profit_sharing == False
+code: |  
+  approval_profit_sharing = ""
+  profit_sharing_unanimity = ""
+  profit_sharing_votes_favor = 0
+  profit_sharing_votes_against = 0
+---
+objects:
+  - profit_sharing_observations_list: |
+      DAList.using(
+        object_type=DAObject,
+        complete_attribute='complete')
+---
+code: |
+  profit_sharing_observations_list[i].who
+  profit_sharing_observations_list[i].observation
+  profit_sharing_observations_list[i].complete = True
+---
+mandatory: |
+  profit_sharing_observations_list.there_are_any == True
+code: |
+  profit_sharing_observations_list.gather()
+  profit_sharing_observations_list.reviewed
+---  
+mandatory: |
+  profit_sharing == True
+question: |
+  ¿Hubo comentarios sobre la distribución de utilidades que quieras dejar en el acta?
+subquestion: |
+  Aquí puedes establecer cada uno los comentarios de cualquier participante de la asamblea.
+yesno: profit_sharing_observations_list.there_are_any
+section: section12
+---
+code: |
+  if profit_sharing == False:
+    profit_sharing_observations_list.there_are_any = False
+---
+question: |
+  Registra las observaciónes sobre la distribución de utilidades y quién las hizo
+fields: 
+  - ¿Quién la hizo?: profit_sharing_observations_list[i].who
+    code: |
+      can_comment 
+  - Comentario: profit_sharing_observations_list[i].observation
+    input type: area
+list collect:  
+  label: |
+    ${comment_name} ${(i+1)}:    
+section: section12
+---
+question: |
+  ¿Quieres adicionar otra observación sobre la distribución de utilidades?
+yesno: profit_sharing_observations_list.there_is_another
+section: section12
+---
+question: |
+  Estas son las observaciones hechas a la distribución de utilidades
+subquestion: |
+  % for item in profit_sharing_observations_list:
+    * **Observación:** ${ capitalize(str(item.observation).lower()) }[BR]
+      **Hecha por:** ${ title_case(str(item.who).lower()) }
+      
+  % endfor
+continue button field: profit_sharing_observations_list.reviewed
+section: section12
+---
+mandatory: |
+  profit_sharing == True
+question: |
+  ¿Se aprobó la distribución de utilidades?
+fields: 
+  - no label: approval_profit_sharing 
+    datatype: yesnoradio
+  - ¿La votación fue unánime?: profit_sharing_unanimity
+    datatype: yesnoradio
+    js show if: |
+      da_val('approval_profit_sharing') == true ||  da_val('approval_profit_sharing') == false
+  - Identifica el/los accionista(s) que votaron a favor: profit_sharing_voted_favor
+    datatype: object_checkboxes
+    none of the above: False
+    choices: voters
+    js show if: |
+      da_val('approval_profit_sharing') == true &&  da_val('profit_sharing_unanimity') == false
+  - Identifica el/los accionista(s) que votaron en contra: profit_sharing_voted_against
+    datatype: object_checkboxes
+    none of the above: False
+    choices: voters
+    js show if: |
+      da_val('approval_profit_sharing') == false &&  da_val('profit_sharing_unanimity') == false
+validation code: |
+  if (approval_profit_sharing == True and profit_sharing_unanimity == False and sum(shareholder.percentage for shareholder in profit_sharing_voted_favor)<=(0.50 * sum(voter.percentage for voter in voters))) or (approval_profit_sharing == False and profit_sharing_unanimity == False and sum(shareholder.percentage for shareholder in profit_sharing_voted_against)<=(0.50 * sum(voter.percentage for voter in voters))):
+    validation_error("Los votantes no suman una mayoria")             
+section: section12
+---
+mandatory :
+  profit_sharing == True
+code: |
+ if approval_profit_sharing == True:
+  if profit_sharing_unanimity == False:
+    profit_sharing_voters_against = list(set(voters) - set(profit_sharing_voted_favor))
+    profit_sharing_shares_favor = sum(shareholder.percentage for shareholder in profit_sharing_voted_favor)
+    profit_sharing_quorum_percentage_favor = (profit_sharing_shares_favor/sum(voter.percentage for voter in voters))*100
+    profit_sharing_votes_favor = len(profit_sharing_voted_favor)
+  if profit_sharing_unanimity == True or profit_sharing_votes_favor == len(voters):   
+    profit_sharing_voted_favor = comma_and_list(voters)
+    profit_sharing_votes_favor = len(voters)
+    profit_sharing_quorum_percentage_favor = 100
+    profit_sharing_shares_favor = sum(shareholder.percentage for shareholder in voters)
+    profit_sharing_voted_against =  "Ninguno"
+    profit_sharing_votes_against = 0
+    profit_sharing_voters_against = ""
+    profit_sharing_shares_against = 0
+    profit_sharing_quorum_percentage_against = 0
+    profit_sharing_voted_blank =  "Ninguno"
+    profit_sharing_votes_blank = 0
+    profit_sharing_shares_blank = 0
+    profit_sharing_quorum_percentage_blank = 0 
+ if approval_profit_sharing == False:
+  if profit_sharing_unanimity == False:   
+    profit_sharing_voters_favor = list(set(voters) - set(profit_sharing_voted_against))
+    profit_sharing_shares_against = sum(shareholder.percentage for shareholder in profit_sharing_voted_against)
+    profit_sharing_quorum_percentage_against = (profit_sharing_shares_against/sum(voter.percentage for voter in voters))*100
+    profit_sharing_votes_against = len(profit_sharing_voted_against)
+    profit_sharing_voted_against_clean = profit_sharing_voted_against
+  if profit_sharing_unanimity == True or profit_sharing_votes_against == len(voters):
+    profit_sharing_voted_favor = "Ninguno"
+    profit_sharing_voters_favor = ""
+    profit_sharing_votes_favor = 0
+    profit_sharing_quorum_percentage_favor = 0
+    profit_sharing_shares_favor = 0
+    profit_sharing_voted_against =  comma_and_list(voters)
+    profit_sharing_votes_against = len(voters)
+    profit_sharing_shares_against = sum( shareholder.percentage for shareholder in voters)
+    profit_sharing_quorum_percentage_against = 100
+    profit_sharing_voted_blank =  "Ninguno"
+    profit_sharing_votes_blank = 0
+    profit_sharing_shares_blank = 0
+    profit_sharing_quorum_percentage_blank = 0
+    profit_sharing_voted_against_clean = voters
+--- 
+mandatory: |
+  profit_sharing == True and approval_profit_sharing == True and profit_sharing_unanimity == False and profit_sharing_votes_favor < len(voters)
+question: |
+  Identifica quien votó en contra de la distribución de utilidades.
+subquestion: |
+  Los accionistas que no registren su voto como a favor o en contra serán tomados en cuenta como voto en blanco por defecto. 
+fields: 
+  - no label: profit_sharing_voted_against
+    datatype: object_checkboxes
+    none of the above: False
+    choices: profit_sharing_voters_against
+    required: False
+  - note: |
+      Deja sin seleccionar al/los accionista(s) que votaron en blanco.
+section: section12   
+---
+mandatory: |
+  profit_sharing == True
+code: |
+  if approval_profit_sharing == True and  profit_sharing_unanimity == False and profit_sharing_votes_favor < len(voters):
+    profit_sharing_votes_against = len(profit_sharing_voted_against)
+    profit_sharing_shares_against = sum(shareholder.percentage for shareholder in profit_sharing_voted_against)
+    profit_sharing_quorum_percentage_against = (profit_sharing_shares_against/sum(voter.percentage for voter in voters))*100
+    profit_sharing_voted_against_clean = profit_sharing_voted_against
+  if len(profit_sharing_voted_against) == 0:
+    profit_sharing_voted_against = "Ninguno"
+--- 
+mandatory: |
+  profit_sharing == True and approval_profit_sharing == False and profit_sharing_unanimity == False and profit_sharing_votes_against < len(voters)
+question: |
+  Identifica quien votó a favor de la distribución de utilidades.
+subquestion: |
+  Los accionistas que no registren su voto como a favor o en contra serán tomados en cuenta como voto en blanco por defecto. 
+fields: 
+  - no label: profit_sharing_voted_favor
+    datatype: object_checkboxes
+    none of the above: False
+    choices: profit_sharing_voters_favor
+    required: False
+  - note: |
+      Deja sin seleccionar al/los accionista(s) que votaron en blanco.
+section: section12   
+---
+mandatory: |
+  profit_sharing == True
+code: |
+  if approval_profit_sharing == False and profit_sharing_unanimity == False and profit_sharing_votes_against < len(voters):
+    profit_sharing_votes_favor = len(profit_sharing_voted_favor)
+    profit_sharing_shares_favor = sum(shareholder.percentage for shareholder in profit_sharing_voted_favor)
+    profit_sharing_quorum_percentage_favor = (profit_sharing_shares_favor/sum(voter.percentage for voter in voters))*100
+  if len(profit_sharing_voted_favor) == 0:
+    profit_sharing_voted_favor = "Ninguno"
+---
+mandatory: |
+  profit_sharing == True
+code: |
+  if (approval_profit_sharing == True and profit_sharing_unanimity == False and profit_sharing_votes_favor < len(voters)) or (approval_profit_sharing == False and profit_sharing_unanimity == False and profit_sharing_votes_against < len(voters)):
+    profit_sharing_voted_blank = list(set(voters) - set(profit_sharing_voted_favor) - set(profit_sharing_voted_against))
+    profit_sharing_votes_blank = len(profit_sharing_voted_blank)
+    profit_sharing_shares_blank = sum(shareholder.percentage for shareholder in profit_sharing_voted_blank)
+    profit_sharing_quorum_percentage_blank = (profit_sharing_shares_blank/sum(voter.percentage for voter in voters))*100
+  if len(profit_sharing_voted_blank) == 0:
+    profit_sharing_voted_blank = "Ninguno"
+---
+mandatory: |
+  profit_sharing == True
+question: |
+  Así  quedaron los votos sobre la distribución de utilidades
+subquestion: |
+  ### A favor
+
+  * Votantes: ${profit_sharing_voted_favor}
+  * Nùmero de votos: ${profit_sharing_votes_favor}
+  * Acciones: ${round(profit_sharing_shares_favor,3)} 
+  * Porcentaje de los asistentes: ${round(profit_sharing_quorum_percentage_favor,3)}%
+  
+  ### En contra:
+  
+  * Votantes: ${profit_sharing_voted_against}
+  * Nùmero de votos: ${profit_sharing_votes_against}
+  * Acciones: ${round(profit_sharing_shares_against,3)}
+  * Porcentaje de los asistentes: ${round(profit_sharing_quorum_percentage_against,3)}%
+
+  ### En blanco:
+  
+  * Votantes: ${comma_and_list(profit_sharing_voted_blank)}
+  * Nùmero de votos: ${profit_sharing_votes_blank}
+  * Acciones: ${round(profit_sharing_shares_blank,3)}
+  * Porcentaje de los asistentes: ${round(profit_sharing_quorum_percentage_blank,3)}%
+
+field: profit_sharing_votes
+section: section12  
+---
+objects:
+  - profit_sharing_against_list: |
+      DAList.using(
+        object_type=DAObject,
+        complete_attribute='complete')
+---
+code: |
+  profit_sharing_against_list[i].shareholder
+  profit_sharing_against_list[i].reason
+  profit_sharing_against_list[i].complete = True
+---
+mandatory: |
+  profit_sharing_against_list.there_are_any == True
+code: |
+  profit_sharing_against_list.gather()
+  profit_sharing_against_list.reviewed
+---  
+mandatory: |
+  profit_sharing == True and profit_sharing_votes_against > 0
+question: |
+  ¿Quieres dejar en el acta las razones de los votos en contra de la distribución de utilidades?
+yesno:  profit_sharing_against_list.there_are_any
+section: section12
+---
+code: |
+  if profit_sharing == False or profit_sharing_votes_against == 0:
+    profit_sharing_against_list.there_are_any = False
+---
+question: |
+  Registra las razones de los accionista que votaron en contra de la distribución de utilidades.
+fields:
+  - Accionista: profit_sharing_against_list[i].shareholder
+    code: |
+      profit_sharing_voted_against_clean
+  - ¿Cuál fue la razón para el voto negativo?:   profit_sharing_against_list[i].reason
+    input type: area
+list collect:  
+  label: |
+    ${comment_name} ${(i+1)}:
+section: section12
+---
+question: |
+  ¿Quieres adicionar las razones de voto en contra de otro accionista?
+yesno: profit_sharing_against_list.there_is_another
+section: section12
+---
+question: |
+  Estos son los accionistas que votaron en contra y sus razones
+subquestion: |
+  % for item in profit_sharing_against_list:
+    * **Accionista:** ${ title_case(str(item.shareholder).lower()) }[BR] 
+      **Razón:** ${ capitalize(str(item.reason).lower()) }
+
+  % endfor
+continue button field: profit_sharing_against_list.reviewed
+section: section12
+---
+mandatory: |
+  profit_sharing_existence == True and profit_sharing == False
+question: |
+  Distribución de Utilidades
+subquestion: |
+  Ten en cuenta que es obligación discutir sobre la distribución de utilidades, sin embargo, la compañía puede estar en una situación difícil y tener pérdidas por lo que no se repartirán las utilidades, no obstante se debe explicar a todos los accionistas la razón por la que no se repartirán las utilidades.
+Buttons: 
+  - Continuar: continue
+section: section12
+progress: 80
+---
+objects:
+  - new_agenda_list: |
+      DAList.using(
+        object_type=DAObject,
+        complete_attribute = 'complete')
+  - new_agenda_list[i].against_list: |
+      DAList.using(
+        object_type=DAObject,
+        complete_attribute = 'complete')
+  - new_agenda_list[i].observations_list: |
+      DAList.using(
+        object_type=DAObject,
+        complete_attribute = 'complete')
+---
+code: |
+  new_agenda_list[i].proposal
+  new_agenda_list[i].in_announcement
+  new_agenda_list[i].detail
+  new_agenda_list[i].observations_list.gather()
+  new_agenda_list[i].approval_proposal
+  new_agenda_list[i].unanimity
+  new_agenda_list[i].voted_against
+  new_agenda_list[i].voted_favor
+  new_agenda_list[i].voters_against
+  new_agenda_list[i].voters_favor
+  new_agenda_list[i].shares_favor
+  new_agenda_list[i].quorum_percentage_favor
+  new_agenda_list[i].quorum_percentage_against
+  new_agenda_list[i].shares_against
+  new_agenda_list[i].votes_against
+  new_agenda_list[i].votes_favor
+  new_agenda_list[i].voted_blank
+  new_agenda_list[i].votes_blank
+  new_agenda_list[i].shares_blank
+  new_agenda_list[i].quorum_percentage_blank
+  new_agenda_list[i].voted_favor_votes
+  new_agenda_list[i].voted_against_votes
+  new_agenda_list[i].voted_against_clean
+  new_agenda_list[i].votes
+  new_agenda_list[i].against_list.gather()
+  new_agenda_list[i].complete = True  
+---
+code: |
+  new_agenda_list[i].against_list[j].shareholder
+  new_agenda_list[i].against_list[j].reason
+  new_agenda_list[i].against_list[j].summary
+  new_agenda_list[i].against_list[j].complete = True
+---
+code: |
+  new_agenda_list[i].observations_list[j].who
+  new_agenda_list[i].observations_list[j].observation
+  new_agenda_list[i].observations_list[j].summary
+  new_agenda_list[i].observations_list[j].complete = True
+---    
+mandatory: true
+question: |
+  ¿Se trató algún tema adicional en la reunión que quieras agregar en el acta?
+subquestion: |
+  Ahora podrás adicionar otras propuestas o temas tratados y discutidos durante la reunión. 
+  Ten en cuenta que si el tema fue notificado en la covocatoria este será agregado al orden del día por nuestro sistema y si no lo fue será agregado a la sección de Proposiones y Varios.
+
+  Nota 1: Si el objetivo del punto adicional es realizar una reforma de estatutos de la sociedad recomendamos que se tenga escrito el nuevo texto que reemplazará esa parte de los estatutos. Si tienes dudas, da click en [obtener asesoría jurídica](https://juzto.co/asesoria-legal/consulta-abogado/).
+  
+  Nota 2: Si fue aprobado el nombramiento de una persona como representate legal, revisor fiscal, etc, debes poner el nombre, tipo de identificación (C.C. / C.E, etc) y el número de identificación y el número de la tarjeta profesiona (si aplica) en el acta. Adicionalmente la cámara de comercio te pedirá el lugar y fecha de expedición de la cédula de la persona nombrada en el cargo a menos que presentes junto al acta la copia del documento de identidad. 
+  
+  Cuando hagas un nombramiento, la persona designada debe aceptar el cargo de alguna de estas 3 formas: 
+  
+  1) Si la persona está presente en la reunión, debe aceptar el cargo. 
+  
+  2) Si no estuvo presente en la reunión, cuando hagas el trámite en la cámara de comercio debes entregar el acta y la copia de una carta de aceptación del cargo. 
+  
+  3) Si no estuvo presente en la reunión, cuando hagas el trámite en la cámara de comercio la persona que fue nombrada en el cargo debe firmar y poner el nombre al final del acta. 
+yesno: new_agenda_list.there_are_any
+section: section13
+---
+mandatory: |
+ new_agenda_list.there_are_any == True
+code: |
+  new_agenda_list.gather()
+  new_agenda_list.reviewed
+--- 
+question: |
+  Identifica el ${ get_ordinal("male", i)} tema que quieres adicionar
+subquestion: |
+  En esta sección puedes poner por ejemplo: Nombramiento del representante legal, elección del nuevo auditor interno, entre muchos otros.
+fields:
+  - Tema: new_agenda_list[i].proposal
+    hint: Ej. Nombramiento del representante legal
+  - ¿Este tema fue incluido en la convocatoria de la reunión?: new_agenda_list[i].in_announcement
+    datatype: yesnoradio
+    help: "Si el tema fue incluido en la convocatoria podrá ser agregado al **Orden del Día**, si no, será agregado a la sección de **Proposiciones y Varios**"
+  - ¿En qué consiste la propuesta?: new_agenda_list[i].detail
+    input type: area
+    hint: "Elegir el nuevo representante legal para que en adelante sea Juan Pérez identificado con C.C. 123.456 a partir del registro del acta en la cámara de comercio."
+section: section13
+---  
+question: |
+  ¿Hubo comentarios sobre la propuesta "${str(new_agenda_list[i].proposal).lower()}" que quieras dejar en el acta?
+subquestion: |
+  Aquí puedes establecer cada uno los comentarios de cualquier participante de la asamblea.
+yesno: new_agenda_list[i].observations_list.there_are_any
+section: section13
+---
+question: |
+  ¿Cuales fueron las las observacione sobre la propuesta ${new_agenda_list[i].proposal.lower()}"?
+fields: 
+  - Comentario: new_agenda_list[i].observations_list[j].observation
+    input type: area
+  - ¿Quién la hizo?: new_agenda_list[i].observations_list[j].who
+    code: |
+      can_comment
+list collect:  
+  label: |
+    ${comment_name} ${(i+1)}:
+section: section13
+---
+question: |
+  ¿Tienes otra observación sobre el punto "${str(new_agenda_list[i].proposal).lower()}"?
+yesno: new_agenda_list[i].observations_list.there_is_another
+section: section13
+---
+question: | 
+  Estas son las observaciones hechas al punto "${new_agenda_list[i].proposal.lower()}":
+subquestion: |
+
+  % for item in new_agenda_list[i].observations_list:
+    * **Observación:** ${ capitalize(str(item.observation).lower()) }[BR]
+      **Hecha por:** ${ title_case(str(item.who).lower()) }
+      [BR]
+  % endfor
+field: new_agenda_list[i].observations_list[j].summary
+---
+question: |
+  En esta sección necesitamos que nos informes si fue aprobado o no el siguiente tema: **"${str(new_agenda_list[i].proposal).capitalize()}"**.
+subquestion: |
+   % if new_agenda_list[i].in_announcement == True:
+    Ten en cuenta que este tema será agregado en el **Orden del Día**. 
+   % else:
+    Ten en cuenta que este tema será agregado en la sección de **Proposiciones y Varios**.
+   % endif 
+fields:
+  - ¿Se aprobó?: new_agenda_list[i].approval_proposal
+    datatype: yesnoradio
+  - ¿La votación fue por unanimidad?: new_agenda_list[i].unanimity
+    datatype: yesnoradio
+    js show if: |
+      da_val('new_agenda_list[i].approval_proposal') == true || da_val('new_agenda_list[i].approval_proposal') == false
+  - Identifica el/los accionista(s) que votaron a favor: new_agenda_list[i].voted_favor
+    datatype: object_checkboxes
+    none of the above: False
+    choices: voters
+    js show if: |
+      da_val('new_agenda_list[i].approval_proposal') == true && da_val('new_agenda_list[i].unanimity') == false
+  - Identifica el/los accionista(s) que votaron en contra: new_agenda_list[i].voted_against
+    datatype: object_checkboxes
+    none of the above: False
+    choices: voters
+    js show if: |
+      da_val('new_agenda_list[i].approval_proposal') == false && da_val('new_agenda_list[i].unanimity') == false
+validation code: |
+  if (new_agenda_list[i].approval_proposal == True and new_agenda_list[i].unanimity == False and sum(shareholder.percentage for shareholder in new_agenda_list[i].voted_favor)<=(0.50 * sum(voter.percentage for voter in voters))) or (new_agenda_list[i].approval_proposal == False and new_agenda_list[i].unanimity == False and sum(shareholder.percentage for shareholder in new_agenda_list[i].voted_against)<=(0.50 * sum(voter.percentage for voter in voters))):
+    validation_error("Los votantes no suman una mayoria")      
+section: section13
+---
+code: |
+ if new_agenda_list[i].approval_proposal == True:
+  if new_agenda_list[i].unanimity == False:
+    new_agenda_list[i].voters_against = list(set(voters) - set(new_agenda_list[i].voted_favor))
+    new_agenda_list[i].shares_favor = sum(shareholder.percentage for shareholder in new_agenda_list[i].voted_favor)
+    new_agenda_list[i].quorum_percentage_favor = (new_agenda_list[i].shares_favor/sum(voter.percentage for voter in voters))*100
+    new_agenda_list[i].votes_favor = len(new_agenda_list[i].voted_favor)
+    new_agenda_list[i].voters_favor = voters
+  if new_agenda_list[i].unanimity == True or new_agenda_list[i].votes_favor == len(voters):   
+    new_agenda_list[i].voters_favor = comma_and_list(voters)
+    new_agenda_list[i].voted_favor = comma_and_list(voters)
+    new_agenda_list[i].votes_favor = len(voters)
+    new_agenda_list[i].quorum_percentage_favor = 100
+    new_agenda_list[i].shares_favor = sum(shareholder.percentage for shareholder in voters)
+    new_agenda_list[i].voted_against =  "Ninguno"
+    new_agenda_list[i].votes_against = 0
+    new_agenda_list[i].voters_against = ""
+    new_agenda_list[i].shares_against = 0
+    new_agenda_list[i].quorum_percentage_against = 0
+    new_agenda_list[i].voted_blank =  "Ninguno"
+    new_agenda_list[i].votes_blank = 0
+    new_agenda_list[i].shares_blank = 0
+    new_agenda_list[i].quorum_percentage_blank = 0
+    new_agenda_list[i].unanimity = True
+    new_agenda_list[i].voted_favor_votes = comma_and_list(voters)
+    new_agenda_list[i].voted_against_votes = "Ninguno"
+    new_agenda_list[i].voted_against_clean = ""
+    new_agenda_list[i].against_list.there_are_any = False
+ if new_agenda_list[i].approval_proposal == False:
+  if new_agenda_list[i].unanimity == False:   
+    new_agenda_list[i].voters_favor = list(set(voters) - set(new_agenda_list[i].voted_against))
+    new_agenda_list[i].shares_against = sum(shareholder.percentage for shareholder in new_agenda_list[i].voted_against)
+    new_agenda_list[i].quorum_percentage_against = (new_agenda_list[i].shares_against/sum(voter.percentage for voter in voters))*100
+    new_agenda_list[i].votes_against = len(new_agenda_list[i].voted_against)
+    new_agenda_list[i].voters_against = voters
+    new_agenda_list[i].voted_against_clean = new_agenda_list[i].voted_against
+  if new_agenda_list[i].unanimity == True or new_agenda_list[i].votes_against == len(voters):
+    new_agenda_list[i].voters_against = comma_and_list(voters)
+    new_agenda_list[i].voted_against = comma_and_list(voters)
+    new_agenda_list[i].votes_against = len(voters)
+    new_agenda_list[i].quorum_percentage_against = 100
+    new_agenda_list[i].shares_against = sum(shareholder.percentage for shareholder in voters)
+    new_agenda_list[i].voted_favor =  "Ninguno"
+    new_agenda_list[i].votes_favor = 0
+    new_agenda_list[i].voters_favor = ""
+    new_agenda_list[i].shares_favor = 0
+    new_agenda_list[i].quorum_percentage_favor = 0
+    new_agenda_list[i].voted_blank =  "Ninguno"
+    new_agenda_list[i].votes_blank = 0
+    new_agenda_list[i].shares_blank = 0
+    new_agenda_list[i].quorum_percentage_blank = 0
+    new_agenda_list[i].voted_against_clean = voters
+    new_agenda_list[i].unanimity = True
+    new_agenda_list[i].voted_favor_votes = "Ninguno"
+    new_agenda_list[i].voted_against_votes = comma_and_list(voters)
+--- 
+question: |
+  % if new_agenda_list[i].unanimity == False and new_agenda_list[i].approval_proposal == True:
+    Identifica quien votó en contra del tema **"${str(new_agenda_list[i].proposal).lower()}"**.
+  % elif new_agenda_list[i].unanimity == False and new_agenda_list[i].approval_proposal == False:
+    Identifica quien votó a favor del tema **"${str(new_agenda_list[i].proposal).lower()}"**.  
+  % endif  
+subquestion: |
+  Los accionistas que no registren su voto como a favor o en contra serán tomados en cuenta como voto en blanco por defecto. 
+fields: 
+  - no label: new_agenda_list[i].voted_against
+    datatype: object_checkboxes
+    none of the above: False
+    choices: new_agenda_list[i].voters_against
+    required: False
+    show if:
+      code: |
+        new_agenda_list[i].approval_proposal == True and new_agenda_list[i].unanimity == False
+  - no label: new_agenda_list[i].voted_favor
+    datatype: object_checkboxes
+    none of the above: False
+    choices: new_agenda_list[i].voters_favor
+    required: False
+    #AXA
+    show if:
+      code: |
+        new_agenda_list[i].approval_proposal == False and new_agenda_list[i].unanimity == False
+  - note: |
+      Deja sin seleccionar al/los accionista(s) que votaron en blanco.
+section: section13
+---
+code: |
+  if new_agenda_list[i].approval_proposal == True and new_agenda_list[i].unanimity == False and new_agenda_list[i].votes_favor < len(voters):
+    new_agenda_list[i].votes_against = len(new_agenda_list[i].voted_against)
+    new_agenda_list[i].shares_against = sum(shareholder.percentage for shareholder in new_agenda_list[i].voted_against)
+    new_agenda_list[i].quorum_percentage_against = (new_agenda_list[i].shares_against/sum(voter.percentage for voter in voters))*100
+    new_agenda_list[i].voted_against_clean = new_agenda_list[i].voted_against
+  if new_agenda_list[i].approval_proposal == False and new_agenda_list[i].unanimity == False and new_agenda_list[i].votes_against < len(voters):
+    new_agenda_list[i].votes_favor = len(new_agenda_list[i].voted_favor)
+    new_agenda_list[i].shares_favor = sum(shareholder.percentage for shareholder in new_agenda_list[i].voted_favor)
+    new_agenda_list[i].quorum_percentage_favor = (new_agenda_list[i].shares_favor/sum(voter.percentage for voter in voters))*100
+    new_agenda_list[i].voted_against_clean = new_agenda_list[i].voted_against
+--- 
+code: |
+  if (new_agenda_list[i].approval_proposal == True and new_agenda_list[i].unanimity == False and new_agenda_list[i].votes_favor < len(voters)) or (new_agenda_list[i].approval_proposal == False and new_agenda_list[i].unanimity == False and new_agenda_list[i].votes_against < len(voters)):
+    new_agenda_list[i].voted_blank = list(set(voters) - set(new_agenda_list[i].voted_favor) - set(new_agenda_list[i].voted_against))
+    new_agenda_list[i].votes_blank = len(new_agenda_list[i].voted_blank)
+    new_agenda_list[i].shares_blank = sum(shareholder.percentage for shareholder in new_agenda_list[i].voted_blank)
+    new_agenda_list[i].quorum_percentage_blank = (new_agenda_list[i].shares_blank/sum(voter.percentage for voter in voters))*100
+  if len(new_agenda_list[i].voted_blank) == 0:
+    new_agenda_list[i].voted_blank = "Ninguno"
+--- 
+code: |  
+  if new_agenda_list[i].unanimity == False and len(new_agenda_list[i].voted_against) == 0:
+    new_agenda_list[i].voted_against_votes = "Ninguno"
+  elif new_agenda_list[i].unanimity == False and len(new_agenda_list[i].voted_against) > 0:
+    new_agenda_list[i].voted_against_votes = new_agenda_list[i].voted_against  
+  if new_agenda_list[i].unanimity == False and len(new_agenda_list[i].voted_favor) == 0:
+    new_agenda_list[i].voted_favor_votes = "Ninguno"
+  elif new_agenda_list[i].unanimity == False and len(new_agenda_list[i].voted_favor) > 0:
+    new_agenda_list[i].voted_favor_votes = new_agenda_list[i].voted_favor
+  if new_agenda_list[i].votes_against == 0:
+    new_agenda_list[i].against_list.there_are_any = False     
+---
+question: |
+  Así quedaron los votos sobre el tema **"${str(new_agenda_list[i].proposal).lower()}"**.
+subquestion: |
+  ### A favor
+
+  * Votantes: ${new_agenda_list[i].voted_favor_votes}
+  * Nùmero de votos: ${new_agenda_list[i].votes_favor}
+  * Acciones: ${new_agenda_list[i].shares_favor} 
+  * Porcentaje de los asistentes: ${round(new_agenda_list[i].quorum_percentage_favor,3)}%
+  
+  ### En contra:
+  
+  * Votantes: ${new_agenda_list[i].voted_against_votes}
+  * Nùmero de votos: ${new_agenda_list[i].votes_against}
+  * Acciones: ${new_agenda_list[i].shares_against}
+  * Porcentaje de los asistentes: ${round(new_agenda_list[i].quorum_percentage_against,3)}%
+
+  ### En blanco:
+  
+  * Votantes: ${comma_and_list(new_agenda_list[i].voted_blank)}
+  * Nùmero de votos: ${new_agenda_list[i].votes_blank}
+  * Acciones: ${new_agenda_list[i].shares_blank}
+  * Porcentaje de los asistentes: ${round(new_agenda_list[i].quorum_percentage_blank,3)}%
+
+field: new_agenda_list[i].votes
+section: section13
+---
+question: |
+  ¿Quieres dejar en el acta las razones de los votos en contra de la propuesta "${str(new_agenda_list[i].proposal).lower()}"?
+yesno: new_agenda_list[i].against_list.there_are_any
+section: section13
+---
+question: |
+  Registra las razones de los accionista que votaron en contra del punto "${str(new_agenda_list[i].proposal).lower()}"
+fields:
+  - Accionista: new_agenda_list[i].against_list[j].shareholder
+    code: |
+      new_agenda_list[i].voted_against_clean
+  - ¿Cuál fue la razón para el voto negativo?: new_agenda_list[i].against_list[j].reason
+    input type: area
+list collect:  
+  label: |
+    ${comment_name} ${(i+1)}:
+section: section13
+---
+question: |
+  ¿Quieres adicionar las razones de voto en contra de otro accionista?
+yesno: new_agenda_list[i].against_list.there_is_another
+section: section13
+---
+question: |
+  Estos son los accionistas que votaron en contra y sus razones:
+subquestion: |
+
+  % for item in new_agenda_list[i].against_list :
+    * **Accionista:** ${ title_case(str(item.shareholder).lower()) }[BR] 
+      **Razon:** ${ capitalize(str(item.reason).lower()) }
+  % endfor
+field: new_agenda_list[i].against_list[j].summary  
+section: section13
+---
+question: |
+  ¿Vas a adicionar otro tema adicional? 
+subquestion: |
+  % if len([point.proposal for point in new_agenda_list.complete_elements() if point.in_announcement == True ]) > 0:
+
+  ### Se agregarán al Orden del Día:
+  
+  % for item in new_agenda_list:
+    % if item.in_announcement == True:
+  * ${ capitalize(str(item.proposal).lower()) }
+    % endif
+  % endfor 
+  % endif 
+
+  % if len([point.proposal for point in new_agenda_list.complete_elements() if point.in_announcement == False ]) > 0:
+
+  ### Se agregarán en Proposiciones y Varios:
+
+  % for item in new_agenda_list: 
+    %if item.in_announcement == False:
+  * ${ capitalize(str(item.proposal).lower()) }
+    % endif
+  % endfor 
+  % endif 
+
+yesno: new_agenda_list.there_is_another
+section: section13
+---
+mandatory: True
+code: |
+  others_number = len([point.proposal for point in new_agenda_list.complete_elements() if point.in_announcement == False ])
+---
+question: |
+  Estos son los temas que se adicionarán al acta de la reunión:
+subquestion: |
+  % if len([point.proposal for point in new_agenda_list.complete_elements() if point.in_announcement == True ]) > 0:
+
+  Se agregarán al Orden del Día:
+  
+  % for item in new_agenda_list:
+    % if item.in_announcement == True:
+  * ${ capitalize(str(item.proposal).lower()) }
+    % endif
+  % endfor 
+  % endif 
+
+  % if len([point.proposal for point in new_agenda_list.complete_elements() if point.in_announcement == False ]) > 0:
+
+  Se agregarán en Proposiciones y Varios:
+
+  % for item in new_agenda_list: 
+    %if item.in_announcement == False:
+  * ${ capitalize(str(item.proposal).lower()) }
+    % endif
+  % endfor 
+  % endif 
+continue button field: new_agenda_list.reviewed
+section: section13
+progress: 95
+---
+mandatory: True
+question: |
+  ¿A qué hora se terminó la Asamblea Ordinaria?
+fields:
+  - no label: end_time
+    datatype: time
+section: section15
+progress: 99
+---
+mandatory: true
+code: |
+  if 'price' in url_args:
+    price = currency(url_args['price'], decimals= False)
+  else:
+    price = '$0'
+  files_saved = save_files(the_document, 'Acta de Asamblea Ordinaria SAS', True, user_info().session)
+  juzto_callback = get_callback_final_screen(price, files_saved, 'Acta de Asamblea Ordinaria SAS', True)
+---
+attachment:
+  variable name: the_document
+  docx template file: IT_FG_200520_V1.0_Acta_Asamblea_Reunion_Ordinaria_SAS.docx
+---
+event: final_screen
+mandatory: true
+progress: 100
+question: |
+  ${ z_text_final_screen }
+attachment:
+  name: Acta asamblea ordinaria
+  filename: Acta asamblea ordinaria
+  docx template file: IT_FG_200520_V1.0_Acta_Asamblea_Reunion_Ordinaria_SAS.docx
+  update references: True
+  valid formats:
+    - pdf
+    - docx
+id: juzto_da_final
+allow emailing: False
+back button: False
+---

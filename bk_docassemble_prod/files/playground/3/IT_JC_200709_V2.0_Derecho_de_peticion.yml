@@ -1,0 +1,715 @@
+metadata:
+  title: |
+   Derecho De Petición
+  short title: |
+    Derecho de petición
+  description: |
+   Derecho de petición
+  authors:
+    - name: Julian Morera
+      organization: juzto.co
+    - name: Juan David Castilla
+      organization: juzto.co
+  revision_date: 2020-07-23
+---
+auto terms:
+  Documento: |
+    Es cualquier escrito, imagen, correo electrónico, video, etc que puede ser una prueba a tu favor
+---
+features:
+  navigation: True
+  progress bar: True
+  show progress bar percentage: True
+  hide standard menu: False
+  hide navbar: True
+  question back button: True
+---
+default screen parts:
+  under: |
+    % if show_save_resume_message:
+    [Guardar y terminar después](${ url_action('save_and_resume') })
+    % endif
+    [Volver a comenzar](${ url_action('restart_interview') })    
+---
+event: restart_interview
+code: |
+  force_ask('wants_to_restart', {'recompute': ['restart_done']})
+---
+question: |
+  ¿Estás seguro de querer reiniciar tu ${ all_variables(special='titles')['full'] }?
+subquestion: |
+  La información que ya hallas ingresado se perdera, tendras que volver a ingresar todas las respuestas.
+field: wants_to_restart
+buttons:
+  - Si, eliminar datos ingresados: True
+back button label: No gracias, continuar mi documento
+under: ""
+---
+code: |
+  if wants_to_restart:
+    command('restart')
+  restart_done = True
+---
+include:
+  - docassemble.playground3:autoterms.yml
+---
+modules:
+  - docassemble.playground3.juztoModules
+  - docassemble.playground3.juztoListChoices
+---
+initial: True
+code: |
+  multi_user = True
+  show_save_resume_message = True
+  #the_sections = [{'intro':'Introducción'}]
+  the_sections = [{'answer':'Empresa o entidad que debe responder'}]
+  the_sections.append({'data_person':'Datos de la persona que firma'})
+  the_sections.append({'dates':'Fecha del derecho de petición'})
+  the_sections.append({'motive':'Motivo(s) del derecho de petición'})
+  the_sections.append({'requests':'Solicitud(es) del derecho de petición'})
+  the_sections.append({'additional':'Documentos adicionales'})
+  the_sections.append({'sign':'Firma del documento'})
+  the_sections.append({'confirmation':'Confirmación de los datos'})
+  nav.set_sections(the_sections)
+---
+mandatory: True
+scan for variables: False
+code: |
+  if target == 'save_and_resume':
+    if wants_email:
+      show_save_resume_message = False
+    undefine('wants_email')
+    undefine('email_sent')
+    target = 'normal'  
+  company_or_entity_name
+  entity_type
+  send_method
+  client_type
+  date_presentation
+  facts.gather()
+  facts.reviewed
+  request.gather()
+  request.reviewed
+  if attachments.there_are_any == True:
+    attachments.gather()
+    attachments.reviewed
+  do_sign
+  if do_sign == True:
+    sign_method
+    sign_file
+  answers_reviewed
+  final_screen
+#start_question
+#agrees_to_terms
+---
+event: answer
+section: answer
+question: |
+  Empresa o entidad que debe responder
+review:
+  - Editar: company_or_entity_name
+    button: |
+      ** Nombre de la entidad a quien se le presenta el derecho: **${ title_case(company_or_entity_name.lower()) }[BR]
+      ** Tipo de entidad: **${entity_type}
+  - Editar: send_method
+    button: |
+      % if send_method == 'address':
+      ** Se enviara el derecho de pectión a la siguiente ciudad y dirección: ** ${ filing_city }, ${ filing_address }
+      % else:
+      ** Se enviara el derecho de pectión al correo: ** ${ email }
+      % endif
+---
+event: data_person
+section: data_person
+question: |
+  Datos de la persona que firma
+review:
+  - Editar: client_type
+    button: |
+      ${ client_type }[BR]
+      % if client_type == 'Persona Jurídica':
+      **Nombre de la persona jurídica: **${ title_case(complaining_company.lower()) }[BR]
+      **Nit: **${ generateNit(complaining_id_number) }[BR]
+      **Nombre(s) del representante legal: **${ title_case(str(legal.name).lower()) }[BR]
+      **Número de identificación: **${legal_representative_type_id}. ${ legal_representative_id_number.upper() }[BR]
+      % else:
+      **Nombre(s) de la persona: **${ title_case(str(complaining.name).lower()) }[BR]
+      **Número de identificación: **${ complaining_type_id }. ${ complaining_id_number.upper() }[BR]
+      % endif
+---
+event: dates
+section: dates
+question: |
+  Fecha del derecho de petición
+review:
+  - Editar: date_presentation
+    button: |
+      **Fecha en la que se presentara el derecho de petición: **${ date_presentation }
+---
+event: motive
+section: motive
+question: |
+  Motivo(s) del derecho de petición
+review:
+  - Editar: facts.reviewed
+    button: |
+      **Motivos o razones**
+      
+      % for item in facts:
+      * ${ item.name }[BR]
+      % endfor
+---
+event: requests
+section: requests
+question: |
+  Solicitud(es) del derecho de petición.
+review:
+  - Editar: request.reviewed
+    button: |
+      **Solicitudes**
+      
+      % for item in request:
+      * ${ item.name }
+      % endfor
+---
+event: additional
+section: additional
+question: |
+  Documentos adicionales
+review:
+  - Editar: attachments.there_are_any
+    button: |
+      % if attachments.there_are_any == True:
+        **Documentos**
+        
+        % for item in attachments:
+        * ${ item.title }
+        % endfor
+      % else:
+        No agregaste ningun documento puedes editar para adjuntar uno.
+      % endif
+---
+event: sign
+section: sign
+question: |
+  Firma del documento
+review:
+  - label: Editar
+    fields:
+      - do_sign
+      - follow up:
+        - sign_method
+        - sign_file
+    button: |
+      % if do_sign:
+      Haz contestado que quieres poner la firma de ${title_case(str(complaining.name).lower()) if client_type == 'Persona Natural' else title_case(str(legal.name).lower())} en el documento.[BR]
+      **Firma:** [BR]
+      ${sign_file}
+      % else:
+      Haz contestado que no deseas firmar el documento
+      % endif
+#---
+#question: |
+#  Ahora empezaremos a crear tu derecho de petición.
+#subquestion: |
+#  Este documento sirve para hacer solicitudes y peticiones a diferentes entidades públicas o privadas. Una vez elaborado y radicado se podrá obtener información y respuesta sobre situaciones personales o generales. Las solicitudes hechas con un derecho de petición deben responderse dentro de los quince (15) días siguientes.[BR][BR]
+#  Para tu  tranquilidad, este es un documento de gran calidad, preparado por abogados expertos. Pasos por seguir:[BR][BR]
+#    1.	Responde todas las preguntas que te haremos. Estas preguntas han sido preparadas por abogados con mucha experiencia en este tipo de documentos. [BR]
+#        Cada respuesta cambia el contenido del documento y lo ajusta a tu caso concreto. [BR][BR]
+#    2.	Queremos que lo entiendas todo. En cada pregunta encontrarás explicaciones hechas por nuestros abogados.[BR]
+#        Las palabras complicadas estarán subrayadas en azul y en un color diferente, también podrán llevar      un signo de interrogación. Haz clic sobre la palabra o el signo de interrogación para leer la explicación. [BR][BR]
+#    3.	Al terminar      tendrás un documento hecho especialmente para ti, construido con base en tus respuestas. Además podrás comprender todos los conceptos del documento con claridad. Entenderás lo que vas a firmar.[BR][BR]
+#  Si tienes alguna duda adicional puedes <a href="https://juzto.co/asesoria-legal/consulta-abogado/" target="_blank" class="linkjzda">programar una cita con uno de nuestros abogados.</a>[BR][BR]
+#  Gracias por elegir Juzto, empecemos.
+#continue button field: start_question
+#prevent going back: True
+#under: ""
+#secction: intro
+#---
+#question: |
+#  Para tu derecho de petición debes tener lista la siguiente información:
+#subquestion: |
+#  -	Nombre, número de identificación y dirección de residencia de quien hace la petición.
+#  -	Nombre, correo electrónico y dirección de la entidad a la que se hace la petición.
+#  -	Petición o información que quiere solicitarse y documentos relacionados con la petición.
+#fields:
+#  - no label: agrees_to_terms
+#    datatype: checkboxes
+#    default: "Acepto <a href='https://juzto.co/politica-tratamiento-datos/' target='_blank' class='linkjzdadark'>el tratamiento de los datos personales</a>."
+#    minlength: 1
+#    choices:
+#      - "Acepto <a href='https://juzto.co/politica-tratamiento-datos/' target='_blank' class='linkjzdadark'>el tratamiento de los datos personales</a>."
+#    validation messages:
+#      minlength: |
+#        Debes aceptar el tratamiento de los datos personales para pode continuar.
+#section: intro
+#under: ""
+---
+undefine:
+  - company_or_entity_name
+  - entity_type
+question: |
+  ¿Contra quién presentas el derecho de petición?
+fields:
+  - Nombre de la empresa o entidad que debe responder: company_or_entity_name
+    hint: Banco AV Villas
+  - Esta empresa o entidad es: entity_type
+    input type: radio
+    choices:
+      - Pública
+      - Privada
+      - No sé
+section: answer
+proggress: 12
+---
+need:
+  - company_or_entity_name
+question: |
+  ¿A dónde le vas a enviar el derecho de petición a ${ company_or_entity_name }?
+fields:
+  - no label: send_method
+    input type: radio
+    required: False
+    choices:
+      - A una dirección física: address
+      - A un correo electrónico: emails
+  - Ciudad: filing_city
+    code: get_cities()
+    show if:
+      variable: send_method
+      is: address
+  - Dirección: filing_address
+    hint: Dirección de radicación Cra 1 No 12-3
+    show if:
+      variable: send_method
+      is: address
+  - Correo Electrónico: email
+    hint: correodelaentidad@gmail.com
+    show if:
+      variable: send_method
+      is: emails
+section: answer
+proggress: 24
+---
+objects:
+  - complaining: Individual
+  - legal: Individual
+---
+question: |
+  El derecho de petición va a ser firmado por:
+subquestion: |
+  Cuéntanos si eres una persona natural o una persona jurídica.
+fields: 
+  - no label: client_type
+    input type: radio
+    code: get_list('type_j')
+  - Nombre(s): complaining.name.first
+    hint: Juan
+    show if:
+      variable: client_type
+      is: Persona Natural
+  - Apellido(s): complaining.name.last
+    hint: López Perez
+    show if:
+      variable: client_type
+      is: Persona Natural
+  - Nombre de la compañia: complaining_company
+    hint: Soluciones Legales a la medida S.A.S.
+    show if:
+      variable: client_type
+      is: Persona Jurídica
+  - Tipo de identificación: complaining_type_id
+    datatype: dropdown
+    code: get_list_dni('N')
+    show if:
+      variable: client_type
+      is: Persona Natural
+  - Número de identificación: complaining_id_number
+    hint: dni
+    show if:
+      variable: client_type
+      is: Persona Natural
+  - NIT: complaining_id_number
+    hint: nit
+    show if:
+      variable: client_type
+      is: Persona Jurídica
+  - Correo electrónico: complaining_notification_email
+    hint: juanperezgomez@gmail.com
+    js show if: |
+      da_val('client_type') == "Persona Natural" ||  da_val('client_type') == "Persona Jurídica"     
+  - Ciudad: city
+    datatype: dropdown
+    code: get_cities()
+    js show if: |
+      da_val('client_type') == "Persona Natural" ||  da_val('client_type') == "Persona Jurídica"  
+  - Dirección: complaining_notification_adress
+    hint: 'Calle 122 # 17 - 29 Oficina 302'
+    js show if: |
+      da_val('client_type') == "Persona Natural" ||  da_val('client_type') == "Persona Jurídica"  
+  - Nombre(s) del representante legal: legal.name.first
+    hint: David
+    show if:
+      variable: client_type
+      is: Persona Jurídica
+  - Apellido(s) del representante legal: legal.name.last
+    hint: Perez
+    show if:
+      variable: client_type
+      is: Persona Jurídica
+  - Tipo de identificación: legal_representative_type_id
+    datatype: dropdown
+    code: get_list_dni('N')
+    show if:
+      variable: client_type
+      is: Persona Jurídica
+  - Número de identificación: legal_representative_id_number
+    hint: dni
+    show if:
+      variable: client_type
+      is: Persona Jurídica
+section: data_person
+proggress: 36
+---
+code: |
+  if client_type == "Persona Natural":
+    legal.name.first = ''
+    legal.name.last = ''
+  else:
+    complaining.name.first = ''
+    complaining.name.last = ''
+---
+question: |
+  ¿Cuándo vas a presentar el derecho de petición?
+fields:
+  - no label: date_presentation
+    datatype: date
+section: dates
+proggress: 48
+---
+objects: 
+  - facts: DAList.using(object_type=DAObject, complete_attribute='complete')
+---
+code: |
+ facts[i].name
+ facts[i].complete = True
+---
+table: facts.table
+rows: facts
+columns:
+  - Motivos o razones: row_item.name
+edit:
+  - name
+---
+code: |
+  facts.there_are_any = True
+  facts.there_is_another = False
+---
+question: |
+  ¿Por qué vas a presentar el derecho de petición?
+fields: 
+  - no label: facts[i].name
+    datatype: area
+    hint: "Por ejemplo: El cobro del servicio público de agua es excesivo"
+#    hint: ejemplo Suspensión de un servicio (Ingresar solo uno a la vez.)
+#  - note: |
+#      Por ejemplo: El cobro del servicio público de agua es excesivo
+list collect: 
+  label: |
+    ${ petition } ${ i+1 }
+section: motive
+proggress: 60
+---
+code: |
+  petition = "Motivo o razón"
+---
+question: |
+  Estas son las razones del derecho de petición que describiste. Por favor verifica, modifica o agrega una nueva
+subquestion: |
+  ${ facts.table }
+  ${ facts.add_action() }
+section: motive
+continue button field: facts.reviewed
+proggress: 60
+---
+objects:
+  - request: DAList.using(object_type=DAObject, complete_attribute='complete')
+---
+code: |
+ request[i].name
+ request[i].complete = True
+---
+table: request.table
+rows: request
+columns: 
+  - Solicitudes: row_item.name
+edit:
+  - name
+---
+code: |
+  request.there_are_any = True
+  request.there_is_another = False
+---
+question: |
+  ¿Qué le quieres pedir a ${ company_or_entity_name.upper() }?
+subquestion: |
+  Escribe tus solicitudes del derecho de petición
+fields:
+  - no label: request[i].name
+    datatype: area
+    hint: Ingresa una solicitud a la vez
+list collect: 
+  label: |
+    ${ application } ${ i+1 }
+section: requests
+proggress: 72
+---
+code: |
+  application = "Solicitud"
+---
+question: |
+  Estas son las solicitudes del derecho de petición que escribiste. Por favor verifica, modifica o agrega otra de ser necesario.
+subquestion: |
+  ${ request.table }
+  ${ request.add_action() }
+continue button field: request.reviewed
+section: requests
+proggress: 72
+---
+objects:
+  - attachments: DAList.using(object_type=DAObject, complete_attribute='complete')
+  - exhibit_cover: DAList
+---
+code: |
+  attachments[i].title
+  attachments[i].file
+  attachments[i].complete = True
+---
+table: attachments.table
+rows: attachments
+columns:
+  - Anexo: alpha(row_index)
+  - Documentos: row_item.title
+edit:
+  - title
+---
+question: |
+  ¿Quieres presentar un documento que ayude a soportar tu petición?
+yesno: attachments.there_are_any
+section: additional
+proggress: 84
+---
+question: |
+  Sube el ${ get_ordinal('male', i) } documento. 
+fields:
+  - Nombre del documento: attachments[i].title
+  - Archivo: attachments[i].file
+    datatype: file
+    accept: |
+      "application/pdf, image/jpeg, image/png"
+section: additional
+proggress: 84
+---
+question: |
+  ¿Quieres agregar más documentos?
+yesno: attachments.there_is_another
+section: additional
+proggress: 84
+---
+question: |
+  Estos son los documentos que subiste.
+subquestion: |
+  ${ attachments.table }
+  ${ attachments.add_action() }
+continue button field: attachments.reviewed
+section: additional
+proggress: 84
+---
+code: |
+  file_list = [cover_page.pdf]
+  for indexno in range(len(attachments)):
+    file_list.append(exhibit_cover[indexno].pdf)
+    file_list.append(attachments[indexno].file[0])
+  the_document = pdf_concatenate(file_list)
+---
+question: |
+  ¿Quieres firmar el derecho de petición?
+fields:
+  - no label: do_sign
+    datatype: yesnoradio
+  - ¿Cómo deseas firmar?: sign_method
+    input type: radio
+    choices:
+      - Subir imagen de la firma: sign_upload
+      - Hacer la firma en la pantalla o con el mouse: sign_screen
+    show if:
+      variable: do_sign
+      is: True
+section: sign
+progress: 92
+---
+depens on:
+  - do_sign
+  - sign_method
+if: do_sign == True and sign_method == 'sign_upload'
+question: |
+  Sube tu firma en formato de imagen
+fields:
+  - no label: sign_file
+    datatype: file
+section: sign
+progress: 92
+---
+depens on:
+  - do_sign
+  - sign_method
+if: do_sign == True and sign_method == 'sign_screen'
+question: |
+  Haz la firma en el recuadro
+signature: sign_file
+section: sign
+progress: 92
+---
+question: |
+  En esta pantalla puedes revisar tus respuestas
+review:
+  - note: |
+      ### Empresa o entidad que debe responder
+  - Editar: company_or_entity_name
+    button: |
+      ** Nombre de la entidad a quien se le presenta el derecho: **${ title_case(company_or_entity_name.lower()) }[BR]
+      ** Tipo de identidad: **${entity_type}
+  - Editar: send_method
+    button: |
+      % if send_method == 'address':
+      ** Se enviara el derecho de pectión a la siguiente ciudad y dirección: ** ${ filing_city }, ${ filing_address }
+      % else:
+      ** Se enviara el derecho de pectión al correo: ** ${ email }
+      % endif
+  - note: |
+      ***********
+      ### Datos de la persona que firma
+  - Editar: client_type
+    button: |
+      ${ client_type }[BR]
+      % if client_type == 'Persona Jurídica':
+      **Nombre de la persona jurídica: **${ title_case(complaining_company.lower()) }[BR]
+      **Nit: **${ generateNit(complaining_id_number) }[BR]
+      **Nombre(s) del representante legal: **${ title_case(str(legal.name).lower()) }[BR]
+      **Número de identificación: **${legal_representative_type_id}. ${ legal_representative_id_number.upper() }[BR]
+      % else:
+      **Nombre(s) de la persona: **${ title_case(str(complaining.name).lower()) }[BR]
+      **Número de identificación: **${ complaining_type_id }. ${ complaining_id_number.upper() }[BR]
+      % endif
+  - note: |
+      ***********
+      ### Fecha del derecho de petición
+  - Editar: date_presentation
+    button: |
+      **Fecha en la que se presentara el derecho de petición: **${ date_presentation }
+  - note: |
+      ***********
+      ### Motivo(s) del derecho de petición
+  - Editar: facts.reviewed
+    button: |
+
+      % for item in facts:
+      * ${ item.name }
+      % endfor
+  - note: |
+      ***********
+      ### Solicitud(es) del derecho de petición.
+  - Editar: request.reviewed
+    button: |
+
+      % for item in request:
+      * ${ item.name }
+      % endfor
+  - note: |
+       ***********
+       ### Documentos adicionales
+  - Editar: attachments.there_are_any
+    button: |
+      % if attachments.there_are_any == True:
+
+        % for item in attachments:
+        * ${ item.title }
+        % endfor
+      % else:
+        No agregaste ningun documento puedes editar para adjuntar uno.
+      % endif
+  - note: |
+      ***********
+      ### Firma del documento
+  - label: Editar
+    fields:
+      - do_sign
+      - follow up:
+        - sign_method
+        - sign_file
+    button: |
+      % if do_sign:
+      Haz contestado que quieres poner la firma de ${title_case(str(complaining.name).lower()) if client_type == 'Persona Natural' else title_case(str(legal.name).lower())} en el documento.[BR]
+      **Firma:** [BR]
+      ${sign_file}
+      % else:
+      Haz contestado que no deseas firmar el documento
+      % endif
+  - note: |
+      ***********
+continue button field: answers_reviewed
+section: confirmation
+progress: 99
+---
+code: |
+  if 'price' in url_args:
+    priceDoc = currency(url_args['price'], decimals= False)
+  else:
+    priceDoc = '$0'
+  files_saved = save_files(the_document, 'derecho de peticion', True, user_info().session)
+  juzto_callback = get_callback_final_screen(priceDoc, files_saved, 'derecho de peticion', True)
+---
+reconsider: the_document 
+mandatory: True
+progress: 100
+event: final_screen
+question: |
+  ${ z_text_final_screen }
+subquestion: |
+  ${ juzto_callback }
+allow emailing: False
+back button: False
+under: ""
+---
+attachment:
+  variable name: the_document
+  docx template file: IT_JC_200723_V.2.0_derecho_de_peticion.docx
+---
+event: save_and_resume
+code: |
+  target = 'save_and_resume'
+  wants_email = True
+---
+code: |
+  if 'url' in url_args:
+    _url = url_args['url']+'?i='+encode_name(user_info().filename)+'&session='+encode_name(user_info().session)
+  else:
+    _url = interview_url()
+  data = {'interview': all_variables(special='titles')['full'], 'url':_url}
+  send_email_juzto(data, user_email_address, 'leave')
+  email_sent = True
+---
+question: |
+  Podrás terminar luego tu ${ all_variables(special='titles')['full'] }
+subquestion: |
+  Si deseas reanudar tu documento más tarde, podemos enviarte por correo electrónico un enlace en el que puedes hacer clic para reanudar tu documento en un momento posterior.
+fields:
+  - Correo electrónico: user_email_address
+    datatype: email
+continue button label: Enviar correo
+back button label: No gracias, continuar mi documento
+under: ""
+---
+code: |
+  target = 'normal'  
+---

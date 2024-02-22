@@ -1,0 +1,106 @@
+metadata:
+  title: |
+   IT_DA_220708_V.1.0_Anexo_poder
+  short title: |
+    Anexo Poder
+  description: |
+    con este documento se agrega el número del comparendo a los poderes iniciales.
+  authors:
+    - name: Laura Pardo
+      organization: Juzto.co
+    - name: Dario Agaton
+      organization: Juzto.co
+---
+features:
+  navigation: True
+  progress bar: True
+  show progress bar percentage: True
+  hide standard menu: False
+  hide navbar: True
+  question back button: True
+---
+include:
+  - docassemble.playground3:autoterms.yml
+---
+modules:
+  - docassemble.playground3.juztoModules
+  - docassemble.playground3.juztoListChoices
+---
+initial: True
+code: |  
+  client_type
+  if client_type == "Persona Natural":
+    natural.name
+    complaining_type_id
+    complaining_id_number
+    complaining_id_number = get_dni_formated(complaining_id_number)
+  else:
+    legal.name
+    complaining_id_number = generateNit(complaining_id_number)
+  fotomulta_amount  
+  if fotomulta_amount>=1:
+    for i in range(fotomulta_amount):
+      fotomulta_number[i].name
+      fotomulta_number[i].placa
+  final_screen
+---
+objects:
+  - natural: Individual
+  - legal: Individual
+  - fotomulta_number: DAList.using(there_are_any=True, object_type=DAObject, complete_attribute='name')
+---
+question: |
+  ¿El cliente es?
+fields:
+  - no label: client_type
+    input type: radio
+    code: get_list('type_j')
+progress: 1
+---
+question: |
+  ¿Cuáles son los datos de la persona?
+fields:
+  - Nombres: natural.name.first
+    hint: Nombres
+  - Apellidos: natural.name.last
+    hint: Apellidos
+  - Tipo de identificación: complaining_type_id
+    input type: dropdown
+    code:  get_list_dni('N')
+  - Número de identificación: complaining_id_number
+    hint: dni
+id: blockglobal
+---
+question: |
+  ¿Cuáles son los datos de la compañía?
+fields:
+  - Nombre de la compañia: legal.name.first
+  - NIT: complaining_id_number
+---
+question: |
+  ¿Cuántas fotomultas hay?
+fields:
+  - no label: fotomulta_amount
+    datatype: integer
+---
+question: |
+  Digita los datos del ${ ordinal(i) } fotomulta:
+fields:
+   - Número de la fotomulta: fotomulta_number[i].name
+   - Placa del carro con esa fotomulta: fotomulta_number[i].placa
+---
+attachment:
+  variable name: the_document
+  docx template file: IT_DA_220708_V.1.0_Anexo_poder.docx
+---
+code: |
+  files_saved = save_files(the_document, 'Anexo_poder', True, user_info().session)
+  juzto_callback = get_callback_final_screen('0', files_saved, 'Anexo_poder', True)
+---
+event: final_screen
+question: |
+  ${ z_text_final_screen } - COD: ${user_info().session}
+subquestion: |
+  ${ juzto_callback }
+id: juzto_da_final
+---

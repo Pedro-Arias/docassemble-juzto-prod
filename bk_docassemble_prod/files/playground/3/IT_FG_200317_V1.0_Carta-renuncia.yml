@@ -1,0 +1,175 @@
+metadata:
+  title: |
+    Carta de renuncia
+  short title: |
+    Renuncia
+  description: |
+    Una carta de renuncia de un empleado
+  authors:
+    - name: Felipe Gómez
+      organization: juzto.co
+    - name: John Morales
+      organization: juzto.co
+  revision_date: 2020-03-17
+  continue button label: |
+    Siguiente
+---
+sections:
+  - Datos del trabajador
+  - Datos de la empresa
+---
+features:
+  navigation: True
+  progress bar: True
+  show progress bar percentage: True
+  debug: False
+  hide standard menu: False
+  hide navbar: True
+  question back button: True
+---
+include:
+  - docassemble.playground3:autoterms.yml
+---
+modules:
+  - docassemble.playground3.juztoModules
+---
+image sets:
+  freepik:
+    attribution: |
+    images:
+      Agradecido: Agradecido.svg
+      Indiferente: Indiferente.svg
+      Indignado: Indignado.svg
+---
+mandatory: True
+code: |
+  multi_user = True
+---
+question: |
+  ¿Qué sentimiento quieres que quede reflejado en tu carta?
+fields:
+  - no label: feeling
+    input type: radio
+    choices:
+      - Agradecido, ojalá nos volvamos a encontrar: agradecido
+        image: Agradecido
+        help: |
+           Esta es la versión que recomendamos, nunca sobra dejar las puertas abiertas.
+      - Indiferente, me da igual haber trabajado ahí: indiferente
+        image: Indiferente
+      - Indignado, espero no verlos más: indignado
+        image: Indignado
+section: Datos del trabajador
+progress: 1
+mandatory: true
+prevent going back: True
+---
+mandatory: |
+  feeling == 'indignado'
+question: |
+  ¿Qué hace que te vayas disgustado de la empresa?
+id: waitforme  
+fields:
+  - Que tuviste problemas con alguien: problem_with
+    datatype: yesno
+  - no label: subject_of_conflict
+    hint: ¿Con quien?
+    show if: problem_with
+  - Falta de oportunidades de crecimiento: opportunities
+    datatype: yesno
+  - Desorden y falta de claridad en la organizacion: order_lack
+    datatype: yesno
+  - Otro: other_problem
+    datatype: yesno
+  - no label: the_problem
+    hint: ¿Cuál es el otro motivo?
+    input type: area
+    show if: other_problem
+progress: 5    
+---
+code: |
+  reason = list()
+  if problem_with == True:
+    reason.append('las diferencias irreconciliables de criterio que existen con '+ subject_of_conflict)
+  if opportunities == True:
+    reason.append('la imposibilidad de crecer personal y/o profesionalmente dentro de su organización')
+  if order_lack == True:
+    reason.append('la falta de claridad y coherencia en las directrices que recibimos los empleado')
+  if other_problem == True:
+    reason.append(the_problem)  
+  realreason = ", ".join(reason)
+---
+question: |
+  ¿Cuáles son los datos del empleado que quiere renunciar?
+fields:
+  - Nombre completo: employee_name
+    hint: 'Nombre(s) y Apellido(s)'
+  - E-mail: employee_mail
+    hint: 'ejemplo@mail.com'
+    datatype: email
+  - Tipo de documento de identidad: employee_id_type
+    datatype: dropdown
+    code: get_list_dni('N')
+  - Numero de documento: employee_id_number
+    hint: dni
+  - ¿En qué ciudad vive el empleado?: city
+    datatype: dropdown
+    code: get_cities()  
+mandatory: True
+section: Datos del trabajador
+progress: 30
+---
+question: |
+  ¿En qué fecha será presentada esta carta de renuncia?
+fields:
+  - no label: date_presentation
+    datatype: date
+mandatory: True
+section: Datos del trabajador
+progress: 45
+---
+question: |
+  ¿Hasta qué día trabajará el empleado?
+fields:
+  - no label: last_day_work
+    datatype: date
+mandatory: True
+section: Datos del trabajador
+progress: 60
+---
+question: |
+  ¿Cuáles son los datos de la empresa a la que presentarás la carta de renuncia?
+fields:
+  - Nombre de la empresa: company_name
+    hint: 'Razón social'
+  - Nombre completo del jefe: boss_name
+    hint: 'Nombre(s) y Apellido(s)'  
+  - Dirección de la empresa: company_adress
+    hint: 'Calle 122 # 17 - 29 Oficina 302'
+mandatory: True
+section: Datos de la empresa
+progress: 75
+---
+mandatory: true
+code: |
+  if 'price' in url_args:
+    price = currency(url_args['price'], decimals= False)
+  else:
+    price = '$0'
+  files_saved = save_files(the_document, 'carta de renuncia', True, user_info().session)
+  juzto_callback = get_callback_final_screen(price, files_saved, 'carta de renuncia', True)
+---
+attachment:
+  variable name: the_document
+  docx template file: IT_FG_200311V1.0_carta_renuncia_voluntaria_irrevocable.docx
+---
+event: final_screen
+mandatory: true
+progress: 100
+question: |
+  ${ z_text_final_screen }
+subquestion: |
+  ${ juzto_callback }
+id: dajuzto_finalscreen  
+allow emailing: False
+back button: False

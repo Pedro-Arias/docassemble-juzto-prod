@@ -1,0 +1,56 @@
+    tar -czvf /bk_docassemble_dev.tar.gz files
+
+bk_docassemble_dev.tar.gz
+
+sudo docker cp 3c4652cf5400:/bk_docassemble_dev.tar.gz /home/ec2-user/
+sudo docker cp d19463c7c72b:/bk_docassemble_prod.tar.gz /home/ec2-user/
+
+sudo docker cp /home/ec2-user/*.zip 3c4652cf5400:/usr/share/docassemble/files/
+scp -i JuztoDocassemble.pem ec2-user@ec2-3-234-131-84.compute-1.amazonaws.com:/backupInterviews/backupDevelopment.zip ~/Desktop
+scp -i JuztoDocassemble.pem ec2-user@ec2-3-234-131-84.compute-1.amazonaws.com:/home/ec2-user/bk_docassemble_dev.tar.gz ~/Desktop
+scp -i juztoDAPRO.pem ec2-user@ec2-52-54-123-87.compute-1.amazonaws.com:/home/ec2-user/bk_docassemble_prod.tar.gz ~/Desktop
+
+
+  574  psql -V
+  575  sudo psql
+  576  mysql
+  577  psql -v
+  578  make
+  579  psql --version
+  580  sudo psql -U postgres
+  581  psql -u postgres
+  582  psql --help
+  583  psql -l
+  584  psql -h
+  585  psql -U postgres -h localhost
+  586  psql -U postgres -W -h localhost docajuzto < ~/Downloads/docassembedev_bk_30_08_22.sql
+  587  psql -U postgres -W -h localhost
+  588  psql -U postgres -W -h localhost docajuzto
+  589  sudo -U postgres
+  590  pg_dump --table=calendar --data-only --column-inserts docajuzto > data.sql
+  591  sudo pg_dump -U postgres -W --table=calendar --data-only --column-inserts docajuzto > data.sql
+  592  cat /etc/passwd | cut -d":" -f1
+  593  pg_dump -u postgres docajuzto --table=calendar --data-only --column-inserts > calendar.sql
+  594  pg_dump -U postgres docajuzto --table=calendar --data-only --column-inserts > calendar.sql
+  595  psql -U postgres docajuzto
+  596  su postgres
+  597  sudo -U postgres psql
+  598  psql
+  599  psql -U postgres
+  600  sudo -u postgres psql
+  601  psql docajuzto
+  602  pg_dump
+  603  pg_dump --table=calendar --data-only --column-inserts docajuzto > calendar.sql
+  604  vim data.sql
+  605  rm -r data.sql
+  606  vim calendar.sql
+  607  psql dt;
+  608  pg_dump --table=cities --data-only --column-inserts docajuzto > cities.sql
+  609  pg_dump --table=dnigroups --data-only --column-inserts docajuzto > dnigroups.sql
+  610  pg_dump --table=dnitypegroup --data-only --column-inserts docajuzto > dnitypegroup.sql
+  611  pg_dump --table=dnitypesq --data-only --column-inserts docajuzto > dnitypesq.sql
+  612  psql docajuzto dt;
+  613  psql docajuzto;
+  614  pg_dump --table=dnitypes --data-only --column-inserts docajuzto > dnitypes.sql
+  615  rm -r dnitypesq.sql
+

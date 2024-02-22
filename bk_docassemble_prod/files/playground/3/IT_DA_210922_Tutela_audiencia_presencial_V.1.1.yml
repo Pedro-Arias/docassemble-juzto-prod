@@ -1,0 +1,149 @@
+metadata:
+  title: |
+   Tutela por audiencia presencial 
+  short title: |
+    Tutela audiencia presencial 
+  description: |
+   Con este documento hacemos hacemos que nos den audiencia virtual.
+  authors:
+    - name: Laura Pardo
+      organization: Juzto.co
+    - name: Juan David Castilla
+      organization: Juzto.co
+---
+features:
+  navigation: True
+  progress bar: False
+  show progress bar percentage: True
+  hide standard menu: False
+  hide navbar: True
+  question back button: True
+---
+include:
+  - docassemble.playground3:autoterms.yml
+---
+modules:
+  - docassemble.playground3.juztoModules
+  - docassemble.playground3.juztoListChoices
+---
+initial: True
+code: |
+  client_type
+  if client_type == "Persona Natural":
+    natural.name
+    complaining_type_id
+    complaining_id_number
+    complaining_id_number = get_dni_formated(complaining_id_number)
+  else:
+    legal.name
+    complaining_id_number
+    legal_representative_name
+    legal_representative_type_id
+    legal_representative_id_number
+    legal_representative_id_number = get_dni_formated(legal_representative_id_number)
+    complaining_id_number = generateNit(complaining_id_number)
+  fotomulta_number
+  date_presentation
+  company_or_entity_name
+  filing_city
+  if filing_city in ["Bugalagrande", "Choconta", "Sabaneta"]:
+    user_location
+  Signature ="{{Signature:Recipient1*}}"
+  ouremail  = 'juzgados+'+case_number+'@juzto.co'
+  final_screen
+---
+objects:
+  - natural: Individual
+  - legal: Individual
+---
+question: |
+  ¿El cliente es persona o empresa?
+fields:
+  - no label: client_type
+    input type: radio
+    code: get_list('type_j')
+---
+question: |
+  ¿Cuáles son los datos de la persona?
+fields:
+  - Nombres: natural.name.first
+    hint: Nombres
+  - Apellidos: natural.name.last
+    hint: Apellidos
+  - Tipo de identificación: complaining_type_id
+    input type: dropdown
+    code:  get_list_dni('N')
+  - Número de identificación: complaining_id_number
+    hint: dni
+id: blockglobal
+---
+question: |
+  ¿Cuáles son los datos de la compañía?
+fields:
+  - Nombre de la compañia: legal.name.first
+  - NIT: complaining_id_number
+    #hint: nit
+  - Nombre del representate legal: legal_representative_name
+  - Tipo de identificación: legal_representative_type_id
+    input type: dropdown
+    code:  get_list_dni('N')
+  - Número de identificación: legal_representative_id_number
+    #hint: dni
+id: blockglobal
+---
+question: |
+  ¿Cuál es el número de la fotomulta? 
+fields:
+  - Numero: fotomulta_number
+---
+question: |
+  ¿Cuándo solicitaste la audiencia?
+fields:
+  - no label: date_presentation
+    datatype: date
+---
+question: |
+  ¿Cuáles son los datos de la entidad?
+fields:
+  - nombre: company_or_entity_name
+  - email: email
+    datatype: email
+  - email: email2
+    datatype: email
+  - email: email3
+    datatype: email
+  - email: email4
+    datatype: email
+  - ciudad: filing_city
+    input type: dropdown
+    code: get_cities()
+---
+question: |
+  ¿Cuál es la dirección del usuario?
+fields:
+  - Nombre de la compañia: user_location
+---
+question: |
+  ¿Cuál es la línea de defensa a la que corresponde este documento? Ejemplo: LD-780
+fields:
+  - no label: case_number
+---
+question: |
+  ¿La audiencia se realizará en los próximos 5 a 10 días?
+yesno: audience
+---
+attachment:
+  variable name: the_document
+  docx template file: IT_DA_210922_Tutela_audiencia_presencial_V.1.1.docx
+---
+code: |
+  files_saved = save_files(the_document, 'Tutela_audiencia_presencial', True, user_info().session)
+  juzto_callback = get_callback_final_screen('0', files_saved, 'Tutela_audiencia_presencial', True)
+---
+event: final_screen
+question: |
+  ${ z_text_final_screen } - COD: ${user_info().session}
+subquestion: |
+  ${ juzto_callback }
+id: juzto_da_final
+---

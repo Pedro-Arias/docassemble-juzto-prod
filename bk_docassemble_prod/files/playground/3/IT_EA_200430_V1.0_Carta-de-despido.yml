@@ -1,0 +1,225 @@
+metadata:
+  title: |
+    Carta de despido
+  short title: |
+    Carta despido
+  description: |
+    Carta para que la empresa le de a conocer al trabajador la decisión de terminar el contrato de trabajo.
+  authors:
+    - name: Juan David
+      organization: Programador
+    - name: Edna Avendaño
+      organization: Proyectó
+    - name: Edna Avendaño y Juan David
+      organization: Revisó
+  revision_date: 2020-04-30
+---
+sections:
+  - Datos del empleador
+  - Datos del trabajador
+  - Datos sobre el despido
+---
+features:
+  navigation: True
+  progress bar: True
+  show progress bar percentage: True
+  hide standard menu: False
+  hide navbar: True
+  question back button: True
+---
+include:
+  - docassemble.playground3:autoterms.yml
+---
+modules:
+  - docassemble.playground3.juztoModules
+  - docassemble.playground3.juztoListChoices
+---
+mandatory: True
+code: |
+  multi_user = True
+---
+mandatory: True
+question: |
+  ¿Quién es el empleador?
+subquestion: |
+  Identifica si es persona o empresa  
+fields:
+  - no label: employer_type 
+    datatype: radio
+    choices:
+      - Persona
+      - Empresa
+section: Datos del empleador 
+progress: 15
+prevent going back: True
+---
+mandatory: True
+question: |
+  Danos los datos del empleador
+fields:
+  - Nombre completo: employer_name
+    hint: "Nombre(s) y apellido(s)"
+    show if:
+      code: |
+       employer_type == "Persona"
+  - Nombre de la compañia: employer_name
+    hint: "Nombre de la compañía SAS"
+    show if:
+      code: |
+       employer_type == "Empresa"
+  - Tipo de identificación: employer_type_id
+    datatype: dropdown
+    code: get_list_dni('N')
+    show if:
+      code: |
+       employer_type == "Persona"
+  - Número de identificación: employer_id_number
+    hint: dni
+    show if:
+      code: |
+       employer_type == "Persona"
+  - NIT: employer_id_number
+    hint: nit
+    show if:
+      code: |
+       employer_type == "Empresa"
+section: Datos del empleador
+progress: 25
+---
+mandatory: |
+  employer_type == 'Empresa'
+question: |
+  ¿Qué funcionario de ${ employer_name.upper() } firma la carta?
+subquestion: |
+  Por lo general firma el jefe inmediato o el jefe de recursos humanos
+fields:
+  - Nombre completo: sign_worker_name
+    hint: "Nombre(s) y apellido(s)"
+  - Cargo: position_employer
+section: Datos del empleador
+progress: 35
+---
+mandatory: True
+question: |
+  Datos del trabajador
+fields:
+  - Nombre completo: employee_name
+    hint: "Nombre(s) y apellido(s)"
+  - Tipo de identificación: employee_type_id
+    datatype: dropdown
+    code: get_list_dni('N')
+  - Número de identificación: employee_id_number
+    hint: dni
+  - Cargo actual: employee_position
+section: Datos del trabajador
+progress: 45
+---
+mandatory: True
+question: |
+  ¿Cómo se realiza el despido de ${ title_case(employee_name) }? 
+fields:
+  - no label: cause_dismissal 
+    datatype: radio
+    choices:
+      - Justa causa
+      - Sin justa causa
+section: Datos sobre el despido
+progress: 55
+---
+question: |
+   ¿Cuéntanos el ${ get_ordinal('male', i) } motivo del despido?
+subquestion: |
+  % if cause_dismissal == "Justa causa":
+  Algunos ejemplos son: Actos de violencia o malos tratos por parte del trabajador, Reiteradas llegadas tarde, Incumplimiento del manual de funciones y/o del Reglamento Interno de Trabajo, etc.
+  % elif cause_dismissal == "Sin justa causa":
+  Algunos ejemplos son: 
+  Por la operación de la empresa ya no se requiere del cargo /
+  Por restructuración de la empresa se eliminó el cargo.
+  % endif
+fields:
+  - no label: reason_dismissal[i].name
+    hint: Causa del despido
+progress: 65
+---
+mandatory: True
+question: |
+  Estos son los motivos que describó, por favor verifique, modifique o agrege un nuevo motivo.
+subquestion: |
+  ${ reason_dismissal.table }
+  ${ reason_dismissal.add_action() }
+continue button field: reason_dismissal.reviewed
+section: Datos sobre el despido
+progress: 75
+---
+objects:
+  - reason_dismissal: DAList.using(object_type=DAObject, complete_attribute='complete')
+---
+code: |
+ reason_dismissal.gather()
+ reason_dismissal.reviewed
+ reason_dismissal
+---
+code: |
+ reason_dismissal[i].name
+ reason_dismissal[i].complete = True
+---
+table: reason_dismissal.table
+rows: reason_dismissal
+columns:
+  - Causa: |
+      row_item.name
+edit:
+  - causa
+allow reordering: True
+---
+code: |
+  reason_dismissal.there_are_any = True
+  reason_dismissal.there_is_another = False
+---
+mandatory: True
+question: |
+  ¿Hasta qué fecha laborará el trabajador?
+fields:
+  - no label: date_dismissal
+    datatype: date
+section: Datos sobre el despido
+progress: 85
+---
+mandatory: True
+question: |
+  ¿En qué ciudad y fecha se presentará esta carta?
+fields:
+  - Ciudad: city
+    input type: dropdown
+    code: get_cities()
+  - fecha: date_presentation
+    datatype: date
+validation code: |
+    if date_presentation > date_dismissal:
+      validation_error("La fecha de la carta no puede ser después de la fecha del despido")
+section: Datos sobre el despido
+progress: 95
+---
+mandatory: true
+code: |
+  if 'price' in url_args:
+    price = currency(url_args['price'], decimals= False)
+  else:
+    price = '$0'
+  files_saved = save_files(the_document, 'Carta de despido', True, user_info().session)
+  juzto_callback = get_callback_final_screen(price, files_saved, 'Carta de despido', True)
+---
+attachment:
+  variable name: the_document
+  docx template file: IT_JC_200504_V1.0_Carta_de_despido.docx
+---
+event: final_screen
+mandatory: true
+progress: 100
+question: |
+  ${ z_text_final_screen }
+subquestion: |
+  ${ juzto_callback }
+id: juzto_da_final  
+allow emailing: False
+back button: False

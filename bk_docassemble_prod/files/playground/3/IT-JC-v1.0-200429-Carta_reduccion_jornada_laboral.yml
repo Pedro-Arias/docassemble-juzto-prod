@@ -1,0 +1,192 @@
+metadata:
+  title: |
+   Carta de reduccion de jornada laboral
+  short title: |
+    Carta reducción jornada laboral
+  description: |
+   Carta reducción jornada laboral
+  authors:
+    - name: Julian Cogua
+      organization: juzto.co
+    - name: Juan David Castilla
+      organization: juzto.co
+  create_date: 2020-04-29
+---
+sections:
+  - Datos de la empresa
+  - Datos del empleado
+  - Razones
+  - Nueva jornada laboral
+  - Ciudad y día en el que se firma la carta
+---
+features:
+  navigation: True
+  progress bar: True
+  show progress bar percentage: True
+  hide standard menu: False
+  hide navbar: True
+  question back button: True
+---
+include:
+  - docassemble.playground3:autoterms.yml
+---
+modules:
+  - docassemble.playground3.juztoModules
+  - docassemble.playground3.juztoListChoices
+---
+mandatory: True
+code: |
+  multi_user = True
+---
+mandatory: true
+question: |
+  ¿Cuáles son los datos de la empresa?
+fields:
+  - Nombre completo de la compañia: employer_name
+    hint: 'Nombre de la compañía SAS'
+  - NIT: employer_id_number
+    hint: nit
+  - Nombre completo del respresentante legal: legal_rep_name
+    hint: 'Nombre(s) y Apellido(s)'
+  - Tipo de documento: legal_rep_id_type
+    input type: dropdown
+    code:  get_list_dni('N')
+  - Número de documento: legal_rep_number
+    hint: dni
+progress: 1
+section: Datos de la empresa
+prevent going back: True
+---
+mandatory: true
+question: |
+	¿Cuáles son los datos del trabajador?
+fields:
+  - Nombre completo del trabajador: employee_name
+    hint: 'Nombre(s) y Apellido(s)'
+  - Tipo de identificación: employee_type_id
+    input type: dropdown
+    code:  get_list_dni('N')
+  - Número de identificación: employee_id_number
+    hint: dni
+  - Correo electónico: email_employee
+    datatype: email
+    hint: 'ejemplo@mail.com'
+  - Ciudad de residencia: employee_residence_city
+    input type: dropdown
+    code: get_cities()
+  - Dirección de residencia: employee_residence_adress
+    hint: "Calle 123 No 1-2"
+progress: 15
+section: Datos del empleado
+---
+mandatory: true
+need:
+  - employee_name
+question: |
+  ¿Cuál es la razón para reducir la jornada laboral?
+fields:
+  - no label: cause
+    input type: radio
+    choices:
+      - Covid-19: cod
+      - Mutuo acuerdo: mutual_agreement
+progress: 30
+section: Razones
+---
+objects:
+  - days: DADict.using(there_are_any=True, object_type=DAObject, keys=list_days, gathered=True)
+---
+code: |
+  list_days = ['Lunes', 'Martes', 'Miercoles', 'Jueves', 'Viernes', 'Sabado', 'Domingo']
+---
+code: |
+  initial_departure_fields = list()
+  for day in list_days:
+    initial_departure_fields.append({"note": "#### " + day, "show if": "days_chosen[" + repr(day) + "]"})
+    initial_departure_fields.append({"Hora de ingreso": "days[" + repr(day) + "].initial_time", "show if": "days_chosen[" + repr(day) + "]", "datatype": "time"})
+    initial_departure_fields.append({"Hora de salida": "days[" + repr(day) + "].departure_time", "show if": "days_chosen[" + repr(day) + "]", "datatype": "time"})
+---
+on change:
+  days_chosen: |
+    for day in list_days:
+      days[day].active = days_chosen[day]
+---
+code: |
+  days[i].active = days_chosen[i]
+---
+question: |
+  ¿Cuál es la nueva jornada laboral?
+subquestion: |
+  % if cause == 'cod':
+    * Visualizar mínimo 36 horas y a medida que la persona termina un ciclo visualiza las horas restantes de la semana.[BR]
+    * Si la persona selecciona hora de ingreso obligatoriamente debe responder hora de salida.
+  % endif
+fields:
+  - "¿Qué días va ha trabajar?": days_chosen
+    datatype: checkboxes
+    none of the above: False
+    code: days
+  - code: initial_departure_fields
+section: Nueva jornada laboral
+progress: 45
+---
+mandatory: true
+need:
+  - days_chosen
+question: |
+  ¿Cuándo empieza la nueva jornada laboral?
+fields:
+  no label: date_start_new_work_schedule
+  datatype: date
+section: Nueva jornada laboral
+progress: 60
+---
+mandatory: |
+  cause == 'cod'
+question: |
+  ¿Quieres que la nueva jornada laboral termine en una fecha específica?
+fields:
+  - no label: new_work_schedule
+    datatype: yesnoradio
+  - ¿Cúando?: date_end_new_work_schedule
+    datatype: date
+    show if:
+      variable: new_work_schedule
+      is: True
+section: Nueva jornada laboral
+progress: 75
+---
+mandatory: true
+question: |
+  ¿Ciudad y fecha de firma?
+fields:
+  - Ciudad: city
+    input type: dropdown
+    code: get_cities()
+  - Fecha: signature_letter
+    datatype: date
+section: Ciudad y día en el que se firma la carta
+progress: 85
+---
+mandatory: true
+code: |
+  if 'price' in url_args:
+    price = currency(url_args['price'], decimals= False)
+  else:
+    price = '$0'
+  files_saved = save_files(the_document, 'Carta de reduccion de jornada laboral', True, user_info().session)
+  juzto_callback = get_callback_final_screen(price, files_saved, 'Carta de reduccion de jornada laboral', True)
+---
+attachment:
+  variable name: the_document
+  docx template file: IT-JC-v1.0-20200429-Carta_reduccion_jornada_laboral.docx
+---
+event: final_screen
+mandatory: true
+progress: 100
+question: |
+  ${ z_text_final_screen }
+subquestion: |
+  ${ juzto_callback }
+allow emailing: False
+back button: False

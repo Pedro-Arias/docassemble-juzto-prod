@@ -1,0 +1,133 @@
+---
+metadata:
+  title: |
+   Carta de recomendacion laboral
+  short title: |
+    Recomendación laboral
+  description: |
+    Una recomendación laboral
+  authors:
+    - name: Felipe Gómez
+      organization: juzto.co
+    - name: John Morales
+      organization: juzto.co
+  revision_date: 2020-06-02
+---
+sections:
+  - Datos de quien recomienda
+  - Datos del recomendado
+---
+features:
+  navigation: True
+  progress bar: True
+  show progress bar percentage: True
+  hide standard menu: False
+  hide navbar: True
+  question back button: True
+---
+modules:
+  - docassemble.playground3.juztoModules
+  - docassemble.playground3.juztoListChoices
+---
+mandatory: True
+code: |
+  multi_user = True
+---
+mandatory: True
+question: |
+  ¿Cuáles son los datos de la persona que realiza la recomendación?
+fields:
+  - Nombre completo: recommender_name
+    hint: "Nombres(s) y Apellido(s)"
+  - Tipo de documento: recommender_id_type
+    datatype: dropdown
+    code: get_list_dni('N')
+  - Número de documento: recommender_id_number
+    hint: dni  
+  - Compañía: company
+    required : false
+    hint: "¿Cuál es el nombre de la empresa? - opcional"
+  - Cargo en la compañía: recommender_position
+    required : false 
+    hint: "¿Qué cargo ocupa en el empresa? - opcional"
+  - Ciudad de la compañía: city
+    required : false
+    datatype: dropdown
+    code: get_cities()
+  - Fecha de realización: date_presentation
+    datatype: date
+  - Correo electrónico: email
+    datatype: email
+    hint: "ejemplo@mail.com"
+  - Número móvil : mobile
+    minlength : 0
+    maxlength: 10
+    datatype: integer
+    hint: "3001234567"
+section: Datos de quien recomienda
+prevent going back: True
+progress: 35
+---
+mandatory: True
+need:
+  - recommender_name
+question: |
+  ¿Cuáles son los datos de la persona que se recomienda?
+fields:
+  - Nombre completo : subject_name
+    hint: "Nombre(s) y Apellido(s)"
+  - Genero: subject_gender
+    datatype: radio
+    code: get_list('genders')
+  - Tipo de documento: subject_id_type
+    datatype: dropdown
+    code: get_list_dni('N')
+  - Número de documento: subject_id_number
+    hint: dni
+section: Datos del recomendado
+progress: 35
+---
+code: |
+  if subject_gender == 'Masculino':
+    user_gender = 'del señor';
+  else:
+    user_gender = 'de la señora';
+---
+mandatory: True
+need:
+  - subject_name
+question: |
+  ¿Hace cuánto conoce a la persona que recomienda?
+fields:
+  - no label: alongtime
+    datatype: radio
+    code: get_list('period')
+  - no label: number_time
+    hint: Cantidad del tiempo de conocerlo
+    datatype: integer
+section: Datos del recomendado
+progress: 80
+---
+mandatory: true
+code: |
+  if 'price' in url_args:
+    price = currency(url_args['price'], decimals= False)
+  else:
+    price = '$0'
+  files_saved = save_files(the_document, 'recomendacion laboral', True, user_info().session)
+  juzto_callback = get_callback_final_screen(price, files_saved, 'recomendacion laboral', True)
+---
+attachment:
+  variable name: the_document
+  docx template file: IT_FG_20200420_V1.0_Carta-de-recomndacion.docx
+---
+event: final_screen
+mandatory: true
+progress: 100
+question: |
+  ${ z_text_final_screen }
+subquestion: |
+  ${ juzto_callback }
+allow emailing: False
+back button: False
+---

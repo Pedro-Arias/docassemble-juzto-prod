@@ -1,0 +1,166 @@
+metadata:
+  title: |
+    Incidente desacato
+  short title: |
+    Incidente desacato
+  description: |
+    Documento que se presenta como línea de defensa cuando la entidad no acata lo sancionado
+  authors:
+    - name: Dario Agaton
+      organization: Juzto.co
+    - name: Juan David Castilla
+      organization: Juzto.co
+---
+features:
+  navigation: True
+  progress bar: True
+  show progress bar percentage: True
+  hide standard menu: False
+  hide navbar: True
+  question back button: True
+---
+include:
+  - docassemble.playground3:autoterms.yml
+---
+modules:
+  - docassemble.playground3.juztoModules
+  - docassemble.playground3.juztoListChoices
+---
+initial: True
+code: |
+  client_type
+  if client_type == "Persona Natural":
+    natural.name
+    complaining_type_id
+    complaining_id_number
+    complaining_id_number = get_dni_formated(complaining_id_number)
+  else:
+    legal.name
+    complaining_id_number
+    legal_representative_name
+    legal_representative_type_id
+    legal_representative_id_number
+    legal_representative_id_number = get_dni_formated(legal_representative_id_number)
+    complaining_id_number = generate_nit(complaining_id_number)
+  tutela_type
+  if tutela_type == "Tutela derecho de petición comparendo":
+    peticion_date
+  first_judge_name
+  tutela_number
+  judge_instance
+  decision_date
+  if judge_instance == "Segundo juez":
+    second_judge_name
+  company_or_entity_name
+  ouremail = 'entidades+'+casenum+'@juzto.co, con copia al correo '+cliente_email
+  Signature ="{{signature:0}}"
+  final_screen
+---
+objects:
+  - natural: Individual
+  - legal: Individual
+---
+question: |
+  ¿El cliente es persona o empresa?
+fields:
+  - no label: client_type
+    input type: radio
+    code: get_list('type_j')
+---
+question: |
+  ¿Cuáles son los datos de la persona?
+fields:
+  - Nombres: natural.name.first
+    hint: Nombres
+  - Apellidos: natural.name.last
+    hint: Apellidos
+  - Tipo de identificación: complaining_type_id
+    input type: dropdown
+    code: get_list_dni('N')
+  - Número de identificación: complaining_id_number
+  - Email: cliente_email
+    #hint: dni
+id: blockglobal
+---
+question: |
+  ¿Cuáles son los datos de la compañía?
+fields:
+  - Nombre de la compañia: legal.name.first
+  - NIT: complaining_id_number
+    hint: nit
+  - Nombre del representate legal: legal_representative_name
+  - Tipo de identificación: legal_representative_type_id
+    input type: dropdown
+    code: get_list_dni('N')
+  - Número de identificación: legal_representative_id_number
+  - Email: cliente_email
+    #hint: dni
+id: blockglobal
+---
+question: |
+  ¿Cuál es la línea de defensa relacionada?
+fields:
+  - no caso: casenum
+---
+question: |
+  ¿Cuál es el nombre de la entidad que se entuteló?
+fields:
+  - nombre: company_or_entity_name
+---
+question: |
+  ¿Que tipo de tutela fue la que se presentó?
+fields:
+  - no label: tutela_type
+    input type: radio
+    code: get_tutela_type()
+---
+question: |
+  ¿Cuándo se presento la petición?
+fields:
+  - no label: peticion_date
+    datatype: date
+---
+question: |
+  Nombre completo del primer juzgado
+fields:
+  - no label: first_judge_name
+---
+question: |
+  ¿Cuáles es el número del proceso?
+fields:
+  - no label: tutela_number
+---
+question: |
+  ¿El fallo favorable fue del primer juez o del segundo juez?
+fields:
+  - no label: judge_instance
+    input type: radio
+    code: get_judge_instances()
+---
+question: |
+  Nombre completo del segundo juzgado
+fields:
+  - no label: second_judge_name
+---
+question: |
+  Fecha de la tutela que nos dio la razón
+fields:
+  - no label: decision_date
+    datatype: date
+---
+attachment:
+  variable name: the_document
+  docx template file: IT_MB_220322_V.1.1_Incidente_desacato.docx
+---
+code: |
+  files_saved = save_files(the_document, 'Incidente_desacato', True, user_info().session)
+  juzto_callback = get_callback_final_screen('0', files_saved, 'Incidente_desacato', True)
+---
+event: final_screen
+question: |
+  ${ z_text_final_screen } - COD: ${user_info().session}
+subquestion: |
+  ${ juzto_callback }
+id: juzto_da_final
+---
+

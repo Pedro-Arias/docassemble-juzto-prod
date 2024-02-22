@@ -1,0 +1,296 @@
+---
+metadata:
+  title: |
+    Carta retracto de compra
+  short title: |
+    Retracto de compra
+  description: |
+    Retracto de compra
+  authors:
+    - name: Edna Avendaño
+      organization: Programador
+    - name: Edna Avendaño
+      organization: Proyecto
+    - name: Juan David
+      organization: Reviso
+  revision_date: 2020-04-30
+---
+sections:
+  - Datos del comprador
+  - Datos del vendedor
+  - Datos del bien o servicio
+  - Ciudad y fecha
+---
+features:
+  navigation: True
+  progress bar: True
+  show progress bar percentage: True
+  hide standard menu: False
+  hide navbar: True
+  question back button: True
+---
+modules:
+  - docassemble.playground3.juztoModules
+  - docassemble.playground3.juztoListChoices
+---
+mandatory: True
+code: |
+  multi_user = True
+---
+auto terms:
+  NIT: |
+    Número de Identificación Tributaria con el cual se identifican a las empresas.
+  representante legal: |
+    Persona que se encarga de representar a una empresa.
+---
+mandatory: True
+question: |
+  Vas a iniciar la carta para presentar el retracto de una compra, debes tener en cuenta lo siguiente:
+subquestion: |   
+  - Si compraste un bien (televisor, electrodoméstico, ropa que no sea intima o productos que no sean de higiene personal, entre otros) o adquiriste un servicio (limpieza de hogar, servicio de internet, servicio de televisión) tienes 5 días hábiles para retractarte desde que recibiste el bien o celebraste el contrato.
+  - Nunca olvides que los días hábiles son de Lunes a Viernes sin contar los días festivos.
+  - El derecho de retracto sólo aplica si el vendedor te financia, si es tiempo compartido, si la compra se efectuó por internet, teléfono o celular, o cuando el vendedor te ofreció regalos o te permitió el consumo de alcohol antes de realizar la venta.
+  - El único costo que debes asumir es el de la devolución del producto (si aplica), el vendedor no puede descontarte ningún valor.
+  - Si el vendedor te dice que firmaste un documento que te prohíbe retractarte de la compra, no te preocupes, ese documento es ilegal.
+field: yesnoradio
+prevent going back: True
+---
+mandatory: True
+question: |
+  ¿El comprador es persona o empresa?
+subquestion: |
+  Aquí debes escribir todos los datos que te identifiquen
+fields:
+  - no label: type_subject  
+    datatype: radio
+    choices:
+      - Persona
+      - Empresa
+  - Nombre completo: subject_name
+    hint: 'Nombre(s) y apellido(s)'
+    show if:
+      variable: type_subject
+      is: Persona
+  - Tipo de identificación: subject_type_id
+    input type: dropdown
+    code: get_list_dni('N')
+    show if:
+      variable: type_subject
+      is: Persona
+  - Número de identificación: subject_id_number
+    hint: dni
+    show if:
+      variable: type_subject
+      is: Persona
+  - Nombre de la empresa: company_name
+    hint: 'Nombre de la compañía SAS'
+    show if:
+      variable: type_subject
+      is: Empresa
+  - NIT: company_id_number
+    hint: nit
+    show if:
+      variable: type_subject
+      is: Empresa
+  - Nombre del Representante Legal: signer_name
+    hint:	'Nombre(s) y Apellido(s)'
+    show if:
+      variable: type_subject
+      is: Empresa
+  - Tipo de identificación del Representante Legal: signer_type_id
+    input type: dropdown
+    code:  get_list_dni('N')
+    show if:
+      variable: type_subject
+      is: Empresa
+  - Número de identificación del Representante Legal: signer_id_number
+    hint: dni  
+    show if:
+      variable: type_subject
+      is: Empresa
+section: Datos del comprador
+progress: 20
+---
+mandatory: True
+question: |
+  ¿Cuál es el nombre del vendedor?
+fields:
+  - no label: store_name
+section: Datos del vendedor
+progress: 30
+---
+mandatory: True
+question: |
+  ¿Por qué medio hiciste la compra?
+subquestion: |
+  Ten en cuenta que si fuiste directamente e hiciste la compra en el almacén no aplica el retracto, pero si tienes problemas con el producto, puedes solicitar la garantía. [Puedes consultar con uno de nuestros abogados](https://juzto.co/asesoria-legal/consulta-un-abogado/).
+fields:
+  - no label: mean_of_purchase  
+    input type: radio
+    choices:
+      - Catálogo
+      - Teléfono
+      - Tienda online
+      - Correo electrónico
+      - Abordado por sorpresa
+section: Datos del vendedor
+progress: 40
+---
+mandatory: True
+question: |
+  ¿Cómo vas a presentar este documento?
+fields:
+  - no label: presentation_mode 
+    datatype: radio
+    choices:
+      - Física
+      - Correo electrónico
+  - Dirección: store_address 
+    hint: 'Calle 122 No. 17 - 29'
+    show if:
+      variable: presentation_mode
+      is: Física
+  - Ciudad: store_city
+    input type: dropdown
+    code: get_cities()
+    show if:
+      variable: presentation_mode
+      is: Física
+  - Correo electrónico: store_email
+    show if:
+      variable: presentation_mode
+      is: Correo electrónico
+section: Datos del vendedor
+progress: 50
+---        
+objects: 
+  - product: DAList.using(object_type=DAObject, complete_attribute='complete')
+---
+mandatory: |
+  product.there_are_any == True
+code: |
+  product.gather()
+  product.reviewed
+---
+code: |
+  product[i].name
+  product[i].purchase_day 
+  product[i].purchase_date 
+  product[i].product_price 
+  product[i].complete = True
+---
+code: |
+    product.there_are_any = True
+---
+question: |
+  Describe el ${ get_ordinal("male", i) } producto o servicio para el retracto 
+help: "Aquí nos debes decir si compraste un celular, un televisor o adquiriste el servicio de internet."
+subquestion: |
+  Ten en cuenta que si compraste un bien (electrodoméstico, ropa, televisor, etc) o si compraste o adquiriste un servicio (limpieza de hogar, servicio de internet, etc) de conformidad con el artículo 47 de la ley 1480 de 2011 tienes cinco (5) días hábiles para retractarte desde que recibiste el bien o desde que firmaste el contrado de lprestación del servicio.
+fields: 
+  - no label: product[i].name
+    hint: Ingresar un solo producto o servicio a la vez. 
+---
+question: |
+  ¿Ya recibiste el producto o firmaste el contrato?
+fields:
+  - no label: product[i].purchase_date
+    datatype: yesnoradio
+  - ¿Cuándo recibiste el producto o celebraste el contrato?: product[i].purchase_day 
+    datatype: date
+    show if:
+      variable: product[i].purchase_date
+      is: True
+validation code: |
+    if product[i].purchase_date == True and difference_date(product[i].purchase_day.format_date('yyyy-MM-dd'),today().format_date('yyyy-MM-dd'))>5:  
+          validation_error("Si se recibió el producto o se firmó el contrato hace más de 5 días hábiles no aplica el retracto.")
+section: Datos del bien o servicio
+Progress: 60
+---
+question: |
+  ¿Cuánto costo?
+fields:
+  - no label: product[i].product_price
+    hint: money
+section: Datos del bien o servicio
+Progress: 70
+---
+code: |
+  if product[i].purchase_date == False:
+     product[i].purchase_day = None  
+---
+question: |
+  ¿Necesitas agregar otro producto o servicio?
+yesno: product.there_is_another 
+section: Datos del bien o servicio
+Progress: 73
+---
+question: |
+  Estos son los productos y/o servicios que agregaste:
+subquestion: |
+  
+  producto y/o servicio|
+  ---------------------|
+  % for item in product: 
+  ${item}              |     
+  % endfor
+continue button field: product.reviewed
+section: Datos del bien o servicio
+Progress: 75
+---
+code: |
+  total_price = sum(get_only_number(products.product_price) for products in product.complete_elements())
+---
+mandatory: True
+question: |
+  Por favor indícanos los datos de la cuenta bancaria a la que deberán reintegrarte el dinero
+fields:
+  - Tipo de cuenta: type_account
+    input type: radio
+    choices:
+      - Ahorros
+      - Corriente
+  - Número de cuenta: account_number
+    datatype: number
+    hint: '1234567890'
+  - Banco: bank
+    input type: dropdown
+    code: get_list('banks')
+section: Datos del bien o servicio
+progress: 85
+---
+mandatory: True
+question: |
+  ¿En qué ciudad y fecha se presentará esta carta?
+fields: 
+  - Ciudad: city
+    input type: dropdown
+    code: get_cities()
+  - Fecha: date_presentation
+    datatype: date
+section: Ciudad y fecha
+progress: 95
+---
+code: |
+  price = '$0'
+  if 'price' in url_args:
+    price = currency(url_args['price'], decimals= False)
+  else:
+    price = '$0'
+  files_saved = save_files(the_document, 'Carta de derecho de retracto', True, user_info().session)
+  juzto_callback = get_callback_final_screen(price, files_saved, 'Carta de derecho de retracto', True)
+---
+attachment:
+  variable name: the_document
+  docx template file: EA_200430_V1.2_Carta_de_retracto_de_compra.docx
+---
+event: final_screen
+mandatory: true
+progress: 100
+question: |
+  ${ z_text_final_screen }
+subquestion: |
+  ${ juzto_callback }
+id: dajuzto_finalscreen  
+allow emailing: False
+back button: False

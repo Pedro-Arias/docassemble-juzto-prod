@@ -1,0 +1,123 @@
+metadata:
+  title: |
+    Capacitación Docassemble Narly
+  short title: |
+   Capacitación Docassemble Narly
+  description: |
+   Capacitación Docassemble Narly 
+  authors:
+    - name: Narly Bossa
+      organization: Juzto.co
+---
+features:
+  navigation: True
+  progress bar: True
+  show progress bar percentage: True
+  hide standard menu: False
+  hide navbar: True
+  question back button: True
+---
+include:
+  - docassemble.playground3:autoterms.yml
+---
+modules:
+  - docassemble.playground3.juztoModules
+  - docassemble.playground3.juztoListChoices
+---
+objects:
+  - natural: Individual
+  - legal: Individual
+---
+initial: True
+code: |
+  nombre_perro
+  case_number
+  client_type  
+  if client_type == "Persona Natural":
+    natural.name
+    complaining_type_id
+    complaining_id_number = get_dni_formated(id_person)
+  else:
+    legal.name
+    complaining_id_number = generateNit(id_person)
+    legal_representative_type_id
+    legal_representative_name
+    legal_representative_id_number = get_dni_formated(legal_representative_id_number)
+  company_or_entity_name
+  fotomulta_number
+  ouremail = 'entidades+'+case_number+'@juzto.co'
+  Signature ="{{Signature:Recipient1*}}"
+  final_screen
+---
+question: |
+  ¿Cuál es el nombre de tu perro?
+fields:
+  - no label: nombre_perro
+---
+question: |
+  ¿Cuál es la línea de defensa a la que corresponde este documento? Ejemplo: LD-780
+fields:
+  - no label: case_number
+---
+question: |
+  ¿Eres una persona o una compañía?
+fields:
+  - no label: client_type
+    input type: radio
+    code: get_list('type_j')
+---
+question: |
+  ¿Cuáles son los datos de la persona?
+fields:
+  - Nombres: natural.name.first
+    hint: Nombres
+  - Apellidos: natural.name.last
+    hint: Apellidos
+  - Tipo de identificación: complaining_type_id
+    input type: dropdown
+    code:  get_list_dni('N')
+  - Número de identificación: id_person
+    #hint: dni
+id: blockglobal
+---
+question: |
+  ¿Cuáles son los datos de la compañía?
+fields:
+  - Nombre de la compañia: legal.name.first
+  - NIT: id_person
+    hint: nit
+  - Nombre del representate legal: legal_representative_name
+  - Tipo de identificación: legal_representative_type_id
+    input type: dropdown
+    code:  get_list_dni('N')
+  - Número de identificación: legal_representative_id_number
+    #hint: dni
+id: blockglobal
+---
+question: |
+  ¿Cuáles son los datos de la entidad?
+fields:
+  - nombre: company_or_entity_name
+    datatype: dropdown
+    code: get_list('entidades')
+---
+question: |
+  ¿Cuál es el número del comparendo? 
+fields:
+  - no label: fotomulta_number
+---
+attachment:
+  variable name: the_document
+  docx template file: datos_perro_v1.docx
+---
+code: |
+  files_saved = save_files(the_document, 'datos_del_perro', True, user_info().session)
+  juzto_callback = get_callback_final_screen('0', files_saved, 'datos_del_perro', True)
+---
+event: final_screen
+question: |
+  ${ z_text_final_screen } - COD: ${user_info().session}
+subquestion: |
+  ${ juzto_callback }
+id: juzto_da_final
+---

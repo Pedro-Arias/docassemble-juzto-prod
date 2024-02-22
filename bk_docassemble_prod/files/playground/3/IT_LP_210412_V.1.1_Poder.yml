@@ -1,0 +1,121 @@
+metadata:
+  title: |
+   P0001_poder
+  short title: |
+    poder
+  description: |
+   Con este documento el cliente nos da el poder para que juzto pueda firmar documentos.
+  authors:
+    - name: Laura Pardo
+      organization: Juzto.co
+    - name: Juan David Castilla
+      organization: Juzto.co
+---
+features:
+  navigation: True
+  progress bar: True
+  show progress bar percentage: True
+  hide standard menu: False
+  hide navbar: True
+  question back button: True
+---
+include:
+  - docassemble.playground3:autoterms.yml
+---
+modules:
+  - docassemble.playground3.juztoModules
+  - docassemble.playground3.juztoListChoices
+---
+initial: True
+code: |
+  claim
+  if claim == "reporte":
+    city
+  client_type
+  Signature ="{{Signature:Recipient1*}}"
+  #Signature ="{{Signature}}"
+  if client_type == "Persona Natural":
+    natural.name
+    complaining_type_id
+    complaining_id_number
+    complaining_id_number = get_dni_formated(complaining_id_number)
+  else:
+    legal.name
+    complaining_id_number
+    legal_representative_name
+    legal_representative_type_id
+    legal_representative_id_number
+    legal_representative_id_number = get_dni_formated(legal_representative_id_number)
+    complaining_id_number = generateNit(complaining_id_number)
+  final_screen
+---
+objects:
+  - natural: Individual
+  - legal: Individual
+---
+question: |
+  ¿Qué trámite vas a realizar?
+fields:
+  - Selecciona el tipo de trámite: claim
+    datatype: radio
+    choices:
+      - Reclamación fotocomparendo: fotocomparendo
+      - Tutela reporte negativo: reporte
+  - Ciudad de la tutela: city
+    input type: dropdown
+    code: get_cities()
+    show if:
+      variable: claim
+      is: reporte      
+---
+question: |
+  ¿El cliente es persona o empresa?
+fields:
+  - no label: client_type
+    input type: radio
+    code: get_list('type_j')
+progress: 1
+---
+question: |
+  ¿Cuáles son los datos de la persona?
+fields:
+  - Nombres: natural.name.first
+    hint: Nombres
+  - Apellidos: natural.name.last
+    hint: Apellidos
+  - Tipo de identificación: complaining_type_id
+    input type: dropdown
+    code:  get_list_dni('N')
+  - Número de identificación: complaining_id_number
+    #hint: dni
+id: blockglobal
+---
+question: |
+  ¿Cuáles son los datos de la compañía?
+fields:
+  - Nombre de la compañia: legal.name.first
+  - NIT: complaining_id_number
+    #hint: nit
+  - Nombre del representate legal: legal_representative_name
+  - Tipo de identificación: legal_representative_type_id
+    input type: dropdown
+    code:  get_list_dni('N')
+  - Número de identificación: legal_representative_id_number
+    #hint: dni
+id: blockglobal
+---
+attachment:
+  variable name: the_document
+  docx template file: IT_LP_210412_V.1.1_Poder.docx
+---
+code: |
+  files_saved = save_files(the_document, 'Poder', True, user_info().session)
+  juzto_callback = get_callback_final_screen('0', files_saved, 'Poder', True)
+---
+event: final_screen
+question: |
+  ${ z_text_final_screen } - COD: ${user_info().session}
+subquestion: |
+  ${ juzto_callback }
+id: juzto_da_final
+---

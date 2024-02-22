@@ -1,0 +1,11 @@
+---
+modules:
+  - docassemble.playground3.juztoModules
+---
+mandatory: true
+question: |
+  Fecha y ciudad en que entregarás la carta
+fields:
+  - Ciudad: city
+    datatype: dropdown
+    code: get_cities()

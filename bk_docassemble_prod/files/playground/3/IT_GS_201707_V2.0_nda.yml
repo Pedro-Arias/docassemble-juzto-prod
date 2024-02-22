@@ -1,0 +1,622 @@
+metadata:
+  title: |
+   Acuerdo de confidencialidad
+  short title: |
+    Acuerdo de confidencialidad
+  description: |
+    Acuerdo de confidencialidad
+  authors:
+    - name: Giovanny Sarmiento
+      organization: DocumentosLegales.co
+    - name: Juan David Castilla
+      organization: DocumentosLegales.co
+  revision_date: 20/03/2020
+---
+features:
+  navigation: True
+  progress bar: True
+  show progress bar percentage: True
+  hide standard menu: False
+  hide navbar: True
+  question back button: True
+---
+default screen parts:
+  under: |
+    % if show_save_resume_message:
+    [Guardar y terminar después](${ url_action('save_and_resume') })
+    % endif
+    [Volver a comenzar](${ url_action('restart_interview') })    
+---
+event: restart_interview
+code: |
+  force_ask('wants_to_restart', {'recompute': ['restart_done']})
+---
+question: |
+  ¿Estás seguro de querer reiniciar tu ${ all_variables(special='titles')['full'] }?
+subquestion: |
+  La información que ya hallas ingresado se perdera, tendras que volver a ingresar todas las respuestas.
+field: wants_to_restart
+buttons:
+  - Si, eliminar datos ingresados: True
+back button label: No gracias, continuar mi documento
+under: ""
+---
+code: |
+  if wants_to_restart:
+    command('restart')
+  restart_done = True
+---
+include:
+  - docassemble.playground3:autoterms.yml
+---
+auto terms:
+  Sanción: |
+    Es una multa que consiste en el pago de una suma de dinero por parte de quién incumple el acuerdo de confidencialidad. La sanción debe ser proporcional a los perjuicios que se puedan causar. La ley (art. 1601 del Código Civil) prohíbe una sanción por un valor superior al del perjuicio causado. Es por esto que debes fijar el valor de la sanción hasta por el 100% del perjuicio que se pueda causar al revelar la información confidencial.
+  Juez ordinario: |
+	  Es una funcionario que resuelve los problemas de las personas que acuden a el a través de una demanda.
+  Justicia ordinaria: |
+    Es la forma en que los colombianos pueden resolver sus problemas legales. Aquí la decisión la toma un juez de la República.  
+---
+modules:
+  - docassemble.playground3.juztoModules
+  - docassemble.playground3.juztoListChoices
+---
+initial: True
+scan for variables: False
+code: |
+  multi_user = True
+  show_save_resume_message = True
+  the_sections = [{'intro':'Introducción'}]
+  the_sections.append({'purpose':'Manejo de la información'}) 
+  the_sections.append({'duration':'Duración del acuerdo'})
+  the_sections.append({'clause':'Cláusula penal'})
+  the_sections.append({'solution':'Solución de conflictos'})
+  the_sections.append({'data':'Datos de las partes'})
+  the_sections.append({'signs':'Ciudad y fecha'})
+  the_sections.append({'confirmation':'Confirmación de los datos'})
+  nav.set_sections(the_sections)
+---
+mandatory: True
+code: |
+  if target == 'save_and_resume':
+    if wants_email:
+      show_save_resume_message = False
+    undefine('wants_email')
+    undefine('email_sent')
+    target = 'normal'  
+  intro_page
+  terms_page
+  nda_objective
+  destroying_information_term
+  confidential_term
+  clausula_penal
+  arbitration
+  party.gather()
+  party.reviewed
+  list_party = [e.name.full() for e in party if e.party_type == 'Persona Natural']+[e.company_name for e in party if e.party_type == 'Persona Jurídica']+['Todos']
+  revealing_party
+  if revealing_party != 'Todos':
+    list_party.remove(revealing_party)
+    list_party.remove('Todos')
+    receiving_party = list_party
+  else:
+    receiving_party = ''  
+  sign_city 
+  sign_date  
+  answers_reviewed
+  nav.hide()
+  final_screen
+---
+event: purpose
+section: purpose
+question: |
+  Manejo de la información
+review:
+  - Editar: nda_objective
+    button: |
+      % if nda_objective != 'Otro':
+      **Finalidad:** ${nda_objective}
+      % else:
+      **Finalidad:** ${nda_objective_particular.capitalize()}
+      % endif
+under: ""      
+---
+event: purpose
+section: purpose
+question: |
+  Devolución y/o destrucción de la información confidencial
+review:
+  - Editar: destroying_information_term
+    button: |
+      **Plazo para destruir la información:** ${destroying_information_term} días.    
+under: ""      
+---
+event: duration
+section: duration
+question: |
+  Duración del acuerdo
+review:
+  - Editar: confidential_term
+    button: |
+      **Tiempo de duración del acuerdo de confidencialidad:** ${ confidential_term_number }  ${confidential_term}  
+under: ""      
+---
+event: clause
+section: clause
+question: |
+  Cláusula penal
+review:
+  - Editar: clausula_penal
+    button: |
+      % if clausula_penal == True:
+      **Valor de la sanción :** $ ${clausula_penal_value}
+      % else:
+      **Penalidad en acuerdo:** No tendrá.
+      % endif
+under: ""      
+---
+event: solution
+section: solution
+question: |
+ Solución de conflictos
+review:
+  - Editar: arbitration
+    button: |
+      % if arbitration == 'Tribunal de Arbitramento':
+      **Medio de solución:** ${arbitration} con ${number_of_arbitrators} arbitro(s).
+      % else:
+      **Medio de solución:** ${arbitration}
+      % endif
+under: ""      
+---
+event: data
+section: data
+question: |
+ Datos de las partes
+review:
+  - Editar: party.reviewed
+    button: |
+      % for e in party:
+      % if e.party_type == 'Persona Natural':
+      * ${title_case(str(e.name).lower())}
+      % else:
+      * ${title_case(str(e.company_name).lower())}
+      % endif 
+      % endfor 
+under: ""      
+---
+event: signs
+section: signs
+question: |
+  Firmas
+review:  
+  - Editar: sign_city
+    button: |
+      **Ciudad donde se firma el acuerdo:** ${sign_city}
+      **Fecha de firma del acuerdo:** ${sign_date}  
+under: ""      
+--- 
+question: |
+  Ahora empezaremos a crear tu acuerdo de confidencialidad.
+subquestion: | 
+  Este acuerdo sirve para proteger información importante que necesitas compartir con otras personas. La información que compartes será considerada como confidencial o secreta, y por lo tanto, quien firma este acuerdo se compromete a cuidarla, usarla solo para lo que ha sido autorizado y no compartirla con otras personas sin autorización.[BR][BR]
+  1. Por favor responde todas las preguntas que te haremos. Estas preguntas han sido preparadas por abogados con mucha experiencia en este tipo de documentos. Danos respuestas claras y concretas, así podemos crear el documento a la medida de tus necesidades. Cada respuesta cambia el contenido del documento y lo ajusta a tu caso concreto.[BR][BR]
+  2. Queremos que lo entiendas todo. En cada pregunta encontrarás explicaciones hechas por nuestros abogados. Las palabras complicadas estarán subrayadas y en un colordiferente, también podrán tener un signo de interrogación. Haz clic sobre la palabra o el signo de interrogación para leer la explicación.[BR][BR]
+  3. Al final tendrás un documento hecho especialmente para ti, construido con base en tus respuestas. Además podrás comprender todos los conceptos del documento con claridad. Entenderás lo que vas a firmar. Si tienes alguna duda adicional puedes programar una cita con uno de nuestros abogados.[BR][BR]
+  Si tienes alguna duda adicional puedes <a href=“https://juzto.co/asesoria-legal/consulta-abogado/” target=“_blank” class=“linkjzda”>programar una cita con uno de nuestros abogados</a>.[BR][BR]  
+  Gracias por elegir Juzto, empecemos.
+continue button field: intro_page
+continue button label: Siguiente
+secction: intro
+prevent going back: True
+progress: 1
+under: ""
+---
+section: intro
+question: |
+  Para tu acuerdo de confidencilidad debes tener lista la siguiente información:
+subquestion: |
+  - Nombre completo e identificación de quien comparte la información.
+  - Nombre completo e identificación de quien recibe la información.
+  - Qué información se revela.
+  - Por qué la información es considerada confidencial.
+  - Fecha en la que se revela la información.
+  - Por cuanto tiempo se mantendrá la restricción de no revelar información.
+fields:
+  - no label: agrees_to_terms
+    datatype: checkboxes
+    default: "Acepto <a href=‘https://juzto.co/politica-tratamiento-datos/’ target=‘_blank’ class=‘linkjzdadark’>el tratamiento de los datos personales</a>."
+    minlength: 1
+    choices:
+       - "Acepto <a href=‘https://juzto.co/politica-tratamiento-datos/’ target=‘_blank’ class=‘linkjzdadark’>el tratamiento de los datos personales</a>."
+    validation messages:
+      minlength: |
+        Debes aceptar el tratamiento de los datos personales para pode continuar.
+  
+continue button field: terms_page
+continue button label: Empezar
+prevent going back: True
+under: ""
+progress: 5
+---
+section: purpose
+question: |
+  ¿Cuál es la razón para compartir la información confidencial?
+subquestion: |
+  Es importante que menciones la razón o el motivo para firmar el acuerdo de confidencialidad
+fields:
+  - no label: nda_objective
+    datatype: radio
+    choices:
+      - Acercamiento o negociación de un potencial contrato
+      - Crear una alianza comercial
+      - Desarrollar un software
+      - Desarrollar una página web
+      - Realizar una debida diligencia o auditoría
+      - Firmar un contrato de prestación de servicios
+      - Enviar una propuesta comercial
+      - Presentar una idea o modelo de negocio
+      - Otro
+  - ¿Cuál?: nda_objective_particular
+    show if:
+      variable: nda_objective
+      is: Otro
+progress: 10      
+---
+section: purpose
+question: |
+  ¿En cuántos días la persona que recibe la información confidencial debe devolverla o destruirla?
+subquestion: |
+  Por lo general el plazo es menor a 10 días hábiles desde que se recibe la solicitud.
+fields:
+  - Número de días: destroying_information_term
+    datatype: integer
+    min: 1
+    max: 10
+progress: 20
+---
+section: duration
+question: |
+   ¿Duración del acuerdo de confidencialidad?
+subquestion: |
+  Lo usual es que estos acuerdos duren 2 años o más, sin embargo se puede pactar cualquier duración. Es importante entender que tan pronto se termine el acuerdo de confidencialidad, quién recibe la información no estará obligado a cumplir la confidencialidad.
+fields:
+  - Periodo: confidential_term
+    datatype: radio
+    code: get_list('period')
+    choices:
+      - Mes(es)
+      - Año(s)
+  - Número: confidential_term_number
+    datatype: integer
+    max: 24
+progress: 30
+---
+section: clause
+question: |
+  ¿Quieres que haya sanción en caso de incumplimiento del acuerdo de confidencialidad?
+fields:
+  - no label: clausula_penal
+    datatype: yesnoradio
+  - ¿Cuál es el valor de la sanción?: clausula_penal_value
+    hint: money
+    show if: clausula_penal   
+progress: 40
+---
+section: solution
+question: |
+  ¿En caso de conflicto(s) entre las partes quieres que se resuelvan en un tribunal de arbitramento o ante un Juez ordinario?
+subquestion: |
+  Las partes pueden escoger cuantos árbitros resolverán el conflicto, estos siempre deben ser un número impar. Si las partes no indican un número, la ley establece que se nombrará 1 árbitro si el conflicto es por menos de **$131.640.450**, si es por más, serán 3 árbitros.
+fields:
+  - no label: arbitration
+    datatype: radio
+    choices: 
+    - Tribunal de Arbitramento
+    - Juez Ordinario
+  - ¿Cuántos árbitros quieres que conozcan?: number_of_arbitrators
+    datatype: radio
+    choices:
+     - 1
+     - 3
+    show if:
+      variable: arbitration
+      is: "Tribunal de Arbitramento"
+progress: 50 
+---
+objects:
+  - party: DAList.using(object_type=Individual, complete_attribute='complete', ask_number=True)
+---
+code: |
+  party[i].party_type
+  party[i].name
+  if party[i].party_type == "Persona Jurídica": 
+    party[i].company_name
+    party[i].nit
+    party[i].legal_rep_id_type
+    party[i].legal_rep_id_number
+  if party[i].party_type == "Persona Natural":
+    party[i].party_id
+    party[i].party_id_number
+  party[i].party_email
+  party[i].party_address
+  party[i].party_city
+  party[i].complete = True
+---
+table: party.table
+rows: party
+columns:
+  - Partes: str(row_item.name).title() if row_item.party_type == 'Persona Natural' else str(row_item.company_name).title()        
+edit:
+  - name
+  - company_name 
+---
+section: data
+question: |
+  ¿Cuántas personas van a firmar el acuerdo de confidencialidad?
+subquestion: |
+  Mínimo deben ser dos (2) personas, pero puedes agregar el número de personas que quieras.
+fields: 
+  - Cantidad: party.target_number
+    datatype: integer
+    default: 2   
+progress: 70
+---
+section: data
+question: |
+  ¿La ${ get_ordinal("female",i) } parte que firma es persona jurídica o persona natural?
+fields:
+  - no label: party[i].party_type 
+    input type: radio
+    code: get_list('type_j')
+  - Compañía: party[i].company_name
+    hint: "Compañia S.A.S"
+    show if:
+      variable: party[i].party_type
+      is: "Persona Jurídica"
+  - Nit: party[i].nit
+    hint: nit
+    show if:
+      variable: party[i].party_type
+      is: "Persona Jurídica"
+  - Nombre(s) del Representante Legal: party[i].name.first
+    hint: "Nombre(s) completos"
+    show if:
+      variable: party[i].party_type
+      is: "Persona Jurídica"
+  - Apellido(s) del Representante Legal: party[i].name.last
+    hint: "Apellido(s) completos"
+    show if:
+      variable: party[i].party_type
+      is: "Persona Jurídica"
+  - Nombre(s): party[i].name.first
+    hint: "Nombre(s) completos"
+    show if:
+      variable: party[i].party_type
+      is: "Persona Natural"
+  - Apellido(s): party[i].name.last
+    hint: Apellido(s) completos
+    show if:
+      variable: party[i].party_type
+      is: "Persona Natural"
+  - Tipo Identificación: party[i].party_id
+    datatype: dropdown
+    code: get_list_dni('N')    
+    show if:
+      variable: party[i].party_type
+      is: "Persona Natural"
+  - Número de identificación: party[i].party_id_number
+    hint: dni
+    show if:
+      variable: party[i].party_type
+      is: "Persona Natural"
+  - Tipo Identificación: party[i].legal_rep_id_type
+    datatype: dropdown
+    code: get_list_dni('N')    
+    show if:
+      variable: party[i].party_type
+      is: "Persona Jurídica"    
+  - Número de identificación: party[i].legal_rep_id_number
+    hint: dni
+    show if:
+      variable: party[i].party_type
+      is: "Persona Jurídica"    
+  - Correo electrónico: party[i].party_email
+    hint: "empresa@ejemplo.co"
+    js show if: |
+      da_val('party[i].party_type') == "Persona Natural" ||  da_val('party[i].party_type') == "Persona Jurídica"
+  - Ciudad: party[i].party_city
+    datatype: dropdown
+    code: get_cities()
+    js show if: |
+      da_val('party[i].party_type') == "Persona Natural" ||  da_val('party[i].party_type') == "Persona Jurídica"
+  - Dirección: party[i].party_address
+    hint: Calle 123# 23-23
+    js show if: |
+      da_val('party[i].party_type') == "Persona Natural" ||  da_val('party[i].party_type') == "Persona Jurídica"      
+---
+section: data
+question: |
+  Estas son las partes que indicaste
+subquestion: |
+  ${ party.table }
+  ${ party.add_action() }
+continue button field: party.reviewed     
+---
+section: data
+question: |
+  ¿Quién va a entregar la información confidencial?
+subquestion: | 
+  La persona o personas que a continuación elijas son las que darán a conocer su información confidencial. Puedes elegir “Todos” caso en el cual cualquiera de las partes puede dar a conocer su información confidencial.
+fields: 
+  - no label: revealing_party
+    input type: radio
+    code: list_party
+---
+section: signs
+question: |
+  Ciudad y fecha en que se firma el acuerdo de confidencialidad
+fields:
+  - Ciudad: sign_city
+    input type: dropdown
+    code: get_cities()
+  - Fecha del acuerdo: sign_date
+    datatype: date
+progress: 90
+---
+question: |
+  Aquí puedes revisar y corregir tus respuestas.
+review:
+  - note: |
+      ###Manejo de la información
+  - Editar: nda_objective
+    button: |
+      % if nda_objective != 'Otro':
+      **Finalidad del acuerdo:** ${nda_objective}
+      % else:
+      **Finalidad:** ${nda_objective_particular.capitalize()}
+      % endif
+  - note: |
+      ***********
+      ###Duración del acuerdo
+  - Editar: destroying_information_term
+    button: |
+      **Plazo para entregar o destruir la información:** ${ destroying_information_term } día(s).
+  - Editar: confidential_term
+    button: |
+      **Tiempo de duración del acuerdo de confidencialidad:** ${ confidential_term_number }  ${confidential_term}    
+  - note: |
+      ***********
+      ###Cláusula penal
+  - Editar: clausula_penal
+    button: |
+      % if clausula_penal == True:
+      **Valor de la sanción :** $ ${clausula_penal_value}
+      % else:
+      **Penalidad en acuerdo:** No tendrá.
+      % endif
+  - note: |
+      ***********    
+      ###Solución de conflictos
+  - Editar: arbitration
+    button: |
+      % if arbitration == 'Tribunal de Arbitramento':
+      **Medio de solución:** ${arbitration} con ${number_of_arbitrators} arbitro(s).
+      % else:
+      **Medio de solución:** ${arbitration}
+      % endif
+  - note: |
+      ***********    
+      ###Datos de las partes
+  - Editar: party.reviewed
+    button: |
+      % for e in party:
+      % if e.party_type == 'Persona Natural':
+      * ${title_case(str(e.name).lower())}
+      % else:
+      * ${title_case(str(e.company_name).lower())}
+      % endif 
+      % endfor
+  - note: |
+      ***********
+      ###Quién entregara la información    
+  - Editar: list_party 
+    button: |
+      **Quién entregará la infirmación:** ${revealing_party}
+  - note: |
+      ***********    
+      ###Ciudad y fecha  
+  - Editar: sign_city
+    button: |
+      **Ciudad donde se firma el acuerdo:** ${sign_city}
+  - Editar: sign_date
+    button: |
+      **Fecha de firma del acuerdo:** ${sign_date}  
+  - note: |
+      ***********
+continue button field: answers_reviewed
+section: confirmation
+progress: 99
+under: ""
+---
+code: |
+  if 'price' in url_args:
+    priceDoc = currency(url_args['price'], decimals= False)
+  else:
+    priceDoc = '$0'
+  files_saved = save_files(the_document, 'Acuerdo confidencialidad', True, user_info().session)
+  juzto_callback = get_callback_final_screen_new(priceDoc, files_saved, 'Acuerdo confidencialidad', True)
+---
+objects:
+  - thumbnails: DAList
+---
+mandatory: True
+code: |
+  the_preview.pdf._make_pdf_thumbnail(i + 1)
+  thumbnails[i] = DAFile('thumbnails[%d]' % (i + 1), filename='thumb.png') #thumb.png
+  thumbnails[i].copy_into(the_preview.pdf.page_path(i + 1, 'screen'))
+  thumbnails[i].commit()
+---
+mandatory: True
+code: |
+  from PIL import Image
+  img = Image.open(thumbnails[0].path())
+  w, h = img.size
+  log(w,h)
+  area = (0, 0, w, h)
+  img = img.crop(area)
+  img.save(thumbnails[0].path())
+  thumbnails[0].commit()
+  del img
+  first_thumb_cropped = True
+---
+reconsider: the_document 
+mandatory: True
+progress: null
+event: final_screen
+question: |
+  <div class="container-fluid info-juzto-final"><div class="row"><div class="col-md-4 text-right sec-left-juzto"><b>Tenemos Listo Tu Documento</b><br><ul><li>1) Recibelo en tu correo inmediatamente.</li><li>2) Te lo enviaremos en formato Word y PDF.</li><li>3) Contarás con 30 minutos con un abogado para cambios.</li></ul><b class="final_screen_price_label">Precio:</b><br><b class="final_screen_price">${ priceDoc }</b><br>${ juzto_callback }</div><div class="col-md-1"></div><div class="col-md-7 containaer-doc-pages row"><div class="col-md-4"></div>
+  ${ thumbnails[0].show(width="100%") } 
+  ${ thumbnails[1].show(width="100%") } 
+  ${ thumbnails[2].show(width="100%") } 
+  <div class="col-md-1 back_page show_page"></div><div class="col-md-4 page-text">Página <span class="number_page">1</span> de ${ the_preview.num_pages() }</div><div class="col-md-1 next_page show_page"><i class="fa fa-chevron-right" aria-hidden="true"></i></div>
+  <div class="col-md-4"></div><div class="col-md-1 back_page show_page"></i></div><div class="col-md-4 page-text">Página <span class="number_page">1</span> de ${ the_preview.num_pages() }</div><div class="col-md-1 next_page show_page"><i class="fa fa-chevron-right" aria-hidden="true"></i></div></div></div></div>
+allow emailing: False
+back button: False
+---
+attachment:
+  variable name: the_document
+  docx template file: IT_GS_201009_V2.0_NDA.docx
+---  
+attachment:
+  variable name: the_preview
+  docx template file: LD_JD_200512_V2.0_NDA_WM.docx
+---
+event: save_and_resume
+code: |
+  target = 'save_and_resume'
+  wants_email = True
+---
+code: |
+  if 'url' in url_args:
+    _url = url_args['url']+'?i='+encode_name(user_info().filename)+'&session='+encode_name(user_info().session)
+  else:
+    _url = interview_url()
+  data = {'interview': all_variables(special='titles')['full'], 'url':_url}
+  send_email_juzto(data, user_email_address, 'leave')
+  email_sent = True
+---
+question: |
+  Podrás terminar luego tu ${ all_variables(special='titles')['full'] }
+subquestion: |
+  Si deseas reanudar tu documento más tarde, podemos enviarte por correo electrónico un enlace en el que puedes hacer clic para reanudar tu documento en un momento posterior.
+fields:
+  - Correo electrónico: user_email_address
+    datatype: email
+continue button label: Enviar correo
+back button label: No gracias, continuar mi documento
+under: ""
+---
+code: |
+  target = 'normal'  
+---
